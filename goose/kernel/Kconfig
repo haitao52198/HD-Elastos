@@ -103,6 +103,13 @@ config ARCH_IA32
             help
                 Support for platforms based on OMAP3 SoCs.
 
+        config PLAT_OMAP4
+            bool "OMAP4 (PandaBoard)"
+            depends on ARCH_ARM
+            depends on ARM_CORTEX_A9
+            help
+                Support for OMAP4 platform (pandaboard).                
+
         config PLAT_AM335X
             bool "AM335X (BeagleBone)"
             depends on ARCH_ARM
