@@ -19,9 +19,9 @@
 #define __PLAT_MACHINE_DEVICES_H
 
 /* These devices are used by the seL4 kernel. */
-#define UART3_PPTR                     0xfff01000
-#define INTC_PPTR                      0xfff02000
-#define GPTIMER11_PPTR                 0xfff03000
+#define UART3_PPTR                     0x48020000
+#define INTC_PPTR                      0x48200000
+#define GPTIMER11_PPTR                 0x48088000
 
 /* Boot space */
 /* 0x00000000 - 0x40000000 */
@@ -51,8 +51,6 @@
 #define I2C1_PADDR                     0x48070000
 #define I2C2_PADDR                     0x48072000
 #define MCBSP1_PADDR                   0x48074000
-#define GPTIMER10_PADDR                0x48086000
-#define GPTIMER11_PADDR                0x48088000
 #define MAILBOX_PADDR                  0x48094000
 #define MCBSP5_PADDR                   0x48096000
 #define MCSPI1_PADDR                   0x48098000
@@ -77,36 +75,41 @@
 /* L4 Wakeup (2 pages each unless specified) */
 /* 0x48300000 - 0x49000000 */
 #define PWR_AND_RST_MANAGER_PADDR      0x48306000
-#define GPIO1_PADDR                    0x48310000
 #define WDT2_PADDR                     0x48314000
-#define GPTIMER1_PADDR                 0x48318000
 #define TIMER32K_PADDR                 0x48320000
 #define L4_WAKEUP_CONFIG_PADDR         0x48328000
+
+#define UART3_PADDR                    0x48020000
+#define UART4_PADDR                    0x4806e000
+#define GPIO1_PADDR                    0x4a310000
+#define GPIO2_PADDR                    0x48055000
+#define GPIO3_PADDR                    0x48057000
+#define GPIO4_PADDR                    0x48059000
+#define GPIO5_PADDR                    0x4805b000
+#define GPIO6_PADDR                    0x4805d000
+
+#define GPTIMER1_PADDR                 0x4a318000
+#define GPTIMER2_PADDR                 0x48032000
+#define GPTIMER3_PADDR                 0x48034000
+#define GPTIMER4_PADDR                 0x48036000
+#define GPTIMER5_PADDR                 0x40138000
+#define GPTIMER6_PADDR                 0x4013a000
+#define GPTIMER7_PADDR                 0x4013c000
+#define GPTIMER8_PADDR                 0x4013e000
+#define GPTIMER9_PADDR                 0x4803e000
+#define GPTIMER10_PADDR                0x48086000
+#define GPTIMER11_PADDR                0x48088000
+
 
 /* L4 peripherals (2 pages each) */
 /* 0x49000000 - 0x50000000 */
 #define L4_PER_CONFIG_PADDR            0x49000000
-#define UART3_PADDR                    0x49020000
 #define MCBSP2_PADDR                   0x49022000
 #define MCBSP3_PADDR                   0x49024000
 #define MCBSP4_PADDR                   0x49026000
 #define MCBSP2_SIDETONE_PADDR          0x49028000
 #define MCBSP3_SIDETONE_PADDR          0x4902a000
 #define WDT3_PADDR                     0x49030000
-#define GPTIMER2_PADDR                 0x49032000
-#define GPTIMER3_PADDR                 0x49034000
-#define GPTIMER4_PADDR                 0x49036000
-#define GPTIMER5_PADDR                 0x49038000
-#define GPTIMER6_PADDR                 0x4903a000
-#define GPTIMER7_PADDR                 0x4903c000
-#define GPTIMER8_PADDR                 0x4903e000
-#define GPTIMER9_PADDR                 0x49040000
-#define UART4_PADDR                    0x49042000
-#define GPIO2_PADDR                    0x49050000
-#define GPIO3_PADDR                    0x49052000
-#define GPIO4_PADDR                    0x49054000
-#define GPIO5_PADDR                    0x49056000
-#define GPIO6_PADDR                    0x49058000
 
 /* SGX */
 /* 0x50000000 - 0x54000000 */

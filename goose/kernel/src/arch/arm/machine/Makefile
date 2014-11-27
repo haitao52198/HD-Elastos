@@ -15,7 +15,8 @@ ARCH_C_SOURCES += machine/hardware.c \
                   machine/cache.c \
                   machine/errata.c
 
-ifeq ($(CPU), cortex-a9)
+#temporary comment this with cortex-a9- 
+ifeq ($(CPU), cortex-a9-)
     ARCH_C_SOURCES += machine/gic_pl390.c
     ARCH_C_SOURCES += machine/l2c_310.c
 
