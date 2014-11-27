@@ -8,7 +8,7 @@
 # @TAG(GD_GPL)
 #
 
-DIRECTORIES += src/plat/omap3/machine
+DIRECTORIES += src/plat/omap4/machine
 
 PLAT_C_SOURCES += machine/hardware.c \
                   machine/l2cache.c

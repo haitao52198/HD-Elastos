@@ -8,4 +8,4 @@
 # @TAG(GD_GPL)
 #
 
-include ${SOURCE_ROOT}/src/plat/omap3/machine/Makefile
+include ${SOURCE_ROOT}/src/plat/omap4/machine/Makefile
