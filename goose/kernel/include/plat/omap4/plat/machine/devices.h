@@ -19,10 +19,9 @@
 #define __PLAT_MACHINE_DEVICES_H
 
 /* These devices are used by the seL4 kernel. */
-#define UART3_PPTR                     0x48020000
-#define INTC_PPTR                      0x48200000
-#define GPTIMER11_PPTR                 0x48088000
-
+#define UART3_PPTR                     0xfff01000
+#define INTC_PPTR                      0xfff02000
+#define GPTIMER11_PPTR                 0xfff03000
 /* Boot space */
 /* 0x00000000 - 0x40000000 */
 #define GPMC_PADDR                     0x00000000 /* 1GB */
