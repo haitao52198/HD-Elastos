@@ -1,3 +1,4 @@
+#!/bin/sh
 #
 # Copyright 2014, NICTA
 #
@@ -7,8 +8,5 @@
 #
 # @TAG(NICTA_BSD)
 #
-libc=libmuslc
 
--include $(wildcard apps/*/Kbuild)
--include $(wildcard libs/*/Kbuild)
-
+exec cat "$@" |sed -e 's/\cM//' | grep '^SB&'
