@@ -9,8 +9,7 @@
  */
 
 /*
- definitions for memory addresses of omap3 platform
- currently based on the DM3730 chip as used in the beagleboard-xM
+ definitions for memory addresses of omap4 platform
  listed in the order of ascending memory address, similar to the datasheet
  the size must all be powers of 2 and page aligned (4k or 1M).
 */
@@ -18,66 +17,20 @@
 #ifndef __PLAT_MACHINE_DEVICES_H
 #define __PLAT_MACHINE_DEVICES_H
 
-/* These devices are used by the seL4 kernel. */
+// These devices are used by the seL4 kernel.
+// PPTR: Page-PTR
 #define UART3_PPTR                     0xfff01000
 #define INTC_PPTR                      0xfff02000
 #define GPTIMER11_PPTR                 0xfff03000
-/* Boot space */
-/* 0x00000000 - 0x40000000 */
-#define GPMC_PADDR                     0x00000000 /* 1GB */
 
-/* FIXME: This is part of beagleboard, not SoC. Need to differentiate. */
-#define ETHERNET_BASE_PADDR            0x2C000000
-
-/* On-chip memory */
-/* 0x40000000 - 0x48000000 */
-#define BOOT_ROM0_PADDR                0x40000000 /* 20 pages */
-#define BOOT_ROM1_PADDR                0x40014000 /* 8 pages */
-#define SRAM_INTERNAL_PADDR            0x40200000 /* 16 pages */
-
-/* L4 core (2 pages each unless specified) */
-/* 0x48000000 - 0x48300000 */
-#define SYSTEM_CONTROL_MODULE_PADDR    0x48002000
-#define CLOCK_MANAGER_PADDR            0x48004000
-#define L4_CORE_CONFIG_PADDR           0x48040000
-#define DISPLAY_SUBSYSTEM_PADDR        0x4804f000
-#define SDMA_PADDR                     0x48056000
-#define I2C3_PADDR                     0x48060000
-#define USBTLL_PADDR                   0x48062000
-#define HS_USB_HOST_PADDR              0x48064000
-#define UART1_PADDR                    0x4806a000
-#define UART2_PADDR                    0x4806c000
-#define I2C1_PADDR                     0x48070000
-#define I2C2_PADDR                     0x48072000
-#define MCBSP1_PADDR                   0x48074000
-#define MAILBOX_PADDR                  0x48094000
-#define MCBSP5_PADDR                   0x48096000
-#define MCSPI1_PADDR                   0x48098000
-#define MCSPI2_PADDR                   0x4809a000
-#define MMC_SD_SDIO1_PADDR             0x4809c000
-#define HS_USB_OTG_PADDR               0x480ab000
-#define MMC_SD_SDIO3_PADDR             0x480ad000
-#define HDQ_TM_1WIRE_PADDR             0x480b2000
-#define MMC_SD_SDIO2_PADDR             0x480b4000
-#define ICR_MPU_PORT_PADDR             0x480b6000
-#define MCSPI3_PADDR                   0x480b8000
-#define MCSPI4_PADDR                   0x480ba000
-#define CAMERA_ISP_PADDR               0x480bc000
-#define SR1_PADDR                      0x480c9000
-#define SR2_PADDR                      0x480cb000
-#define ICR_MODEM_PORT_PADDR           0x480cd000
-#define INTC_PADDR                     0x48200000 /* 1 page - see IRQ chapter */
-#define L4_WAKEUP_INTERCONNECT_A_PADDR 0x48300000
-#define CONTROL_MODULE_ID_CODE_PADDR   0x4830a000
-#define L4_WAKEUP_INTERCONNECT_B_PADDR 0x4830c000
-
-/* L4 Wakeup (2 pages each unless specified) */
-/* 0x48300000 - 0x49000000 */
+//check with OMAP4460_ES1.x_PUBLIC_TRM_vI.pdf
 #define PWR_AND_RST_MANAGER_PADDR      0x48306000
 #define WDT2_PADDR                     0x48314000
 #define TIMER32K_PADDR                 0x48320000
 #define L4_WAKEUP_CONFIG_PADDR         0x48328000
 
+#define UART1_PADDR                    0x4806a000
+#define UART2_PADDR                    0x4806c000
 #define UART3_PADDR                    0x48020000
 #define UART4_PADDR                    0x4806e000
 #define GPIO1_PADDR                    0x4a310000
@@ -98,6 +51,60 @@
 #define GPTIMER9_PADDR                 0x4803e000
 #define GPTIMER10_PADDR                0x48086000
 #define GPTIMER11_PADDR                0x48088000
+
+#define I2C1_PADDR                     0x48070000
+#define I2C2_PADDR                     0x48072000
+#define I2C3_PADDR                     0x48060000
+#define I2C4_PADDR                     0x48350000
+
+#define DISPLAY_SUBSYSTEM_PADDR        0x48040000
+
+#define MMC_SD_SDIO1_PADDR             0x4809c000
+#define MMC_SD_SDIO2_PADDR             0x480b4000
+#define MMC_SD_SDIO3_PADDR             0x480ad000
+#define MMC_SD_SDIO4_PADDR             0x480d1000
+#define MMC_SD_SDIO5_PADDR             0x480d5000
+
+#define MAILBOX_PADDR                  0x4a0f4000
+
+/* Boot space */
+/* 0x00000000 - 0x40000000 */
+#define GPMC_PADDR                     0x00000000 /* 1GB */
+
+/* FIXME: This is part of beagleboard, not SoC. Need to differentiate. */
+#define ETHERNET_BASE_PADDR            0x2C000000
+
+/* On-chip memory */
+/* 0x40000000 - 0x48000000 */
+#define BOOT_ROM0_PADDR                0x40000000 /* 20 pages */
+#define BOOT_ROM1_PADDR                0x40014000 /* 8 pages */
+#define SRAM_INTERNAL_PADDR            0x40200000 /* 16 pages */
+
+/* L4 core (2 pages each unless specified) */
+/* 0x48000000 - 0x48300000 */
+#define SYSTEM_CONTROL_MODULE_PADDR    0x48002000
+#define CLOCK_MANAGER_PADDR            0x48004000
+#define L4_CORE_CONFIG_PADDR           0x48040000
+#define SDMA_PADDR                     0x48056000
+#define USBTLL_PADDR                   0x48062000
+#define HS_USB_HOST_PADDR              0x48064000
+#define MCBSP1_PADDR                   0x48074000
+#define MCBSP5_PADDR                   0x48096000
+#define MCSPI1_PADDR                   0x48098000
+#define MCSPI2_PADDR                   0x4809a000
+#define HS_USB_OTG_PADDR               0x480ab000
+#define HDQ_TM_1WIRE_PADDR             0x480b2000
+#define ICR_MPU_PORT_PADDR             0x480b6000
+#define MCSPI3_PADDR                   0x480b8000
+#define MCSPI4_PADDR                   0x480ba000
+#define CAMERA_ISP_PADDR               0x480bc000
+#define SR1_PADDR                      0x480c9000
+#define SR2_PADDR                      0x480cb000
+#define ICR_MODEM_PORT_PADDR           0x480cd000
+#define INTC_PADDR                     0x48200000 /* 1 page - see IRQ chapter */
+#define L4_WAKEUP_INTERCONNECT_A_PADDR 0x48300000
+#define CONTROL_MODULE_ID_CODE_PADDR   0x4830a000
+#define L4_WAKEUP_INTERCONNECT_B_PADDR 0x4830c000
 
 
 /* L4 peripherals (2 pages each) */
