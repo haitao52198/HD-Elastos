@@ -26,7 +26,7 @@ static const int uart4_irqs[] = {UART4_IRQ, -1};
 
 
 #define UART_DEFN(devid) {                     \
-        .id      = OMAP3_UART##devid,          \
+        .id      = OMAP4_UART##devid,          \
         .paddr   = UART##devid##_PADDR,        \
         .size    = (1<<12),                    \
         .irqs    = uart##devid##_irqs,         \
