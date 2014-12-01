@@ -11,9 +11,7 @@
 DIRECTORIES += src/plat/omap4/machine
 
 PLAT_C_SOURCES += machine/hardware.c \
-                  machine/l2cache.c \
-                  machine/gic_pl390.c \
-                  machine/l2c_310.c
+                  machine/l2cache.c
 
 ifdef DEBUG
     PLAT_C_SOURCES += machine/io.c
