@@ -20,8 +20,17 @@
 // These devices are used by the seL4 kernel.
 // PPTR: Page-PTR
 #define UART3_PPTR                     0xfff01000
-#define INTC_PPTR                      0xfff02000
+// #define INTC_PPTR                      0xfff02000
+#define L2CC_PL310_PPTR                0xfff02000
 #define GPTIMER11_PPTR                 0xfff03000
+#define ARM_MP_PPTR1                   0xfff04000
+#define ARM_MP_PPTR2                   0xfff05000
+
+#define L2CC_L2C310_PPTR               (L2CC_PL310_PPTR      )
+#define ARM_MP_PRIV_TIMER_PPTR         (ARM_MP_PPTR1 + 0x600 )
+#define ARM_MP_GLOBAL_TIMER_PPTR       (ARM_MP_PPTR1 + 0x200 )
+#define GIC_PL390_CONTROLLER_PPTR      (ARM_MP_PPTR1 + 0x100 )
+#define GIC_PL390_DISTRIBUTOR_PPTR     (ARM_MP_PPTR2         )
 
 //check with OMAP4460_ES1.x_PUBLIC_TRM_vI.pdf
 #define PWR_AND_RST_MANAGER_PADDR      0x48306000

@@ -260,6 +260,9 @@ initL2Cache(void)
     uint32_t prefetch;
 
     prefetch = CTRL2_PFET_INST_PREFETCH_EN | CTRL2_PFET_DATA_PREFETCH_EN;
+
+    /* Avoid set but not used error */
+    prefetch = prefetch + 0;
 #if defined(IMX6)
     tag_ram  = CTRL_RAM_LATENCY(1, 2, 1);
     data_ram = CTRL_RAM_LATENCY(1, 2, 1);
@@ -422,4 +425,3 @@ void plat_cleanInvalidateL2Range(paddr_t start, paddr_t end)
     L2_cacheSync();
 #endif /* !CONFIG_DEBUG_DISABLE_L2_CACHE */
 }
-

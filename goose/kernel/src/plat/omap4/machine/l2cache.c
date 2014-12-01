@@ -24,19 +24,19 @@ writeACR(word_t ACR)
     asm volatile ("mcr p15,0,%0,c1,c0,1" : : "r"(ACR));
 }
 
-void
-initL2Cache(void)
-{
-    cleanInvalidateL1Caches();
-
-    /*
-     * Set the L2EN bit in the Auxially Control Register.
-     *
-     * We assume the C bit is already set in the system control register (from
-     * head.S), and that the L2 Cache Auxilliary Control Register is correct
-     * (as per reset).
-     */
-    writeACR(readACR() | 0x2);
-
-    cleanInvalidateL1Caches();
-}
+// void
+// initL2Cache(void)
+// {
+//     cleanInvalidateL1Caches();
+//
+//     /*
+//      * Set the L2EN bit in the Auxially Control Register.
+//      *
+//      * We assume the C bit is already set in the system control register (from
+//      * head.S), and that the L2 Cache Auxilliary Control Register is correct
+//      * (as per reset).
+//      */
+//     writeACR(readACR() | 0x2);
+//
+//     cleanInvalidateL1Caches();
+// }

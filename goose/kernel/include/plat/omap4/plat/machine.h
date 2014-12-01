@@ -123,7 +123,7 @@ enum irqNumbers {
     irqInvalid = 255
 };
 
-typedef uint8_t interrupt_t;
-typedef uint8_t irq_t;
+// typedef uint8_t interrupt_t;
+// typedef uint8_t irq_t;
 
 #endif  /* ! __PLAT_MACHINE_H */
