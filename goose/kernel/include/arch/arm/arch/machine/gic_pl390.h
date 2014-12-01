@@ -12,16 +12,14 @@
  * ARM Generic Interrupt Controller PL-390
  */
 
-
-#ifndef __ARCH_MACHINE_GICPL390_H
+#if 0
+//#ifndef __ARCH_MACHINE_GICPL390_H
 #define __ARCH_MACHINE_GICPL390_H
 
 #include <stdint.h>
 
 typedef uint16_t interrupt_t;
 typedef uint16_t irq_t;
-
-
 
 /** MODIFIES: [*] */
 interrupt_t getActiveIRQ(void);
