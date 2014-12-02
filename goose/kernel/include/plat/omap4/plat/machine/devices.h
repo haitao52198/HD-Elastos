@@ -76,6 +76,13 @@
 
 #define MAILBOX_PADDR                  0x4a0f4000
 
+/* Generic Interrupt Controller(GIC) */
+#define GIC_PL390_CONTROLLER_PADDR     0x48240100
+#define GIC_PL390_DISTRIBUTOR_PADDR    0x48241000
+
+/* L2 Cache Controller */
+#define L2CC_L2C310_PADDR              0x48242000
+
 /* Boot space */
 /* 0x00000000 - 0x40000000 */
 #define GPMC_PADDR                     0x00000000 /* 1GB */
