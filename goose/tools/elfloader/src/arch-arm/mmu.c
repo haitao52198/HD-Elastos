@@ -19,6 +19,26 @@
 #define ARM_2MB_BLOCK_BITS 21
 
 /*
+ * Why we need init_boot_pd()?
+ *
+ * The reason for this is the physical address of the segment also made maps,
+ * because no MMU now on, after a while it will open the MMU, the contents of
+ * the kernel code segment supposedly doing a mapped, CPU to the MMU PC value
+ * is the virtual address, However, due to CPU pipeline prefetch function,
+ * or there is not some PC virtual address value and still is the physical
+ * address, so if there is no corresponding internal MMU mappings will not
+ * know which part of the actual physical memory access, can cause problems
+ * so here need this part of the physical address in the corresponding page
+ * table entries L1 is also written, in essence, PA = PA (a lot of articles
+ * written reference PA = VA, in fact, is the same reason, but as easy to give
+ * a presentation to a misunderstanding, because after opening MMU, access to
+ * the CPU issued supposedly are virtual addresses, but does have some fact or
+ * physical address, if not let MMU mapping will not know where this access,
+ * so here write L1 page table entries related to the physical page, PA = PA
+ * is actually doing the mapping to MMU)
+ */
+
+/*
  * Create a "boot" page directory, which contains a 1:1 mapping below
  * the kernel's first vaddr, and a virtual-to-physical mapping above the
  * kernel's first vaddr.
