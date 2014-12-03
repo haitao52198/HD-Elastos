@@ -21,21 +21,20 @@
 /*
  * Why we need init_boot_pd()?
  *
- * The reason for this is the physical address of the segment also made maps,
- * because no MMU now on, after a while it will open the MMU, the contents of
- * the kernel code segment supposedly doing a mapped, CPU to the MMU PC value
- * is the virtual address, However, due to CPU pipeline prefetch function,
- * or there is not some PC virtual address value and still is the physical
- * address, so if there is no corresponding internal MMU mappings will not
- * know which part of the actual physical memory access, can cause problems
- * so here need this part of the physical address in the corresponding page
- * table entries L1 is also written, in essence, PA = PA (a lot of articles
- * written reference PA = VA, in fact, is the same reason, but as easy to give
- * a presentation to a misunderstanding, because after opening MMU, access to
- * the CPU issued supposedly are virtual addresses, but does have some fact or
- * physical address, if not let MMU mapping will not know where this access,
- * so here write L1 page table entries related to the physical page, PA = PA
- * is actually doing the mapping to MMU)
+ * The reason for also mapping the physical address of the segment is no MMU
+ * on now. After a while for opening the MMU, the contents of the kernel code
+ * segment supposedly doing a mapped, so that the PC value from CPU to the MMU
+ * should be the virtual address. However, due to the prefetch function of
+ * pipeline, there are several PC values which are not virtual but physical
+ * address. If there is no corresponding address mappings, MMU will not
+ * know which part of the actual physical memory access and cause problems.
+ * So it is necessary to write this part of the physical address in the
+ * corresponding page table entries L1. in essence, it's "PA = PA" (many other
+ * articles refers "PA = VA". in fact, it's same. But it's easy to make people
+ * misunderstand, because it's really that there are several address from CPU
+ * access being physical. If don't create mapping, MMU cannot understand.
+ * So we write L1 page table entries related to the physical page here, and
+ * "PA = PA" is actually doing the mapping to MMU)
  */
 
 /*
@@ -102,5 +101,3 @@ void init_lpae_boot_pd(struct image_info *kernel_info)
                                 | BIT(0); /* Valid */
     }
 }
-
-
