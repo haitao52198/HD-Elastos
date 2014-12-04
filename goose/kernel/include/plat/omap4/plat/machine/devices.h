@@ -76,9 +76,8 @@
 
 #define MAILBOX_PADDR                  0x4a0f4000
 
-/* Generic Interrupt Controller(GIC) */
-#define GIC_PL390_CONTROLLER_PADDR     0x48240100
-#define GIC_PL390_DISTRIBUTOR_PADDR    0x48241000
+/* ARM MultiCore */
+#define ARM_MP_PADDR                   0x48240000
 
 /* L2 Cache Controller */
 #define L2CC_L2C310_PADDR              0x48242000

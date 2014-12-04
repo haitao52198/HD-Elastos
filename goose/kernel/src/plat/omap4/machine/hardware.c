@@ -184,18 +184,18 @@ map_kernel_devices(void)
     );
 
     /* map kernel device: GIC_PL390 */
+	map_kernel_frame(
+		ARM_MP_PADDR,
+		ARM_MP_PPTR1,
+		VMKernelOnly,
+		vm_attributes_new(
+			false, /* armParityEnabled */
+			false  /* armPageCacheable */
+		)
+	);
     map_kernel_frame(
-        GIC_PL390_CONTROLLER_PADDR,
-        GIC_PL390_CONTROLLER_PPTR,
-        VMKernelOnly,
-        vm_attributes_new(
-            false, /* armParityEnabled */
-            false  /* armPageCacheable */
-        )
-    );
-    map_kernel_frame(
-        GIC_PL390_DISTRIBUTOR_PADDR,
-        GIC_PL390_DISTRIBUTOR_PPTR,
+		ARM_MP_PADDR + BIT(PAGE_BITS),
+		ARM_MP_PPTR2,
         VMKernelOnly,
         vm_attributes_new(
             false, /* armParityEnabled */
@@ -203,7 +203,7 @@ map_kernel_devices(void)
         )
     );
 
-    /* map kernel device: GIC_PL390 */
+    /* map kernel device: L2CC_L2C310 */
     map_kernel_frame(
         L2CC_L2C310_PADDR,
         L2CC_L2C310_PPTR,
