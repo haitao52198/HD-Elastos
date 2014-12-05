@@ -69,7 +69,7 @@ static inline void* omap_get_gpt_paddr(int n) {
 }
 
 static inline int omap_get_gpt_irq(int n) {
-    return GPT1_INTERRUPT + (n - 1);
+    return GPT1_INTERRUPT + n;
 }
 
 #endif /* __PLAT_SUPPORT_IMX31_H */
