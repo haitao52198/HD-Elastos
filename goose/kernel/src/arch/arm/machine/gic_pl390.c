@@ -33,6 +33,12 @@
 #define SPECIAL_IRQ_START 1020
 #define IRQ_NONE          1023
 
+/*
+ * the definition of structure gic_dist_map and gic_cpu_iface_map please reference to
+ * Cortex-A9 MPCore private memory region
+ * doc: DDI0407I_cortex_a9_mpcore_r4p1_trm.pdf
+ */
+
 /* Memory map for GIC distributor */
 struct gic_dist_map {
     uint32_t enable;                /* 0x000 */
