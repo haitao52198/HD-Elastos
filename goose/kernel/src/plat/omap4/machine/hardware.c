@@ -356,65 +356,80 @@ void handleReservedIRQ(irq_t irq)
 #define TICKS_PER_SECOND 32768
 #define TIMER_INTERVAL_TICKS ((int)(1UL * TIMER_INTERVAL_MS * TICKS_PER_SECOND / 1000))
 
-// static volatile struct TIMER_map {
-//     uint32_t tidr;   /* GPTIMER_TIDR 0x00 */
-//     uint32_t padding1[3];
-//     uint32_t cfg;    /* GPTIMER_CFG 0x10 */
-//     uint32_t tistat; /* GPTIMER_TISTAT 0x14 */
-//     uint32_t tisr;   /* GPTIMER_TISR 0x18 */
-//     uint32_t tier;   /* GPTIMER_TIER 0x1C */
-//     uint32_t twer;   /* GPTIMER_TWER 0x20 */
-//     uint32_t tclr;   /* GPTIMER_TCLR 0x24 */
-//     uint32_t tcrr;   /* GPTIMER_TCRR 0x28 */
-//     uint32_t tldr;   /* GPTIMER_TLDR 0x2C */
-//     uint32_t ttgr;   /* GPTIMER_TTGR 0x30 */
-//     uint32_t twps;   /* GPTIMER_TWPS 0x34 */
-//     uint32_t tmar;   /* GPTIMER_TMAR 0x38 */
-//     uint32_t tcar1;  /* GPTIMER_TCAR1 0x3C */
-//     uint32_t tsicr;  /* GPTIMER_TSICR 0x40 */
-//     uint32_t tcar2;  /* GPTIMER_TCAR2 0x44 */
-//     uint32_t tpir;   /* GPTIMER_TPIR 0x48 */
-//     uint32_t tnir;   /* GPTIMER_TNIR 0x4C */
-//     uint32_t tcvr;   /* GPTIMER_TCVR 0x50 */
-//     uint32_t tocr;   /* GPTIMER_TOCR 0x54 */
-//     uint32_t towr;   /* GPTIMER_TOWR 0x58 */
-// } *timer = (volatile void*)GPTIMER11_PPTR;
+/* A9 MPCORE timer map */
+typedef volatile struct TIMER_map {
+    uint32_t load;
+    uint32_t count;
+    uint32_t ctrl;
+    uint32_t ints;
+} timer;
+/* global timer */
+timer *glob_timer = (volatile void*)ARM_MP_GLOBAL_TIMER_PPTR;
+/* private timer */
+timer *priv_timer = (volatile void*)ARM_MP_PRIV_TIMER_PPTR;
+
+#define TMR_CTRL_ENABLE      BIT(0)
+#define TMR_CTRL_AUTORELOAD  BIT(1)
+#define TMR_CTRL_IRQEN       BIT(2)
+#define TMR_CTRL_PRESCALE    8
+
+#define TMR_INTS_EVENT       BIT(0)
+
+
+#define CLK_MHZ 400ULL
+#define TIMER_INTERVAL_MS    (CONFIG_TIMER_TICK_MS)
+#define TIMER_COUNT_BITS 32
+
+#define PRESCALE ((CLK_MHZ*1000 * TIMER_INTERVAL_MS) >> TIMER_COUNT_BITS)
+#define TMR_LOAD ((CLK_MHZ*1000 * TIMER_INTERVAL_MS) / (PRESCALE + 1))
 
 /**
    DONT_TRANSLATE
  */
-// void
-// resetTimer(void)
-// {
-//     timer->tisr = TISR_OVF_FLAG;
-//     ackInterrupt(GPT11_IRQ);
-// }
+void
+resetTimer(void)
+{
+    glob_timer->ints = TMR_INTS_EVENT;
+    priv_timer->ints = TMR_INTS_EVENT;
+}
 
 /* Configure gptimer11 as kernel preemption timer */
 /**
    DONT_TRANSLATE
  */
-// BOOT_CODE void
-// initTimer(void)
-// {
-//     timer->cfg = TIOCP_CFG_SOFTRESET;
-//
-//     while (!timer->tistat);
-//
-//     maskInterrupt(/*disable*/ true, GPT11_IRQ);
-//
-//     /* Set the reload value */
-//     timer->tldr = 0xFFFFFFFFUL - TIMER_INTERVAL_TICKS;
-//
-//     /* Enables interrupt on overflow */
-//     timer->tier = TIER_OVERFLOWENABLE;
-//
-//     /* Clear the read register */
-//     timer->tcrr = 0xFFFFFFFFUL - TIMER_INTERVAL_TICKS;
-//
-//     /* Set autoreload and start the timer */
-//     timer->tclr = TCLR_AUTORELOAD | TCLR_STARTTIMER;
-// }
+BOOT_CODE void
+initTimer(void)
+{
+    /**
+       Initialize Global Timer
+     */
+    /* reset */
+    glob_timer->ctrl = 0;
+    glob_timer->ints = 0;
+
+    /* setup */
+    glob_timer->load = TMR_LOAD;
+    glob_timer->ctrl |= ((PRESCALE) << (TMR_CTRL_PRESCALE))
+                        | TMR_CTRL_AUTORELOAD | TMR_CTRL_IRQEN;
+
+    /* Enable */
+    glob_timer->ctrl |= TMR_CTRL_ENABLE;
+
+    /**
+       Initialize Private Timer
+     */
+    /* reset */
+    priv_timer->ctrl = 0;
+    priv_timer->ints = 0;
+
+    /* setup */
+    priv_timer->load = TMR_LOAD;
+    priv_timer->ctrl |= ((PRESCALE) << (TMR_CTRL_PRESCALE))
+                        | TMR_CTRL_AUTORELOAD | TMR_CTRL_IRQEN;
+
+    /* Enable */
+    priv_timer->ctrl |= TMR_CTRL_ENABLE;
+}
 
 /**
    DONT_TRANSLATE

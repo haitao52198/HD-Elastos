@@ -117,7 +117,8 @@ enum IRQConstants {
 
 
 
-#define KERNEL_TIMER_IRQ    GPT11_IRQ
+#define KERNEL_TIMER_IRQ    27
+#define PRIV_TIMER_IRQ      29
 
 enum irqNumbers {
     irqInvalid = 255

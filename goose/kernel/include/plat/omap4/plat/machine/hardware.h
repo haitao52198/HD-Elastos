@@ -28,7 +28,7 @@
 
 #include <arch/machine/gic_pl390.h>
 #include <arch/machine/l2c_310.h>
-#include <arch/machine/priv_timer.h>
+// #include <arch/machine/priv_timer.h>
 
 static inline void* CONST
 ptrFromPAddr(paddr_t paddr)
@@ -80,7 +80,7 @@ void handleReservedIRQ(irq_t irq);
 /** MODIFIES: [*] */
 void resetTimer(void);
 /** MODIFIES: [*] */
-// void initTimer(void);
+void initTimer(void);
 /* L2 cache control */
 /** MODIFIES: [*] */
 // void initL2Cache(void);
