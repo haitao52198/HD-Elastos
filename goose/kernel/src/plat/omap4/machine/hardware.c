@@ -345,43 +345,43 @@ void handleReservedIRQ(irq_t irq)
 
 #define TIMER_INTERVAL_MS (CONFIG_TIMER_TICK_MS)
 
-#define TIOCP_CFG_SOFTRESET BIT(1)
-#define TCLR_AUTORELOAD     BIT(1)
-#define TCLR_COMPAREENABLE  BIT(6)
-#define TCLR_STARTTIMER     BIT(0)
-#define TIER_MATCHENABLE    BIT(0)
-#define TIER_OVERFLOWENABLE BIT(1)
-#define TISR_OVF_FLAG       BIT(1)
-
 #define TICKS_PER_SECOND 32768
 #define TIMER_INTERVAL_TICKS ((int)(1UL * TIMER_INTERVAL_MS * TICKS_PER_SECOND / 1000))
 
-/* A9 MPCORE timer map */
-typedef volatile struct TIMER_map {
-    uint32_t load;
-    uint32_t count;
-    uint32_t ctrl;
-    uint32_t ints;
-} timer;
-/* global timer */
-timer *glob_timer = (volatile void*)ARM_MP_GLOBAL_TIMER_PPTR;
-/* private timer */
-timer *priv_timer = (volatile void*)ARM_MP_PRIV_TIMER_PPTR;
-
 #define TMR_CTRL_ENABLE      BIT(0)
 #define TMR_CTRL_AUTORELOAD  BIT(1)
+#define TMR_CTRL_COMPENABLE  BIT(1)
 #define TMR_CTRL_IRQEN       BIT(2)
+#define TMR_CTRL_AUTOINC     BIT(3)
 #define TMR_CTRL_PRESCALE    8
 
 #define TMR_INTS_EVENT       BIT(0)
 
-
 #define CLK_MHZ 400ULL
-#define TIMER_INTERVAL_MS    (CONFIG_TIMER_TICK_MS)
 #define TIMER_COUNT_BITS 32
 
 #define PRESCALE ((CLK_MHZ*1000 * TIMER_INTERVAL_MS) >> TIMER_COUNT_BITS)
 #define TMR_LOAD ((CLK_MHZ*1000 * TIMER_INTERVAL_MS) / (PRESCALE + 1))
+
+/* A9 MPCORE timer map */
+/* global timer */
+volatile struct glob_timer {
+   uint32_t lcnt;   /* Lower Counter Register 0x00 */
+   uint32_t ucnt;   /* Upper Counter Register 0x04 */
+   uint32_t ctrl;   /* Control Register 0x08 */
+   uint32_t ints;   /* Interrupt Status Register 0x0c */
+   uint32_t lcmp;   /* Lower Comparator Value Register 0x10 */
+   uint32_t ucmp;   /* Upper Comparator Value Register 0x14 */
+   uint32_t ainc;   /* Auto-increment Register 0x18 */
+} *glob_timer = (volatile void*)ARM_MP_GLOBAL_TIMER_PPTR;
+
+/* private timer */
+volatile struct priv_timer {
+    uint32_t load;
+    uint32_t count;
+    uint32_t ctrl;
+    uint32_t ints;
+} *priv_timer = (volatile void*)ARM_MP_PRIV_TIMER_PPTR;
 
 /**
    DONT_TRANSLATE
@@ -408,9 +408,11 @@ initTimer(void)
     glob_timer->ints = 0;
 
     /* setup */
-    glob_timer->load = TMR_LOAD;
     glob_timer->ctrl |= ((PRESCALE) << (TMR_CTRL_PRESCALE))
-                        | TMR_CTRL_AUTORELOAD | TMR_CTRL_IRQEN;
+                        // | TMR_CTRL_AUTOINC
+                        | TMR_CTRL_IRQEN
+                        // | TMR_CTRL_COMPENABLE
+                        ;
 
     /* Enable */
     glob_timer->ctrl |= TMR_CTRL_ENABLE;
