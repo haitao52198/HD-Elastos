@@ -172,17 +172,6 @@ BOOT_CODE p_region_t get_dev_p_reg(unsigned int i)
 BOOT_CODE void
 map_kernel_devices(void)
 {
-    /* map kernel device: GP Timer 11 */
-    map_kernel_frame(
-        GPTIMER11_PADDR,
-        GPTIMER11_PPTR,
-        VMKernelOnly,
-        vm_attributes_new(
-            false, /* armParityEnabled */
-            false  /* armPageCacheable */
-        )
-    );
-
     /* map kernel device: GIC_PL390 */
 	map_kernel_frame(
 		ARM_MP_PADDR,
@@ -383,9 +372,7 @@ volatile struct priv_timer {
     uint32_t ints;
 } *priv_timer = (volatile void*)ARM_MP_PRIV_TIMER_PPTR;
 
-/**
-   DONT_TRANSLATE
- */
+
 void
 resetTimer(void)
 {
@@ -393,29 +380,36 @@ resetTimer(void)
     priv_timer->ints = TMR_INTS_EVENT;
 }
 
-/* Configure gptimer11 as kernel preemption timer */
-/**
-   DONT_TRANSLATE
- */
-BOOT_CODE void
+#define GLOB_TIMER_PRESCALE     3
+uint64_t readGlobTimerCounter(void);
+void writeGlobTimerCounter(uint64_t u64);
+
+BOOT_CODE void 
 initTimer(void)
 {
     /**
        Initialize Global Timer
      */
     /* reset */
+
+    //register should be accessed uint32_t aligned
+    //memset((void *)glob_timer, 0, sizeof(volatile struct glob_timer));
+    glob_timer->lcnt = 0;
+    glob_timer->ucnt = 0;
     glob_timer->ctrl = 0;
     glob_timer->ints = 0;
+    glob_timer->lcmp = 0;
+    glob_timer->ucmp = 0;
+    glob_timer->ainc = 0;
 
     /* setup */
-    glob_timer->ctrl |= ((PRESCALE) << (TMR_CTRL_PRESCALE))
-                        // | TMR_CTRL_AUTOINC
+    glob_timer->ctrl |= ((GLOB_TIMER_PRESCALE) << (TMR_CTRL_PRESCALE))
+                        | TMR_CTRL_AUTOINC
                         | TMR_CTRL_IRQEN
-                        // | TMR_CTRL_COMPENABLE
-                        ;
+                        | TMR_CTRL_COMPENABLE;
 
     /* Enable */
-    glob_timer->ctrl |= TMR_CTRL_ENABLE;
+    //glob_timer->ctrl |= TMR_CTRL_ENABLE;
 
     /**
        Initialize Private Timer
@@ -431,6 +425,38 @@ initTimer(void)
 
     /* Enable */
     priv_timer->ctrl |= TMR_CTRL_ENABLE;
+}
+
+uint64_t readGlobTimerCounter()
+{
+    uint32_t u, u2, l;
+    uint64_t u64;
+
+    do {
+        u = glob_timer->ucnt;
+        l = glob_timer->lcnt;
+        u2 = glob_timer->ucnt;
+    } while (u != u2);
+
+    u64 = l;
+    u64 = (u64 << 32) | u;
+
+    return u64;
+
+}
+
+void writeGlobTimerCounter(uint64_t u64)
+{
+    union {
+        uint64_t u64;
+        uint32_t u32[2];
+    } union64;
+
+    union64.u64 = u64;
+    glob_timer->ctrl |= 0;
+    glob_timer->ucnt = union64.u32[0];
+    glob_timer->lcnt = union64.u32[1];
+    glob_timer->ctrl |= TMR_CTRL_ENABLE;
 }
 
 /**
