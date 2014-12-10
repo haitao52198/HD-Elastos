@@ -50,7 +50,7 @@
 #define GPT11_DEVICE_PADDR 0x48088000
 #define GPT11_INTERRUPT 47
 
-#define CLK_FREQ 32000 /* TODO Check this is is correct */
+#define CLK_FREQ (1 * 1024 * 1024 * 1024) /* TODO Check this is is correct 1GHz?*/
 
 static void *paddrs[] = {(void *) GPT1_DEVICE_PADDR,
                          (void *) GPT2_DEVICE_PADDR,
