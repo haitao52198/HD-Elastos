@@ -116,9 +116,9 @@ enum IRQConstants {
 } platform_interrupt_t;
 
 
-
-#define KERNEL_TIMER_IRQ    27
-#define PRIV_TIMER_IRQ      29
+//Private timer, work as KERNEL_TIMER
+#define KERNEL_TIMER_IRQ    29
+#define PUBLIC_TIMER_IRQ    27
 
 enum irqNumbers {
     irqInvalid = 255
