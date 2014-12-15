@@ -16,8 +16,10 @@
 #ifdef DEBUG
 
 #define UTHR 0x00 /* UART Transmit Holding Register */
+#define URBR 0x00 /* UART Receive Buffer Register */
 #define ULSR 0x14 /* UART Line Status Register */
 #define ULSR_THRE 0x20 /* Transmit Holding Register Empty */
+#define ULSR_DR   0x01 /* Data Ready Register */
 
 #define UART_REG(x) ((volatile uint32_t *)(UART3_PPTR + (x)))
 
@@ -43,7 +45,9 @@ void putDebugChar(unsigned char c)
 
 unsigned char getDebugChar(void)
 {
-    return 0;
+	while ((*UART_REG(ULSR) & ULSR_DR) == 0);
+
+    return *UART_REG(URBR);
 }
 
 #endif
