@@ -24,6 +24,8 @@ menu "seL4 Applications"
     source "apps/sel4test-driver/Kconfig"
     source "apps/sel4test-tests/Kconfig"
     source "apps/lua/Kconfig"
+    source "apps/sel4test-hello/Kconfig"
+    source "apps/sel4test-hi/Kconfig"
 endmenu
 
 menu "seL4 Libraries"
@@ -43,9 +45,6 @@ menu "seL4 Libraries"
     source "libs/libsel4simple-stable/Kconfig"
     source "libs/libutils/Kconfig"
     source "libs/libplatsupport/Kconfig"
-    source "libs/libsel4sync/Kconfig"
-    source "libs/libsel4bench/Kconfig"
-    source "libs/libsel4debug/Kconfig"
 endmenu
 
 menu "Tools"
