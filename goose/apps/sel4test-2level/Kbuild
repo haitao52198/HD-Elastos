@@ -1,0 +1,31 @@
+#
+# Copyright 2014, NICTA
+#
+# This software may be distributed and modified according to the terms of
+# the BSD 2-Clause license. Note that NO WARRANTY is provided.
+# See "LICENSE_BSD2.txt" for details.
+#
+# @TAG(NICTA_BSD)
+#
+
+apps-$(CONFIG_APP_2LEVEL)        += sel4test-2level
+
+# list of libraries the app needs to build
+sel4test-2level-y                          = common libsel4 libmuslc libsel4vka libcpio libelf \
+                                      libsel4allocman \
+                                      libsel4platsupport libsel4platsupport libsel4muslcsys \
+                                      libsel4simple libsel4vspace libsel4utils libutils
+
+# set up correct simple lib for our kernel
+ifdef CONFIG_KERNEL_STABLE
+sel4test-2level-$(CONFIG_LIB_SEL4_SIMPLE_STABLE) += libsel4simple-stable
+else
+sel4test-2level-$(CONFIG_LIB_SEL4_SIMPLE_DEFAULT) += libsel4simple-default
+endif
+
+# add the tests app  as a component so that we can elf load it
+sel4test-2level-components-y += sel4test-hi
+sel4test-2level-components = $(addprefix $(STAGE_BASE)/bin/, $(sel4test-2level-components-y))
+
+sel4test-2level: export COMPONENTS=${sel4test-2level-components}
+sel4test-2level: ${sel4test-2level-components-y} kernel_elf $(sel4test-2level-y)

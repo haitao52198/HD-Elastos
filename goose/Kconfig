@@ -26,6 +26,8 @@ menu "seL4 Applications"
     source "apps/lua/Kconfig"
     source "apps/sel4test-hello/Kconfig"
     source "apps/sel4test-hi/Kconfig"
+    source "apps/sel4test-1level/Kconfig"
+    source "apps/sel4test-2level/Kconfig"
 endmenu
 
 menu "seL4 Libraries"
