@@ -142,7 +142,7 @@ seL4_CPtr simple_default_nth_cap(void *data, int n) {
     }
     if(n < INIT_CAP_BASE_RANGE) {
         true_return = (seL4_CPtr) n+1;
-    } else if(n >= INIT_CAP_TOP_RANGE - 1) {
+    } else if(n == INIT_CAP_TOP_RANGE - 1) {
     	//seL4_CapDomain
     	true_return = (seL4_CPtr)seL4_CapDomain;
     } else if(n < INIT_CAP_TOP_RANGE) {
