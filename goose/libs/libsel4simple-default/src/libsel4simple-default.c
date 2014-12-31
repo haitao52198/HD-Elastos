@@ -88,17 +88,19 @@ seL4_CPtr simple_default_get_IOPort_cap(void *data, uint16_t start_port, uint16_
 }
 
 #define INIT_CAP_BASE_RANGE (seL4_CapInitThreadASIDPool)
+
+//the +1 in INIT_CAP_TOP_RANGE is for seL4_CapDomain
 #if defined(CONFIG_ARCH_ARM)
     #if defined(CONFIG_IOMMU)
-        #define INIT_CAP_TOP_RANGE (seL4_CapInitThreadIPCBuffer - seL4_CapIOPort + INIT_CAP_BASE_RANGE)
+        #define INIT_CAP_TOP_RANGE (seL4_CapInitThreadIPCBuffer - seL4_CapIOPort + INIT_CAP_BASE_RANGE + 1)
     #else
-        #define INIT_CAP_TOP_RANGE (seL4_CapInitThreadIPCBuffer - seL4_CapIOSpace + INIT_CAP_BASE_RANGE)
+        #define INIT_CAP_TOP_RANGE (seL4_CapInitThreadIPCBuffer - seL4_CapIOSpace + INIT_CAP_BASE_RANGE + 1)
     #endif
 #elif defined(CONFIG_ARCH_IA32)
     #if defined(CONFIG_IOMMU)
-        #define INIT_CAP_TOP_RANGE (seL4_CapInitThreadIPCBuffer - seL4_CapInitThreadASIDPool + INIT_CAP_BASE_RANGE)
+        #define INIT_CAP_TOP_RANGE (seL4_CapInitThreadIPCBuffer - seL4_CapInitThreadASIDPool + INIT_CAP_BASE_RANGE + 1)
     #else
-        #define INIT_CAP_TOP_RANGE (seL4_CapInitThreadIPCBuffer - seL4_CapInitThreadASIDPool - 1 + INIT_CAP_BASE_RANGE)
+        #define INIT_CAP_TOP_RANGE (seL4_CapInitThreadIPCBuffer - seL4_CapInitThreadASIDPool - 1 + INIT_CAP_BASE_RANGE + 1)
     #endif
 #endif
 #define SHARED_FRAME_RANGE ((bi->sharedFrames.end - bi->sharedFrames.start) + INIT_CAP_TOP_RANGE)
@@ -140,6 +142,9 @@ seL4_CPtr simple_default_nth_cap(void *data, int n) {
     }
     if(n < INIT_CAP_BASE_RANGE) {
         true_return = (seL4_CPtr) n+1;
+    } else if(n >= INIT_CAP_TOP_RANGE - 1) {
+    	//seL4_CapDomain
+    	true_return = (seL4_CPtr)seL4_CapDomain;
     } else if(n < INIT_CAP_TOP_RANGE) {
         true_return = (seL4_CPtr) n+1;
         #if defined(CONFIG_ARCH_ARM)
