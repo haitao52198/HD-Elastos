@@ -198,6 +198,9 @@ static int _add_ut_mem(bootstrap_info_t *bs, int inc_num, int *old_num)
         allocman_mspace_free(bs->alloc, bs->ut_paddr, sizeof(uint32_t)*bs->num_uts);
     }
 
+    bs->uts = new_uts;
+    bs->ut_size_bits = new_size_bits;
+    bs->ut_paddr = new_paddr;
     bs->num_uts = new_num;
 
     return 0;
