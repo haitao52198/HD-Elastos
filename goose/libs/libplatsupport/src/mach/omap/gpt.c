@@ -139,6 +139,12 @@ typedef enum {
 
 } gpt_cfg_reg;
 
+
+typedef enum {
+    SFT = 1,
+    POSTED = 2,
+} gpt_tsicr_reg;
+
 /* Memory map for GPT */
 struct gpt_map {
     uint32_t tidr;   // GPTIMER_TIDR 0x00
@@ -177,53 +183,60 @@ typedef struct gpt {
     uint32_t prescaler;
 } gpt_t;
 
-static int 
-gpt_timer_start(const pstimer_t *timer) 
+static int
+gpt_timer_start(const pstimer_t *timer)
 {
     gpt_t *gpt = (gpt_t*) timer->data;
 
-
-    gpt->gpt_map->tclr |= BIT(ST);
+    *(volatile uint32_t *)gpt->gpt_map->tclr |= BIT(ST);
 
     return 0;
 }
 
 
-static int
-gpt_timer_stop(const pstimer_t *timer) {
-    gpt_t *gpt = (gpt_t*) timer->data;
+static int gpt_timer_stop(const pstimer_t *timer)
+{
+    gpt_t *gpt = (gpt_t *)timer->data;
+
     /* Disable timer. */
-    gpt->gpt_map->tclr = 0;
+    *(volatile uint32_t *)gpt->gpt_map->tclr = 0;
 
     return 0;
 }
 
 void configure_timeout(const pstimer_t *timer, uint64_t ns) {
 
-    gpt_t *gpt = (gpt_t*) timer->data;
+    gpt_t *gpt = (gpt_t *)timer->data;
 
     /* Stop time. */
-    gpt->gpt_map->tclr = 0;
+    *(volatile uint32_t *)gpt->gpt_map->tclr = 0;
 
     /* Reset timer. */
-    gpt->gpt_map->cfg = BIT(SOFTRESET);
-
+    *(volatile uint32_t *)gpt->gpt_map->cfg |= BIT(SOFTRESET);
     while (!gpt->gpt_map->tistat); /* Wait for GPT to reset */
 
-    gpt->gpt_map->tclr = (gpt->prescaler << PTV); /* Set the prescaler */
-    gpt->gpt_map->tclr = BIT(PRE); /* Enable the prescaler */
+    *(volatile uint32_t *)gpt->gpt_map->tclr = BIT(PRE) | (gpt->prescaler << PTV); /* Set the prescaler */
+    //gpt->gpt_map->tclr = BIT(PRE); /* Enable the prescaler */
 
     /* Enable interrupt on overflow. */
-    gpt->gpt_map->tier = BIT(OVF_IT_ENA);
+    *(volatile uint32_t *)gpt->gpt_map->tier = BIT(OVF_IT_ENA) | BIT(TCAR_IT_ENA);
 
     /* Set the reload value. */
-    gpt->gpt_map->tldr = ~0UL - TIMER_INTERVAL_TICKS(ns);
+    *(volatile uint32_t *)gpt->gpt_map->tldr = ~0UL - TIMER_INTERVAL_TICKS(ns);
 
     /* Reset the read register. */
-    gpt->gpt_map->tcrr = ~0UL - TIMER_INTERVAL_TICKS(ns);
+    *(volatile uint32_t *)gpt->gpt_map->tcrr = ~0UL - TIMER_INTERVAL_TICKS(ns);
 
+/*
+gpt->gpt_map->tpir = 232000;
+gpt->gpt_map->tnir = 0xFFF448000;
+gpt->gpt_map->tsicr = BIT(POSTED) | BIT(SFT);
+*/
     /* Clear pending overflows. */
-    gpt->gpt_map->tisr = BIT(OVF_IT_FLAG);
+    *(volatile uint32_t *)gpt->gpt_map->tisr = BIT(OVF_IT_FLAG);
+
+//    ackInterrupt(37);
+
 }
 
 static int
@@ -237,7 +250,7 @@ gpt_oneshot_absolute(const pstimer_t *timer, uint64_t ns)
 static int
 gpt_periodic(const pstimer_t *timer, uint64_t ns)
 {
-    gpt_t *gpt = (gpt_t*) timer->data;
+    gpt_t *gpt = (gpt_t *)timer->data;
 
     configure_timeout(timer, ns);
 
@@ -247,20 +260,21 @@ gpt_periodic(const pstimer_t *timer, uint64_t ns)
     return 0;
 }
 
-static int 
+static int
 gpt_oneshot_relative(const pstimer_t *timer, uint64_t ns)
 {
-    gpt_t *gpt = (gpt_t*) timer->data;
+    gpt_t *gpt = (gpt_t *)timer->data;
 
     configure_timeout(timer, ns);
 
     /* Set start the timer with no autoreload. */
-    gpt->gpt_map->tclr = BIT(ST);
+    *(volatile uint32_t *)gpt->gpt_map->tclr |= BIT(PRE) | BIT(AR) | BIT(PT) | BIT(ST) | BIT(TRG);
+    *(volatile uint32_t *)gpt->gpt_map->towr = 0x0;
 
     return 0;
 }
 
-static void 
+static void
 gpt_handle_irq(const pstimer_t *timer, uint32_t irq) {
     gpt_t *gpt = (gpt_t*) timer->data;
 
@@ -272,7 +286,7 @@ gpt_handle_irq(const pstimer_t *timer, uint32_t irq) {
     }
 }
 
-static uint64_t 
+static uint64_t
 gpt_get_time(const pstimer_t *timer) {
     gpt_t *gpt = (gpt_t*) timer->data;
 
@@ -283,7 +297,7 @@ gpt_get_time(const pstimer_t *timer) {
 }
 
 static uint32_t
-gpt_get_nth_irq(const pstimer_t *timer, uint32_t n) 
+gpt_get_nth_irq(const pstimer_t *timer, uint32_t n)
 {
     gpt_t *gpt = (gpt_t*) timer->data;
 
@@ -303,7 +317,6 @@ gpt_get_timer(gpt_config_t *config)
         fprintf(stderr, "Prescaler value set too large for device, value: %d, max 7", config->prescaler);
         return NULL;
     }
-
     timer->properties.upcounter = true;
     timer->properties.timeouts = true;
     timer->properties.bit_width = 32;
