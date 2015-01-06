@@ -376,7 +376,7 @@ volatile struct priv_timer {
 void
 resetTimer(void)
 {
-    glob_timer->ints = TMR_INTS_EVENT;
+//    glob_timer->ints = TMR_INTS_EVENT;
     priv_timer->ints = TMR_INTS_EVENT;
 }
 
