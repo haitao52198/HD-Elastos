@@ -188,7 +188,7 @@ gpt_timer_start(const pstimer_t *timer)
 {
     gpt_t *gpt = (gpt_t*) timer->data;
 
-    *(volatile uint32_t *)gpt->gpt_map->tclr |= BIT(ST);
+    *(volatile uint32_t *)&(gpt->gpt_map->tclr) |= BIT(ST);
 
     return 0;
 }
@@ -199,7 +199,7 @@ static int gpt_timer_stop(const pstimer_t *timer)
     gpt_t *gpt = (gpt_t *)timer->data;
 
     /* Disable timer. */
-    *(volatile uint32_t *)gpt->gpt_map->tclr = 0;
+    *(volatile uint32_t *)&(gpt->gpt_map->tclr) = 0;
 
     return 0;
 }
@@ -207,33 +207,34 @@ static int gpt_timer_stop(const pstimer_t *timer)
 void configure_timeout(const pstimer_t *timer, uint64_t ns) {
 
     gpt_t *gpt = (gpt_t *)timer->data;
+    struct gpt_map *gptMap = gpt->gpt_map;
 
     /* Stop time. */
-    *(volatile uint32_t *)gpt->gpt_map->tclr = 0;
+    *(volatile uint32_t *)&(gptMap->tclr) = 0;
 
     /* Reset timer. */
-    *(volatile uint32_t *)gpt->gpt_map->cfg |= BIT(SOFTRESET);
-    while (!gpt->gpt_map->tistat); /* Wait for GPT to reset */
+    *(volatile uint32_t *)&(gptMap->cfg) |= BIT(SOFTRESET);
+    while ( ! *(volatile uint32_t *)&(gptMap->tistat) ); /* Wait for GPT to reset */
 
-    *(volatile uint32_t *)gpt->gpt_map->tclr = BIT(PRE) | (gpt->prescaler << PTV); /* Set the prescaler */
-    //gpt->gpt_map->tclr = BIT(PRE); /* Enable the prescaler */
+    *(volatile uint32_t *)&(gptMap->tclr) = BIT(PRE) | (gpt->prescaler << PTV); /* Set the prescaler */
+    //gptMap->tclr = BIT(PRE); /* Enable the prescaler */
 
     /* Enable interrupt on overflow. */
-    *(volatile uint32_t *)gpt->gpt_map->tier = BIT(OVF_IT_ENA) | BIT(TCAR_IT_ENA);
+    *(volatile uint32_t *)&(gptMap->tier) = BIT(OVF_IT_ENA);
 
     /* Set the reload value. */
-    *(volatile uint32_t *)gpt->gpt_map->tldr = ~0UL - TIMER_INTERVAL_TICKS(ns);
+    *(volatile uint32_t *)&(gptMap->tldr) = ~0UL - TIMER_INTERVAL_TICKS(ns);
 
     /* Reset the read register. */
-    *(volatile uint32_t *)gpt->gpt_map->tcrr = ~0UL - TIMER_INTERVAL_TICKS(ns);
+    *(volatile uint32_t *)&(gptMap->tcrr) = ~0UL - TIMER_INTERVAL_TICKS(ns);
 
 /*
-gpt->gpt_map->tpir = 232000;
-gpt->gpt_map->tnir = 0xFFF448000;
-gpt->gpt_map->tsicr = BIT(POSTED) | BIT(SFT);
+gptMap->tpir = 232000;
+gptMap->tnir = 0xFFF448000;
+gptMap->tsicr = BIT(POSTED) | BIT(SFT);
 */
     /* Clear pending overflows. */
-    *(volatile uint32_t *)gpt->gpt_map->tisr = BIT(OVF_IT_FLAG);
+    *(volatile uint32_t *)&(gptMap->tisr) = BIT(OVF_IT_FLAG);
 
 //    ackInterrupt(37);
 
@@ -255,7 +256,7 @@ gpt_periodic(const pstimer_t *timer, uint64_t ns)
     configure_timeout(timer, ns);
 
     /* Set autoreload and start the timer. */
-    gpt->gpt_map->tclr = BIT(AR) | BIT(ST);
+    *(volatile uint32_t *)&(gpt->gpt_map->tclr) = BIT(AR) | BIT(ST);
 
     return 0;
 }
@@ -264,40 +265,42 @@ static int
 gpt_oneshot_relative(const pstimer_t *timer, uint64_t ns)
 {
     gpt_t *gpt = (gpt_t *)timer->data;
+    struct gpt_map *gptMap = gpt->gpt_map;
 
     configure_timeout(timer, ns);
 
     /* Set start the timer with no autoreload. */
-    *(volatile uint32_t *)gpt->gpt_map->tclr |= BIT(PRE) | BIT(AR) | BIT(PT) | BIT(ST) | BIT(TRG);
-    *(volatile uint32_t *)gpt->gpt_map->towr = 0x0;
+    *(volatile uint32_t *)&(gptMap->tclr) |= BIT(ST);
+    //BIT(PRE) | BIT(AR) | BIT(PT) | BIT(ST) | BIT(TRG);
+    *(volatile uint32_t *)(gptMap->towr) = 0x0;
 
     return 0;
 }
 
 static void
 gpt_handle_irq(const pstimer_t *timer, uint32_t irq) {
-    gpt_t *gpt = (gpt_t*) timer->data;
+    gpt_t *gpt = (gpt_t *)timer->data;
 
     /* Potentially could be getting interrupts for more reasons
      * driver can't do it though
     */
-    if (gpt->gpt_map->tisr == BIT(OVF_IT_FLAG)) {
-        gpt->gpt_map->tisr = BIT(OVF_IT_FLAG);
+    if (*(volatile uint32_t *)&(gpt->gpt_map->tisr) == BIT(OVF_IT_FLAG)) {
+        *(volatile uint32_t *)&(gpt->gpt_map->tisr) = BIT(OVF_IT_FLAG);
     }
 }
 
-static uint64_t
-gpt_get_time(const pstimer_t *timer) {
+static uint64_t gpt_get_time(const pstimer_t *timer)
+{
     gpt_t *gpt = (gpt_t*) timer->data;
 
-    uint32_t value = gpt->gpt_map->tcrr;
+    uint32_t value = *(volatile uint32_t *)&(gpt->gpt_map->tcrr);
 
     uint64_t ns = ((uint64_t) value / (uint64_t)CLK_FREQ) * 1000llu;
+
     return ns;
 }
 
-static uint32_t
-gpt_get_nth_irq(const pstimer_t *timer, uint32_t n)
+static uint32_t gpt_get_nth_irq(const pstimer_t *timer, uint32_t n)
 {
     gpt_t *gpt = (gpt_t*) timer->data;
 
@@ -307,8 +310,7 @@ gpt_get_nth_irq(const pstimer_t *timer, uint32_t n)
 static pstimer_t singleton_timer;
 static gpt_t singleton_gpt;
 
-pstimer_t *
-gpt_get_timer(gpt_config_t *config)
+pstimer_t *gpt_get_timer(gpt_config_t *config)
 {
     pstimer_t *timer = &singleton_timer;
     gpt_t *gpt = &singleton_gpt;
@@ -337,14 +339,14 @@ gpt_get_timer(gpt_config_t *config)
     gpt->prescaler = config->prescaler;
 
     /* Disable GPT. */
-    gpt->gpt_map->tclr = 0;
+    *(volatile uint32_t *)&(gpt->gpt_map->tclr) = 0;
 
     /* Configure GPT. */
 
     /* Perform a soft reset */
-    gpt->gpt_map->cfg = BIT(SOFTRESET);
+    *(volatile uint32_t *)&(gpt->gpt_map->cfg) = BIT(SOFTRESET);
 
-    while(!gpt->gpt_map->tistat); /* Wait for timer to reset */
+    while (! *(volatile uint32_t *)&(gpt->gpt_map->tistat) ); /* Wait for timer to reset */
 
     return timer;
 }
