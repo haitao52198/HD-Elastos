@@ -200,12 +200,17 @@ ifeq ($(CONFIG_PLAT_OMAP4),y)
 	export PLAT=omap4
 endif
 
+ifeq ($(CONFIG_PLAT_A20),y)
+	DEFINES += A20
+	export PLAT=A20
+endif
+
 ifeq ($(CONFIG_SMP_ARM_MPCORE),y)
 	DEFINES += CONFIG_SMP_ARM_MPCORE
 endif
 
 # work out what machine family we are running on.
-export MACH=$(strip $(foreach mach,exynos imx omap,$(findstring $(mach),$(PLAT))))
+export MACH=$(strip $(foreach mach,exynos imx omap A,$(findstring $(mach),$(PLAT))))
 
 # Kernel debugging.
 ifeq ($(CONFIG_DEBUG_BUILD),y)

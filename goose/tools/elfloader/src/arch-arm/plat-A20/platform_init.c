@@ -5,13 +5,14 @@
  * the GNU General Public License version 2. Note that NO WARRANTY is provided.
  * See "LICENSE_GPLv2.txt" for details.
  *
- * @TAG(GD_GPL)
+ * @TAG(NICTA_GPL)
  */
 
-#ifndef __PLAT_MACHINE_DEBUG_HELPERS_H
-#define __PLAT_MACHINE_DEBUG_HELPERS_H
+#include "../elfloader.h"
 
-#include <plat/machine/io.h>
+void platform_init(void)
+{
+    /* Nothing to do here */
+}
 
-#endif
 
