@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, General Dynamics C4 Systems
+ * Copyright 2015, Tongji Operating System Group & elastos.org
  *
  * This software may be distributed and modified according to the terms of
  * the GNU General Public License version 2. Note that NO WARRANTY is provided.
@@ -12,7 +12,7 @@ ENTRY(_start)
 
 /* WARNING: constants also defined in plat/machine/hardware.h */
 KERNEL_BASE   = 0xf0000000;
-PHYS_BASE     = 0x80000000;
+PHYS_BASE     = 0x40000000;
 KERNEL_OFFSET = KERNEL_BASE - PHYS_BASE;
 
 SECTIONS
