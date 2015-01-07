@@ -86,7 +86,7 @@
 /* L4 peripherals (2 pages each) */
 /* 0x49000000 - 0x50000000 */
 #define L4_PER_CONFIG_PADDR            0x49000000
-#define UART3_PADDR                    0x49020000
+#define UART3_PADDR                    0x01c29c00
 #define MCBSP2_PADDR                   0x49022000
 #define MCBSP3_PADDR                   0x49024000
 #define MCBSP4_PADDR                   0x49026000
