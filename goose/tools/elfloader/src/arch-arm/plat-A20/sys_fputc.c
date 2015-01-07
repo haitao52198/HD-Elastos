@@ -22,9 +22,9 @@
 extern int
 __fputc(int c, FILE *stream);
 
-/* OMAP3 UART 3 physical address. */
-#define UART3_PADDR 0x49020000
-#define UART_PPTR UART3_PADDR
+/* A20 UART 0 physical address. */
+#define UART0_PADDR 0x01c28000
+#define UART_PPTR UART0_PADDR
 
 #define UTHR 0x00 /* UART Transmit Holding Register */
 #define ULSR 0x14 /* UART Line Status Register */
