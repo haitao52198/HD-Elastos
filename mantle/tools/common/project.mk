@@ -236,7 +236,7 @@ $(AUTOCONF_H_FILE): .config
 
 .SECONDEXPANSION:
 #all: .config kernel_elf
-all: .config
+all: .config $(libs)
 
 cp_if_changed = \
 	@set -e; $(echo-cmd)  \
