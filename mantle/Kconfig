@@ -16,8 +16,8 @@ config COMMON_PATH
     option env="COMMON_PATH"
 
 menu "seL4 Libraries"
-    source "libs/FileSystem/Kconfig"
-    source "libs/Net/Kconfig"
+    source "libs/libFileSystem/Kconfig"
+    source "libs/libNet/Kconfig"
 endmenu
 
 source "$COMMON_PATH/Kconfig"
