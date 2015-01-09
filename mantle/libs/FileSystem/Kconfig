@@ -7,10 +7,9 @@
 #
 #
 
-menuconfig MANTLE_FILESYSTEM
+config MANTLE_FILESYSTEM
     bool "Mantle FileSystem"
     default y
-    depends on LIB_SEL4 && (LIB_MUSL_C || LIB_SEL4_C) && LIB_SEL4_PLAT_SUPPORT && LIB_SEL4_VKA && LIB_SEL4_TEST && LIB_SEL4_UTILS && LIB_UTILS
     help
         HD-Elastos Mantle FileSystem
 
