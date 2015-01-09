@@ -16,7 +16,6 @@ config COMMON_PATH
     option env="COMMON_PATH"
 
 menu "seL4 Libraries"
-    source "libs/drivers/Kconfig"
     source "libs/FileSystem/Kconfig"
     source "libs/Net/Kconfig"
 endmenu
