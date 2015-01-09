@@ -235,7 +235,8 @@ $(AUTOCONF_H_FILE): .config
 	$(Q)$(MAKE) $(MAKE_SILENT) -f $(srctree)/$(makefile_name) silentoldconfig
 
 .SECONDEXPANSION:
-all: .config kernel_elf
+#all: .config kernel_elf
+all: .config
 
 cp_if_changed = \
 	@set -e; $(echo-cmd)  \
@@ -245,18 +246,18 @@ $(KBUILD_ROOT)/.config: .config
 	$(Q)mkdir -p $(KBUILD_ROOT)
 	$(Q)cp .config $(KBUILD_ROOT)
 
-PHONY += kernel_elf
-kernel_elf: setup $(KBUILD_ROOT)/.config
-	@echo "[KERNEL]"
-	$(Q)mkdir -p $(KBUILD_ROOT)
-	$(Q)$(MAKE) $(MAKE_SILENT) -C $(KBUILD_ROOT) -f $(KERNEL_ROOT_PATH)/Makefile \
-		SOURCE_ROOT=$(KERNEL_ROOT_PATH) O=$(KBUILD_ROOT) V=$(V) \
-		TOOLPREFIX=$(CONFIG_CROSS_COMPILER_PREFIX:"%"=%) \
-		CONFIG_DOMAIN_SCHEDULE=$(abspath $(CONFIG_DOMAIN_SCHEDULE:"%"=%)) \
-		HAVE_AUTOCONF=1 NO_PRESERVE_TIMESTAMP=1
-
-	$(call cp_if_changed, $(KBUILD_ROOT)/kernel.elf,$(STAGE_BASE)/kernel.elf)
-	@echo "[KERNEL] done."
+#PHONY += kernel_elf
+#kernel_elf: setup $(KBUILD_ROOT)/.config
+#	@echo "[KERNEL]"
+#	$(Q)mkdir -p $(KBUILD_ROOT)
+#	$(Q)$(MAKE) $(MAKE_SILENT) -C $(KBUILD_ROOT) -f $(KERNEL_ROOT_PATH)/Makefile \
+#		SOURCE_ROOT=$(KERNEL_ROOT_PATH) O=$(KBUILD_ROOT) V=$(V) \
+#		TOOLPREFIX=$(CONFIG_CROSS_COMPILER_PREFIX:"%"=%) \
+#		CONFIG_DOMAIN_SCHEDULE=$(abspath $(CONFIG_DOMAIN_SCHEDULE:"%"=%)) \
+#		HAVE_AUTOCONF=1 NO_PRESERVE_TIMESTAMP=1
+#
+#	$(call cp_if_changed, $(KBUILD_ROOT)/kernel.elf,$(STAGE_BASE)/kernel.elf)
+#	@echo "[KERNEL] done."
 
 PHONY += setup
 setup: $(AUTOCONF_H_FILE)
