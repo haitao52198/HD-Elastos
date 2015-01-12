@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, Tongji Operating System Group & elastos.org
+ * Copyright 2014, General Dynamics C4 Systems
  *
  * This software may be distributed and modified according to the terms of
  * the GNU General Public License version 2. Note that NO WARRANTY is provided.
@@ -23,7 +23,7 @@
 
 const p_region_t BOOT_RODATA avail_p_regs[] = {
     /* 512 MiB */
-    { .start = 0x40000000, .end = 0xC0000000 }
+    { .start = 0x80000000, .end = 0xA0000000 }
 };
 
 BOOT_CODE int get_num_avail_p_regs(void)
@@ -172,10 +172,30 @@ BOOT_CODE p_region_t get_dev_p_reg(unsigned int i)
 BOOT_CODE void
 map_kernel_devices(void)
 {
-    /* map kernel device: GP Timer 11 */
+    /* map kernel device: GIC_PL390 */
+	map_kernel_frame(
+		ARM_MP_PADDR,
+		ARM_MP_PPTR1,
+		VMKernelOnly,
+		vm_attributes_new(
+			false, /* armParityEnabled */
+			false  /* armPageCacheable */
+		)
+	);
     map_kernel_frame(
-        GPTIMER11_PADDR,
-        GPTIMER11_PPTR,
+		ARM_MP_PADDR + BIT(PAGE_BITS),
+		ARM_MP_PPTR2,
+        VMKernelOnly,
+        vm_attributes_new(
+            false, /* armParityEnabled */
+            false  /* armPageCacheable */
+        )
+    );
+
+    /* map kernel device: L2CC_L2C310 */
+    map_kernel_frame(
+        L2CC_L2C310_PADDR,
+        L2CC_L2C310_PPTR,
         VMKernelOnly,
         vm_attributes_new(
             false, /* armParityEnabled */
@@ -184,15 +204,15 @@ map_kernel_devices(void)
     );
 
     /* map kernel device: INTC */
-    map_kernel_frame(
-        INTC_PADDR,
-        INTC_PPTR,
-        VMKernelOnly,
-        vm_attributes_new(
-            false, /* armParityEnabled */
-            false  /* armPageCacheable */
-        )
-    );
+    // map_kernel_frame(
+    //     INTC_PADDR,
+    //     INTC_PPTR,
+    //     VMKernelOnly,
+    //     vm_attributes_new(
+    //         false, /* armParityEnabled */
+    //         false  /* armPageCacheable */
+    //     )
+    // );
 
 #ifdef DEBUG
     /* map kernel device: UART */
@@ -216,99 +236,82 @@ map_kernel_devices(void)
  * The struct below is used to discourage the compiler from generating literals
  * for every single address we might access.
  */
-volatile struct INTC_map {
-    uint32_t padding[4];
-    uint32_t intcps_sysconfig;
-    uint32_t intcps_sysstatus;
-    uint32_t padding2[10];
-    uint32_t intcps_sir_irq;
-    uint32_t intcps_sir_fiq;
-    uint32_t intcps_control;
-    uint32_t intcps_protection;
-    uint32_t intcps_idle;
-    uint32_t padding3[3];
-    uint32_t intcps_irq_priority;
-    uint32_t intcps_fiq_priority;
-    uint32_t intcps_threshold;
-    uint32_t padding4[5];
-    struct {
-        uint32_t intcps_itr;
-        uint32_t intcps_mir;
-        uint32_t intcps_mir_clear;
-        uint32_t intcps_mir_set;
-        uint32_t intcps_isr_set;
-        uint32_t intcps_isr_clear;
-        uint32_t intcps_pending_irq;
-        uint32_t intcps_pending_fiq;
-    } intcps_n[3];
-    uint32_t padding5[8];
-    uint32_t intcps_ilr[96];
-} *intc = (volatile void*)INTC_PPTR;
+// volatile struct INTC_map {
+//     uint32_t padding[4];
+//     uint32_t intcps_sysconfig;
+//     uint32_t intcps_sysstatus;
+//     uint32_t padding2[10];
+//     uint32_t intcps_sir_irq;
+//     uint32_t intcps_sir_fiq;
+//     uint32_t intcps_control;
+//     uint32_t intcps_protection;
+//     uint32_t intcps_idle;
+//     uint32_t padding3[3];
+//     uint32_t intcps_irq_priority;
+//     uint32_t intcps_fiq_priority;
+//     uint32_t intcps_threshold;
+//     uint32_t padding4[5];
+//     struct {
+//         uint32_t intcps_itr;
+//         uint32_t intcps_mir;
+//         uint32_t intcps_mir_clear;
+//         uint32_t intcps_mir_set;
+//         uint32_t intcps_isr_set;
+//         uint32_t intcps_isr_clear;
+//         uint32_t intcps_pending_irq;
+//         uint32_t intcps_pending_fiq;
+//     } intcps_n[3];
+//     uint32_t padding5[8];
+//     uint32_t intcps_ilr[96];
+// } *intc = (volatile void*)INTC_PPTR;
 
 /**
    DONT_TRANSLATE
  */
 
-interrupt_t
-getActiveIRQ(void)
-{
-    uint32_t intcps_sir_irq = intc->intcps_sir_irq;
-    interrupt_t irq = (interrupt_t)(intcps_sir_irq & 0x7f);
-
-    /* Ignore spurious interrupts. */
-    if ((intcps_sir_irq & INTCPS_SIR_IRQ_SPURIOUSIRQFLAG) == 0) {
-        assert(irq <= maxIRQ);
-        if (intc->intcps_n[irq / 32].intcps_pending_irq & (1 << (irq & 31))) {
-            return irq;
-        }
-    }
-
-    /* No interrupt. */
-    return 0xff;
-}
+// interrupt_t
+// getActiveIRQ(void)
+// {
+//     uint32_t intcps_sir_irq = intc->intcps_sir_irq;
+//     interrupt_t irq = (interrupt_t)(intcps_sir_irq & 0x7f);
+//
+//     /* Ignore spurious interrupts. */
+//     if ((intcps_sir_irq & INTCPS_SIR_IRQ_SPURIOUSIRQFLAG) == 0) {
+//         assert(irq <= maxIRQ);
+//         if (intc->intcps_n[irq / 32].intcps_pending_irq & (1 << (irq & 31))) {
+//             return irq;
+//         }
+//     }
+//
+//     /* No interrupt. */
+//     return 0xff;
+// }
 
 /* Check for pending IRQ */
-bool_t isIRQPending(void)
-{
-    return getActiveIRQ() != 0xff;
-}
+// bool_t isIRQPending(void)
+// {
+//     return getActiveIRQ() != 0xff;
+// }
 
 /* Enable or disable irq according to the 'disable' flag. */
 /**
    DONT_TRANSLATE
 */
-void
-maskInterrupt(bool_t disable, interrupt_t irq)
-{
-    if (disable) {
-        intc->intcps_n[irq / 32].intcps_mir_set = 1 << (irq & 31);
-    } else {
-        intc->intcps_n[irq / 32].intcps_mir_clear = 1 << (irq & 31);
-    }
-}
+// void
+// maskInterrupt(bool_t disable, interrupt_t irq)
+// {
+//     if (disable) {
+//         intc->intcps_n[irq / 32].intcps_mir_set = 1 << (irq & 31);
+//     } else {
+//         intc->intcps_n[irq / 32].intcps_mir_clear = 1 << (irq & 31);
+//     }
+// }
 
 /* Determine if the given IRQ should be reserved by the kernel. */
 bool_t
 isReservedIRQ(interrupt_t irq)
 {
-    return irq == RESERVED_IRQ01 ||
-           irq == RESERVED_IRQ02 ||
-           irq == RESERVED_IRQ03 ||
-           irq == RESERVED_IRQ04 ||
-           irq == RESERVED_IRQ05 ||
-           irq == RESERVED_IRQ06 ||
-           irq == RESERVED_IRQ07 ||
-           irq == RESERVED_IRQ08 ||
-           irq == RESERVED_IRQ09 ||
-           irq == RESERVED_IRQ10 ||
-           irq == RESERVED_IRQ11 ||
-           irq == RESERVED_IRQ12 ||
-           irq == RESERVED_IRQ13 ||
-           irq == RESERVED_IRQ14 ||
-           irq == RESERVED_IRQ15 ||
-           irq == RESERVED_IRQ16 ||
-           irq == RESERVED_IRQ17 ||
-           irq == RESERVED_IRQ18;
+    return irq == KERNEL_TIMER_IRQ;
 }
 
 /* Handle a platform-reserved IRQ. */
@@ -320,106 +323,159 @@ void handleReservedIRQ(irq_t irq)
     return;
 }
 
-void
-ackInterrupt(irq_t irq)
-{
-    intc->intcps_control = 1;
-    /* Ensure the ack has hit the interrupt controller before potentially
-     * re-enabling interrupts. */
-    dsb();
-}
+// void
+// ackInterrupt(irq_t irq)
+// {
+//     intc->intcps_control = 1;
+//     /* Ensure the ack has hit the interrupt controller before potentially
+//      * re-enabling interrupts. */
+//     dsb();
+// }
 
 #define TIMER_INTERVAL_MS (CONFIG_TIMER_TICK_MS)
-
-#define TIOCP_CFG_SOFTRESET BIT(1)
-#define TCLR_AUTORELOAD     BIT(1)
-#define TCLR_COMPAREENABLE  BIT(6)
-#define TCLR_STARTTIMER     BIT(0)
-#define TIER_MATCHENABLE    BIT(0)
-#define TIER_OVERFLOWENABLE BIT(1)
-#define TISR_OVF_FLAG       BIT(1)
 
 #define TICKS_PER_SECOND 32768
 #define TIMER_INTERVAL_TICKS ((int)(1UL * TIMER_INTERVAL_MS * TICKS_PER_SECOND / 1000))
 
-static volatile struct TIMER_map {
-    uint32_t tidr;   /* GPTIMER_TIDR 0x00 */
-    uint32_t padding1[3];
-    uint32_t cfg;    /* GPTIMER_CFG 0x10 */
-    uint32_t tistat; /* GPTIMER_TISTAT 0x14 */
-    uint32_t tisr;   /* GPTIMER_TISR 0x18 */
-    uint32_t tier;   /* GPTIMER_TIER 0x1C */
-    uint32_t twer;   /* GPTIMER_TWER 0x20 */
-    uint32_t tclr;   /* GPTIMER_TCLR 0x24 */
-    uint32_t tcrr;   /* GPTIMER_TCRR 0x28 */
-    uint32_t tldr;   /* GPTIMER_TLDR 0x2C */
-    uint32_t ttgr;   /* GPTIMER_TTGR 0x30 */
-    uint32_t twps;   /* GPTIMER_TWPS 0x34 */
-    uint32_t tmar;   /* GPTIMER_TMAR 0x38 */
-    uint32_t tcar1;  /* GPTIMER_TCAR1 0x3C */
-    uint32_t tsicr;  /* GPTIMER_TSICR 0x40 */
-    uint32_t tcar2;  /* GPTIMER_TCAR2 0x44 */
-    uint32_t tpir;   /* GPTIMER_TPIR 0x48 */
-    uint32_t tnir;   /* GPTIMER_TNIR 0x4C */
-    uint32_t tcvr;   /* GPTIMER_TCVR 0x50 */
-    uint32_t tocr;   /* GPTIMER_TOCR 0x54 */
-    uint32_t towr;   /* GPTIMER_TOWR 0x58 */
-} *timer = (volatile void*)GPTIMER11_PPTR;
+#define TMR_CTRL_ENABLE      BIT(0)
+#define TMR_CTRL_AUTORELOAD  BIT(1)
+#define TMR_CTRL_COMPENABLE  BIT(1)
+#define TMR_CTRL_IRQEN       BIT(2)
+#define TMR_CTRL_AUTOINC     BIT(3)
+#define TMR_CTRL_PRESCALE    8
 
-/**
-   DONT_TRANSLATE
- */
+#define TMR_INTS_EVENT       BIT(0)
+
+#define CLK_MHZ 400ULL
+#define TIMER_COUNT_BITS 32
+
+#define PRESCALE ((CLK_MHZ*1000 * TIMER_INTERVAL_MS) >> TIMER_COUNT_BITS)
+#define TMR_LOAD ((CLK_MHZ*1000 * TIMER_INTERVAL_MS) / (PRESCALE + 1))
+
+/* A9 MPCORE timer map */
+/* global timer */
+volatile struct glob_timer {
+   uint32_t lcnt;   /* Lower Counter Register 0x00 */
+   uint32_t ucnt;   /* Upper Counter Register 0x04 */
+   uint32_t ctrl;   /* Control Register 0x08 */
+   uint32_t ints;   /* Interrupt Status Register 0x0c */
+   uint32_t lcmp;   /* Lower Comparator Value Register 0x10 */
+   uint32_t ucmp;   /* Upper Comparator Value Register 0x14 */
+   uint32_t ainc;   /* Auto-increment Register 0x18 */
+} *glob_timer = (volatile void*)ARM_MP_GLOBAL_TIMER_PPTR;
+
+/* private timer */
+volatile struct priv_timer {
+    uint32_t load;
+    uint32_t count;
+    uint32_t ctrl;
+    uint32_t ints;
+} *priv_timer = (volatile void*)ARM_MP_PRIV_TIMER_PPTR;
+
+
 void
 resetTimer(void)
 {
-    timer->tisr = TISR_OVF_FLAG;
-    ackInterrupt(GPT11_IRQ);
+//    glob_timer->ints = TMR_INTS_EVENT;
+    priv_timer->ints = TMR_INTS_EVENT;
 }
 
-/* Configure gptimer11 as kernel preemption timer */
-/**
-   DONT_TRANSLATE
- */
-BOOT_CODE void
+#define GLOB_TIMER_PRESCALE     3
+uint64_t readGlobTimerCounter(void);
+void writeGlobTimerCounter(uint64_t u64);
+
+BOOT_CODE void 
 initTimer(void)
 {
-    timer->cfg = TIOCP_CFG_SOFTRESET;
+    /**
+       Initialize Global Timer
+     */
+    /* reset */
 
-    while (!timer->tistat);
+    //register should be accessed uint32_t aligned
+    //memset((void *)glob_timer, 0, sizeof(volatile struct glob_timer));
+    glob_timer->lcnt = 0;
+    glob_timer->ucnt = 0;
+    glob_timer->ctrl = 0;
+    glob_timer->ints = 0;
+    glob_timer->lcmp = 0;
+    glob_timer->ucmp = 0;
+    glob_timer->ainc = 0;
 
-    maskInterrupt(/*disable*/ true, GPT11_IRQ);
+    /* setup */
+    glob_timer->ctrl |= ((GLOB_TIMER_PRESCALE) << (TMR_CTRL_PRESCALE))
+                        | TMR_CTRL_AUTOINC
+                        | TMR_CTRL_IRQEN
+                        | TMR_CTRL_COMPENABLE;
 
-    /* Set the reload value */
-    timer->tldr = 0xFFFFFFFFUL - TIMER_INTERVAL_TICKS;
+    /* Enable */
+    //glob_timer->ctrl |= TMR_CTRL_ENABLE;
 
-    /* Enables interrupt on overflow */
-    timer->tier = TIER_OVERFLOWENABLE;
+    /**
+       Initialize Private Timer
+     */
+    /* reset */
+    priv_timer->ctrl = 0;
+    priv_timer->ints = 0;
 
-    /* Clear the read register */
-    timer->tcrr = 0xFFFFFFFFUL - TIMER_INTERVAL_TICKS;
+    /* setup */
+    priv_timer->load = TMR_LOAD;
+    priv_timer->ctrl |= ((PRESCALE) << (TMR_CTRL_PRESCALE))
+                        | TMR_CTRL_AUTORELOAD | TMR_CTRL_IRQEN;
 
-    /* Set autoreload and start the timer */
-    timer->tclr = TCLR_AUTORELOAD | TCLR_STARTTIMER;
+    /* Enable */
+    priv_timer->ctrl |= TMR_CTRL_ENABLE;
+}
+
+uint64_t readGlobTimerCounter()
+{
+    uint32_t u, u2, l;
+    uint64_t u64;
+
+    do {
+        u = glob_timer->ucnt;
+        l = glob_timer->lcnt;
+        u2 = glob_timer->ucnt;
+    } while (u != u2);
+
+    u64 = l;
+    u64 = (u64 << 32) | u;
+
+    return u64;
+
+}
+
+void writeGlobTimerCounter(uint64_t u64)
+{
+    union {
+        uint64_t u64;
+        uint32_t u32[2];
+    } union64;
+
+    union64.u64 = u64;
+    glob_timer->ctrl |= 0;
+    glob_timer->ucnt = union64.u32[0];
+    glob_timer->lcnt = union64.u32[1];
+    glob_timer->ctrl |= TMR_CTRL_ENABLE;
 }
 
 /**
    DONT_TRANSLATE
  */
-BOOT_CODE void
-initIRQController(void)
-{
-    intc->intcps_sysconfig = INTCPS_SYSCONFIG_SOFTRESET;
-    while (!(intc->intcps_sysstatus & INTCPS_SYSSTATUS_RESETDONE)) ;
-}
+// BOOT_CODE void
+// initIRQController(void)
+// {
+//     intc->intcps_sysconfig = INTCPS_SYSCONFIG_SOFTRESET;
+//     while (!(intc->intcps_sysstatus & INTCPS_SYSSTATUS_RESETDONE)) ;
+// }
 
 /**
    DONT_TRANSLATE
  */
-void
-handleSpuriousIRQ(void)
-{
-    /* Reset and re-enable IRQs. */
-    intc->intcps_control = 1;
-    dsb();
-}
-
+// void
+// handleSpuriousIRQ(void)
+// {
+//     /* Reset and re-enable IRQs. */
+//     intc->intcps_control = 1;
+//     dsb();
+// }
