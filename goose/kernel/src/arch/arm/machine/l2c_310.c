@@ -286,11 +286,14 @@ initL2Cache(void)
     aux |= CTRL_AUX_WAYSIZE_32K;
 
 #elif defined(IMX6) /* ! (EXYNOS4 || OMAP4) */
-    aux |= CTRL_AUX_WAYSIZE_64K;
+    aux |= CTRL_AUX_WAYSIZE_64K;EXYNOS4
 
-#else /* ! (EXYNOS4 || OMAP4 || IMX6) */
+#elif defined(A20) /* ! (EXYNOS4 || OMAP4 || IMX6) */
+    aux |= CTRL_AUX_WAYSIZE_32K;
+
+#else /* ! (EXYNOS4 || OMAP4 || IMX6 || A20) */
 #error Unknown platform for L2C-310
-#endif /* EXYNOS4 || OMAP4 || IMX6 */
+#endif /* EXYNOS4 || OMAP4 || IMX6 || A20 */
 
 #ifdef TI_MSHIELD
     /* Access secure registers through Security Middleware Call */

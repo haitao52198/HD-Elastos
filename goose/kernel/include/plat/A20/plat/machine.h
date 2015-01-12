@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, Tongji Operating System Group & elastos.org
+ * Copyright 2014, General Dynamics C4 Systems
  *
  * This software may be distributed and modified according to the terms of
  * the GNU General Public License version 2. Note that NO WARRANTY is provided.
@@ -116,14 +116,15 @@ enum IRQConstants {
 } platform_interrupt_t;
 
 
-
-#define KERNEL_TIMER_IRQ    GPT11_IRQ
+//Private timer, work as KERNEL_TIMER
+#define KERNEL_TIMER_IRQ    29
+#define PUBLIC_TIMER_IRQ    27
 
 enum irqNumbers {
     irqInvalid = 255
 };
 
-typedef uint8_t interrupt_t;
-typedef uint8_t irq_t;
+// typedef uint8_t interrupt_t;
+// typedef uint8_t irq_t;
 
 #endif  /* ! __PLAT_MACHINE_H */

@@ -9,8 +9,8 @@
  */
 
 /*
- definitions for memory addresses of omap3 platform
- currently based on the DM3730 chip as used in the beagleboard-xM
+ definitions for memory addresses of A20 platform
+ currently based on the Unknown chip as used in the lamobo-M1
  listed in the order of ascending memory address, similar to the datasheet
  the size must all be powers of 2 and page aligned (4k or 1M).
 */
@@ -20,8 +20,17 @@
 
 /* These devices are used by the seL4 kernel. */
 #define UART3_PPTR                     0xfff01000
-#define INTC_PPTR                      0xfff02000
+// #define INTC_PPTR                      0xfff02000
+#define L2CC_PL310_PPTR                0xfff02000
 #define GPTIMER11_PPTR                 0xfff03000
+#define ARM_MP_PPTR1                   0xfff04000
+#define ARM_MP_PPTR2                   0xfff05000
+
+#define L2CC_L2C310_PPTR               (L2CC_PL310_PPTR      )
+#define ARM_MP_PRIV_TIMER_PPTR         (ARM_MP_PPTR1 + 0x600 )
+#define ARM_MP_GLOBAL_TIMER_PPTR       (ARM_MP_PPTR1 + 0x200 )
+#define GIC_PL390_CONTROLLER_PPTR      (ARM_MP_PPTR1 + 0x100 )
+#define GIC_PL390_DISTRIBUTOR_PPTR     (ARM_MP_PPTR2         )
 
 /* Boot space */
 /* 0x00000000 - 0x40000000 */
@@ -74,6 +83,12 @@
 #define CONTROL_MODULE_ID_CODE_PADDR   0x4830a000
 #define L4_WAKEUP_INTERCONNECT_B_PADDR 0x4830c000
 
+/* ARM MultiCore */
+#define ARM_MP_PADDR                   0x01c80000
+
+/* L2 Cache Controller */
+#define L2CC_L2C310_PADDR              0x48242000
+
 /* L4 Wakeup (2 pages each unless specified) */
 /* 0x48300000 - 0x49000000 */
 #define PWR_AND_RST_MANAGER_PADDR      0x48306000
@@ -86,7 +101,7 @@
 /* L4 peripherals (2 pages each) */
 /* 0x49000000 - 0x50000000 */
 #define L4_PER_CONFIG_PADDR            0x49000000
-#define UART3_PADDR                    0x01c29c00
+#define UART3_PADDR                    0x01c28000
 #define MCBSP2_PADDR                   0x49022000
 #define MCBSP3_PADDR                   0x49024000
 #define MCBSP4_PADDR                   0x49026000

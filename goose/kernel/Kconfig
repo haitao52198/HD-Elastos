@@ -47,7 +47,7 @@ config ARCH_IA32
         depends on ARCH_ARM
         help
             Select the ARM CPU version
-        
+
         config ARM1136JF_S
             bool "ARM1136JF-S"
             depends on ARCH_ARM
@@ -55,7 +55,7 @@ config ARCH_IA32
             help
                 Support for ARM1136JF-S
 
-        config ARM_CORTEX_A8 
+        config ARM_CORTEX_A8
             bool "Cortex A8"
             depends on ARCH_ARM
             select ARCH_ARM_V7A
@@ -108,7 +108,7 @@ config ARCH_IA32
             depends on ARCH_ARM
             depends on ARM_CORTEX_A9
             help
-                Support for OMAP4 platform (pandaboard).                
+                Support for OMAP4 platform (pandaboard).
 
         config PLAT_AM335X
             bool "AM335X (BeagleBone)"
@@ -170,7 +170,7 @@ config ARCH_IA32
         config PLAT_A20
             bool "A20"
             depends on ARCH_ARM
-            depends on ARM_CORTEX_A8
+            depends on ARM_CORTEX_A9
             help
                 Support for A20 platform (LAMOBO-M1).
     endchoice
@@ -268,7 +268,7 @@ menu "seL4 System Parameters"
     config BENCHMARK
         bool "Adds a log buffer to the kernel for instrumentation."
         default n
-        help    
+        help
             Enables a 1MB log buffer and functions for extracting data from it at user level.
             Use TRACE_POINT_START and TRACE_POINT_STOP macros for recording data.
             NOTE this is only tested on the sabre and will not work on platforms with < 512mb memory.
@@ -277,7 +277,7 @@ menu "seL4 System Parameters"
 endmenu
 
 menu "Build Options"
-    
+
     config DEBUG_BUILD
         bool "Build the kernel with debug support"
         default y

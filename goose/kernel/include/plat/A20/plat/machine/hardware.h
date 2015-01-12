@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, Tongji Operating System Group & elastos.org
+ * Copyright 2014, General Dynamics C4 Systems
  *
  * This software may be distributed and modified according to the terms of
  * the GNU General Public License version 2. Note that NO WARRANTY is provided.
@@ -11,7 +11,7 @@
 #ifndef __PLAT_MACHINE_HARDWARE_H
 #define __PLAT_MACHINE_HARDWARE_H
 
-#define physBase          0x40000000
+#define physBase          0x80000000
 #define kernelBase        0xf0000000
 #define physMappingOffset (kernelBase - physBase)
 #define BASE_OFFSET       physMappingOffset
@@ -25,6 +25,10 @@
 #include <arch/object/structures.h>
 #include <plat/machine.h>
 #include <plat/machine/hardware_gen.h>
+
+#include <arch/machine/gic_pl390.h>
+#include <arch/machine/l2c_310.h>
+// #include <arch/machine/priv_timer.h>
 
 static inline void* CONST
 ptrFromPAddr(paddr_t paddr)
@@ -65,32 +69,32 @@ void map_kernel_devices(void);
 
 bool_t CONST isReservedIRQ(irq_t irq);
 void handleReservedIRQ(irq_t irq);
-void ackInterrupt(irq_t irq);
-bool_t isIRQPending(void);
+// void ackInterrupt(irq_t irq);
+// bool_t isIRQPending(void);
 /** MODIFIES: [*] */
-void maskInterrupt(bool_t enable, irq_t irq);
+// void maskInterrupt(bool_t enable, irq_t irq);
 /** MODIFIES: */
-irq_t getActiveIRQ(void);
+// irq_t getActiveIRQ(void);
 /** MODIFIES: [*] */
-static inline void setInterruptMode(irq_t irq, bool_t levelTrigger, bool_t polarityLow) { }
+// static inline void setInterruptMode(irq_t irq, bool_t levelTrigger, bool_t polarityLow) { }
 /** MODIFIES: [*] */
 void resetTimer(void);
 /** MODIFIES: [*] */
 void initTimer(void);
 /* L2 cache control */
 /** MODIFIES: [*] */
-void initL2Cache(void);
+// void initL2Cache(void);
 
-void initIRQController(void);
+// void initIRQController(void);
 
-void handleSpuriousIRQ(void);
+// void handleSpuriousIRQ(void);
 
 /** MODIFIES: [*] */
-static inline void plat_cleanL2Range(paddr_t start, paddr_t end) {}
+// static inline void plat_cleanL2Range(paddr_t start, paddr_t end) {}
 /** MODIFIES: [*] */
-static inline void plat_invalidateL2Range(paddr_t start, paddr_t end) {}
+// static inline void plat_invalidateL2Range(paddr_t start, paddr_t end) {}
 /** MODIFIES: [*] */
-static inline void plat_cleanInvalidateL2Range(paddr_t start, paddr_t end) {}
+// static inline void plat_cleanInvalidateL2Range(paddr_t start, paddr_t end) {}
 
 #endif /* !__ASSEMBLER__ */
 

@@ -24,8 +24,18 @@ ifeq ($(PLAT), exynos4)
     # samsung has NOT documented their location
 else
 
-ifneq ($(PLAT), omap4)
-    ARCH_C_SOURCES += machine/priv_timer.c
+ifeq ($(PLAT), omap4)
+	# Nothing to do
+else
+
+ifeq ($(PLAT), A20)
+	# Nothing to do
+else
+
+ARCH_C_SOURCES += machine/priv_timer.c
+
+endif
+
 endif
 
 endif
