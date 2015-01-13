@@ -50,7 +50,7 @@ case "$PLAT" in
         FORMAT=elf32-littlearm
         ;;
     "A20")
-        ENTRY_ADDR=0x41000000;
+        ENTRY_ADDR=0x42000000;
         FORMAT=elf32-littlearm
         ;;
     *)
