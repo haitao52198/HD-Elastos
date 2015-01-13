@@ -29,7 +29,7 @@
 #define L2CC_L2C310_PPTR               (L2CC_PL310_PPTR      )
 #define ARM_MP_PRIV_TIMER_PPTR         (ARM_MP_PPTR1 + 0x600 )
 #define ARM_MP_GLOBAL_TIMER_PPTR       (ARM_MP_PPTR1 + 0x200 )
-#define GIC_PL390_CONTROLLER_PPTR      (ARM_MP_PPTR1 + 0x100 )
+#define GIC_PL390_CONTROLLER_PPTR      (ARM_MP_PPTR1         )
 #define GIC_PL390_DISTRIBUTOR_PPTR     (ARM_MP_PPTR2         )
 
 /* Boot space */
