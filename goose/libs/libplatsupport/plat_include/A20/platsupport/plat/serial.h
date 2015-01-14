@@ -24,9 +24,9 @@
 #define UART2_IRQ    35
 #define UART3_IRQ    36
 #define UART4_IRQ    49
-#define UART4_IRQ    50
-#define UART4_IRQ    51
-#define UART4_IRQ    52
+#define UART5_IRQ    50
+#define UART6_IRQ    51
+#define UART7_IRQ    52
 
 /* official device names */
 enum chardev_id {
