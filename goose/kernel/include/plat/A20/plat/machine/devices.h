@@ -45,6 +45,15 @@
 #define BOOT_ROM1_PADDR                0x40014000 /* 8 pages */
 #define SRAM_INTERNAL_PADDR            0x40200000 /* 16 pages */
 
+#define UART0_PADDR                    0x01c28000
+#define UART1_PADDR                    0x01c28400
+#define UART2_PADDR                    0x01c28800
+#define UART3_PADDR                    0x01c28c00
+#define UART4_PADDR                    0x01c29000
+#define UART5_PADDR                    0x01c29400
+#define UART6_PADDR                    0x01c29800
+#define UART7_PADDR                    0x01c29c00
+
 /* L4 core (2 pages each unless specified) */
 /* 0x48000000 - 0x48300000 */
 #define SYSTEM_CONTROL_MODULE_PADDR    0x48002000
@@ -55,8 +64,6 @@
 #define I2C3_PADDR                     0x48060000
 #define USBTLL_PADDR                   0x48062000
 #define HS_USB_HOST_PADDR              0x48064000
-#define UART1_PADDR                    0x4806a000
-#define UART2_PADDR                    0x4806c000
 #define I2C1_PADDR                     0x48070000
 #define I2C2_PADDR                     0x48072000
 #define MCBSP1_PADDR                   0x48074000
@@ -101,7 +108,6 @@
 /* L4 peripherals (2 pages each) */
 /* 0x49000000 - 0x50000000 */
 #define L4_PER_CONFIG_PADDR            0x49000000
-#define UART3_PADDR                    0x01c28000
 #define MCBSP2_PADDR                   0x49022000
 #define MCBSP3_PADDR                   0x49024000
 #define MCBSP4_PADDR                   0x49026000
@@ -116,7 +122,6 @@
 #define GPTIMER7_PADDR                 0x4903c000
 #define GPTIMER8_PADDR                 0x4903e000
 #define GPTIMER9_PADDR                 0x49040000
-#define UART4_PADDR                    0x49042000
 #define GPIO2_PADDR                    0x49050000
 #define GPIO3_PADDR                    0x49052000
 #define GPIO4_PADDR                    0x49054000
