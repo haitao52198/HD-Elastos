@@ -19,7 +19,7 @@
 #define __PLAT_MACHINE_DEVICES_H
 
 /* These devices are used by the seL4 kernel. */
-#define UART3_PPTR                     0xfff01000
+#define UART0_PPTR                     0xfff01000
 // #define INTC_PPTR                      0xfff02000
 #define L2CC_PL310_PPTR                0xfff02000
 #define GPTIMER11_PPTR                 0xfff03000
@@ -31,6 +31,15 @@
 #define ARM_MP_GLOBAL_TIMER_PPTR       (ARM_MP_PPTR1 + 0x200 )
 #define GIC_PL390_CONTROLLER_PPTR      (ARM_MP_PPTR1 + 0x100 )
 #define GIC_PL390_DISTRIBUTOR_PPTR     (ARM_MP_PPTR2         )
+
+#define UART0_PADDR                    0x01c28000
+#define UART1_PADDR                    0x01c28400
+#define UART2_PADDR                    0x01c28800
+#define UART3_PADDR                    0x01c28c00
+#define UART4_PADDR                    0x01c29000
+#define UART5_PADDR                    0x01c29400
+#define UART6_PADDR                    0x01c29800
+#define UART7_PADDR                    0x01c29c00
 
 /* Boot space */
 /* 0x00000000 - 0x40000000 */
@@ -44,15 +53,6 @@
 #define BOOT_ROM0_PADDR                0x40000000 /* 20 pages */
 #define BOOT_ROM1_PADDR                0x40014000 /* 8 pages */
 #define SRAM_INTERNAL_PADDR            0x40200000 /* 16 pages */
-
-#define UART0_PADDR                    0x01c28000
-#define UART1_PADDR                    0x01c28400
-#define UART2_PADDR                    0x01c28800
-#define UART3_PADDR                    0x01c28c00
-#define UART4_PADDR                    0x01c29000
-#define UART5_PADDR                    0x01c29400
-#define UART6_PADDR                    0x01c29800
-#define UART7_PADDR                    0x01c29c00
 
 /* L4 core (2 pages each unless specified) */
 /* 0x48000000 - 0x48300000 */
@@ -108,6 +108,7 @@
 /* L4 peripherals (2 pages each) */
 /* 0x49000000 - 0x50000000 */
 #define L4_PER_CONFIG_PADDR            0x49000000
+
 #define MCBSP2_PADDR                   0x49022000
 #define MCBSP3_PADDR                   0x49024000
 #define MCBSP4_PADDR                   0x49026000

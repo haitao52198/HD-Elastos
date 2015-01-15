@@ -64,6 +64,7 @@ const p_region_t BOOT_RODATA dev_p_regs[] = {
     { I2C3_PADDR                    , I2C3_PADDR                     + ( 2 << PAGE_BITS) },
     { USBTLL_PADDR                  , USBTLL_PADDR                   + ( 2 << PAGE_BITS) },
     { HS_USB_HOST_PADDR             , HS_USB_HOST_PADDR              + ( 2 << PAGE_BITS) },
+    { UART0_PADDR                   , UART0_PADDR                    + ( 1 << PAGE_BITS) },
     { UART1_PADDR                   , UART1_PADDR                    + ( 2 << PAGE_BITS) },
     { UART2_PADDR                   , UART2_PADDR                    + ( 2 << PAGE_BITS) },
     { I2C1_PADDR                    , I2C1_PADDR                     + ( 2 << PAGE_BITS) },
@@ -217,8 +218,8 @@ map_kernel_devices(void)
 #ifdef DEBUG
     /* map kernel device: UART */
     map_kernel_frame(
-        UART3_PADDR,
-        UART3_PPTR,
+        UART0_PADDR,
+        UART0_PPTR,
         VMKernelOnly,
         vm_attributes_new(
             false, /* armParityEnabled */
