@@ -29,6 +29,9 @@
 #if defined(CONFIG_ARM1136JF_S)
 #define L1_CACHE_LINE_SIZE_BITS  5 /* 32 bytes */
 
+#elif defined(ARM_CORTEX_A7)
+#define L1_CACHE_LINE_SIZE_BITS  5 /* 32 bytes */
+
 #elif defined(ARM_CORTEX_A8)
 #define L1_CACHE_LINE_SIZE_BITS  6 /* 64 bytes */
 
