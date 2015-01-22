@@ -16,7 +16,7 @@
 ############################################################
 
 ARCH_LIST:=arm ia32
-CPU_LIST:=arm1136jf-s ixp420 cortex-a8 cortex-a9 cortex-a15
+CPU_LIST:=arm1136jf-s ixp420 cortex-a7 cortex-a8 cortex-a9 cortex-a15
 PLAT_LIST:=imx31 pc99 ixp420 omap3 am335x exynos4 exynos5 imx6 apq8064 omap4 A20
 ARMV_LIST:=armv6 armv7-a
 
@@ -352,11 +352,15 @@ ifeq (${ARCH}, arm)
 CFLAGS += -mtune=${CPU} -marm -march=${ARMV}
 ASFLAGS += -Wa,-mcpu=${CPU} -Wa,-march=${ARMV}
 DEFINES += -D$(shell echo ${ARMV}|tr [:lower:] [:upper:]|tr - _)
+ifeq (${CPU},cortex-a7)
+DEFINES += -DARM_CORTEX_A7
+else
 ifeq (${CPU},cortex-a8)
 DEFINES += -DARM_CORTEX_A8
 else
 ifeq (${CPU},cortex-a9)
 DEFINES += -DARM_CORTEX_A9
+endif
 endif
 endif
 endif

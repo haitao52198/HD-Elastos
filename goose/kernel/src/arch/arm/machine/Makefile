@@ -15,6 +15,12 @@ ARCH_C_SOURCES += machine/hardware.c \
                   machine/cache.c \
                   machine/errata.c
 
+ifeq ($(CPU), cortex-a7)
+	# A7 is just like omap4
+    ARCH_C_SOURCES += machine/gic_pl390.c
+    ARCH_C_SOURCES += machine/l2c_310.c
+endif
+
 ifeq ($(CPU), cortex-a9)
     ARCH_C_SOURCES += machine/gic_pl390.c
     ARCH_C_SOURCES += machine/l2c_310.c
@@ -28,13 +34,7 @@ ifeq ($(PLAT), omap4)
 	# Nothing to do
 else
 
-ifeq ($(PLAT), A20)
-	# Nothing to do
-else
-
 ARCH_C_SOURCES += machine/priv_timer.c
-
-endif
 
 endif
 

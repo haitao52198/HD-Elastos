@@ -170,7 +170,7 @@ config ARCH_IA32
         config PLAT_A20
             bool "A20"
             depends on ARCH_ARM
-            depends on ARM_CORTEX_A9
+            depends on ARM_CORTEX_A7
             help
                 Support for A20 platform (LAMOBO-M1).
     endchoice
