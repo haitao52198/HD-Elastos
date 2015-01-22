@@ -15,13 +15,19 @@
 
 .global lockTLBEntry
 
-#if defined(ARM_CORTEX_A15)
+#if defined(ARM_CORTEX_A7)
+/* A7 hardware does not support TLB locking */
+BEGIN_FUNC(lockTLBEntry)
+    bx lr
+END_FUNC(lockTLBEntry)
+
+#elif defined(ARM_CORTEX_A15) /* !ARM_CORTEX_A7 */
 /* A15 hardware does not support TLB locking */
 BEGIN_FUNC(lockTLBEntry)
     bx lr
 END_FUNC(lockTLBEntry)
 
-#else /* !ARM_CORTEX_A15 */
+#else /* !(ARM_CORTEX_A7 | ARM_CORTEX_A15) */
 
 /* lockTLBEntry should lie within a single page so that spurious TLB walks do
  * not interfere. Aligning to a 64-byte instruction boundary will suffice, as
@@ -84,4 +90,4 @@ BEGIN_FUNC(lockTLBEntry)
 tlb_lock_count:
     .word 0
 END_FUNC(lockTLBEntry)
-#endif /* ARM_CORTEX_A15 */
+#endif /* ARM_CORTEX_A7 */
