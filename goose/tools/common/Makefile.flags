@@ -101,6 +101,15 @@ ifeq ($(CONFIG_ARM1136JF_S),y)
 	export CPU=arm1136jf-s
 endif
 
+ifeq ($(CONFIG_ARM_CORTEX_A7),y)
+	ccflags-y += $(call cc-option, -mcpu=cortex-a7,-march=armv7-a)
+	asflags-y += $(call as-option, -Wa$(comma)-mcpu=cortex-a7, -Wa$(comma)-march-armv7-a)
+	DEFINES += ARMV7_A
+	DEFINES += ARM_CORTEX_A7
+	export ARMV=armv7-a
+	export CPU=cortex-a7
+endif
+
 ifeq ($(CONFIG_ARM_CORTEX_A8),y)
 	ccflags-y += $(call cc-option, -mcpu=cortex-a8,-march=armv7-a)
 	asflags-y += $(call as-option, -Wa$(comma)-mcpu=cortex-a8, -Wa$(comma)-march-armv7-a)
