@@ -1,0 +1,77 @@
+[
+    {
+        "local": "goose/tools/common",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/common-tool.git"
+    },
+    {
+        "local": "goose/tools/elfloader",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/elfloader-tool.git"
+    },
+    {
+        "local": "goose/tools/kbuild",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/kbuild-tool.git"
+    },
+    {
+        "local": "goose/libs/libsel4test",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/libsel4test.git"
+    },
+    {
+        "local": "goose/libs/libsel4utils",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/libsel4utils.git"
+    },
+    {
+        "local": "goose/libs/libsel4muslcsys",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/libsel4muslcsys.git"
+    },
+    {
+        "local": "goose/libs/libsel4simple",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/libsel4simple.git"
+    },
+    {
+        "local": "goose/libs/libcpio",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/libcpio.git"
+    },
+    {
+        "local": "goose/libs/libsel4vspace",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/libsel4vspace.git"
+    },
+    {
+        "local": "goose/libs/libsel4simple-default",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/libsel4simple-default.git"
+    },
+    {
+        "local": "goose/libs/libsel4simple-stable",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/libsel4simple-stable.git"
+    },
+    {
+        "local": "goose/libs/libutils",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/libutils.git"
+    },
+    {
+        "local": "goose/libs/libsel4vka",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/libsel4vka.git"
+    },
+    {
+        "local": "goose/libs/libsel4allocman",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/libsel4allocman.git"
+    },
+    {
+        "local": "goose/libs/libelf",
+        "date": "Wed Nov 26 08:36:34 2014 +0800",
+        "remote": "https://github.com/seL4/libelf.git"
+    }
+]
