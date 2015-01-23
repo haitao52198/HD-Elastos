@@ -16,6 +16,11 @@
 #ifndef __AW_TIMER_H__
 #define __AW_TIMER_H__
 
+#include <platsupport/mach/gpt.h>
+
+//Linux
+#if 0
+
 #include "platform.h"
 
 /* timer reg offset */
@@ -133,6 +138,7 @@
 
 void __init aw_clksrc_init(void);
 void aw_clkevt_init(void);
+#endif
 
 #endif  /* #ifndef __AW_CLOCKSRC_H__ */
 
