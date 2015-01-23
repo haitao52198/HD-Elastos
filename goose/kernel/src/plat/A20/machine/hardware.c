@@ -40,7 +40,7 @@ const p_region_t BOOT_RODATA dev_p_regs[] = {
     /* sorted by increasing memory address */
     /* region caps must be a power of 2. */
 
-
+#if 0
     /* Boot space */
     /* 0x00000000 - 0x40000000 */
 //  { GPMC_PADDR                    , GPMC_PADDR                     + ( 1 << 30       ) },
@@ -156,7 +156,7 @@ const p_region_t BOOT_RODATA dev_p_regs[] = {
 //  { L3_SMS_CONFIG                 , L3_SMS_CONFIG                  + (16 << 20       ) },
 //  { L3_SDRC_CONFIG                , L3_SDRC_CONFIG                 + (16 << 20       ) },
 //  { L3_GPMC_CONFIG                , L3_GPMC_CONFIG                 + (16 << 20       ) }
-
+#endif
 };
 
 BOOT_CODE int get_num_dev_p_regs(void)
