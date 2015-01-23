@@ -316,7 +316,7 @@ init_plat(void)
 {
     initIRQController();
     initTimer();
-    initL2Cache();
+    //initL2Cache();
 }
 
 /* Main kernel initialisation function. */

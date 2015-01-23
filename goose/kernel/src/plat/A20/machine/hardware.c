@@ -175,7 +175,7 @@ map_kernel_devices(void)
 {
     /* map kernel device: GIC_PL390 */
 	map_kernel_frame(
-		ARM_MP_PADDR,
+		AW_TIMER_MAP_BASE,
 		ARM_MP_PPTR1,
 		VMKernelOnly,
 		vm_attributes_new(
@@ -184,8 +184,17 @@ map_kernel_devices(void)
 		)
 	);
     map_kernel_frame(
-		ARM_MP_PADDR + BIT(PAGE_BITS),
+		AW_GIC_DIST_BASE,
 		ARM_MP_PPTR2,
+        VMKernelOnly,
+        vm_attributes_new(
+            false, /* armParityEnabled */
+            false  /* armPageCacheable */
+        )
+    );
+    map_kernel_frame(
+        AW_GIC_CPU_BASE,
+        ARM_MP_PPTR3,
         VMKernelOnly,
         vm_attributes_new(
             false, /* armParityEnabled */
@@ -385,7 +394,7 @@ resetTimer(void)
 uint64_t readGlobTimerCounter(void);
 void writeGlobTimerCounter(uint64_t u64);
 
-BOOT_CODE void 
+BOOT_CODE void
 initTimer(void)
 {
     /**

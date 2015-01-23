@@ -25,11 +25,13 @@
 #define GPTIMER11_PPTR                 0xfff03000
 #define ARM_MP_PPTR1                   0xfff04000
 #define ARM_MP_PPTR2                   0xfff05000
+#define ARM_MP_PPTR3                   0xfff06000
 
 #define L2CC_L2C310_PPTR               (L2CC_PL310_PPTR      )
 #define ARM_MP_PRIV_TIMER_PPTR         (ARM_MP_PPTR1 + 0x600 )
 #define ARM_MP_GLOBAL_TIMER_PPTR       (ARM_MP_PPTR1 + 0x200 )
-#define GIC_PL390_CONTROLLER_PPTR      (ARM_MP_PPTR1 + 0x100 )
+//#define GIC_PL390_CONTROLLER_PPTR      (ARM_MP_PPTR1 + 0x100 )
+#define GIC_PL390_CONTROLLER_PPTR      ARM_MP_PPTR3
 #define GIC_PL390_DISTRIBUTOR_PPTR     (ARM_MP_PPTR2         )
 
 #define UART0_PADDR                    0x01c28000
@@ -40,6 +42,16 @@
 #define UART5_PADDR                    0x01c29400
 #define UART6_PADDR                    0x01c29800
 #define UART7_PADDR                    0x01c29c00
+
+/*
+ * other reg defination, not found in spec
+ */
+#define AW_GIC_DIST_BASE                  0x01c81000
+#define AW_GIC_CPU_BASE                   0x01c82000
+#define AW_TIMER_MAP_BASE                 0x01c80000
+#define AW_TIMER_G_BASE                   0x01c80200 /* CPU global timer, not used */
+#define AW_TIMER_P_BASE                   0x01c80600 /* CPU private timer, not used */
+
 
 /* Boot space */
 /* 0x00000000 - 0x40000000 */
