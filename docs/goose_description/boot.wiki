@@ -1,0 +1,122 @@
+====== fatload(u-boot) ======
+
+<code class="shell">fatload mmc 0 0x80000000 <image_name></code>
+Load elf-image from disk to memory.
+
+====== bootelf(u-boot) ======
+
+Jump to entry point of elf-image.
+
+====== main(tools/elfloader/src/arch-arm/boot.c) ======
+
+===== Unpack ELF image =====
+
+==== Load kernel ====
+
+==== Load userspace ====
+
+We assume (and check) that the kernel is the first file in the archive, and then load the (n+1)’th file in the archive onto the (n)’th CPU.
+
+> We can load userspaces image for each CPU core. But the source code of seL4 just load for one CPU.
+
+===== Setup MMU =====
+
+<source lang="c">/* Setup MMU. */
+cpu_mode = read_cpsr() & CPSR_MODE_MASK;
+    if(cpu_mode == CPSR_MODE_HYPERVISOR){
+        printf(“Enabling hypervisor MMU and paging\n”);
+        init_lpae_boot_pd(&kernel_info);
+        arm_enable_hyp_mmu();
+    }
+}
+/* If we are in HYP mode, we enable the SV MMU and paging
+ * just in case the kernel does not support hyp mode. */
+printf(“Enabling MMU and paging\n”);
+init_boot_pd(&kernel_info);
+arm_enable_mmu();</source>
+==== init_boot_pd(function) ====
+
+Create a “boot” page directory, which contains a 1:1 mapping below the kernel’s first vaddr, and a virtual-to-physical mapping above the kernel’s first vaddr.
+
+==== arm_enable_mmu(function) ====
+
+This is a function writen by arm assembly language, defined in ‘tools/elfloader/src/arch-arm/mmu-v7a.S’.
+
+It is expected that the code of this function will be mapped 1:1 virtual/physical in the pagetable we activate.
+
+===== Enter kernel =====
+
+Jumping to kernel-image entry point.
+
+====== init_kernel(kernel/src/arch/arm/kernel/boot.c) ======
+
+This is the entry point of kernel-image.
+
+Call function ''%%try_init_kernel%%''.
+
+====== try_init_kernel(function) ======
+
+===== map_kernel_window(kernel/src/arch/arm/kernel/vspace.c) =====
+
+Mapping of kernelBase (virtual address) to kernel’s physBase
+
+Up to end of virtual address space minus 16M using 16M frames
+
+> What is ''%%BANCHMARK%%''?
+
+===== init_cpu =====
+
+==== activate_global_pd(kernel/src/arch/arm/kernel/vspace.c) ====
+
+Ensure that there’s nothing stale in newly-mapped regions, and that everything we’ve written (particularly the kernel page tables) is committed.
+
+=== cleanInvalidateL1Caches ===
+
+=== setCurrentPD ===
+
+=== invalidateTLB ===
+
+=== lockTLBEntry(kernelBase) ===
+
+=== lockTLBEntry(PPTR_VECTOR_TABLE) ===
+
+===== init_plat =====
+
+==== initIRQController ====
+
+==== initTimer ====
+
+==== initL2Cache ====
+
+===== init_freemem =====
+
+===== Create the root cnode =====
+
+===== create_domain_cap =====
+
+===== init_irqs =====
+
+===== create_bi_frame_cap =====
+
+===== IPC buffer =====
+
+===== Frames for userland image =====
+
+===== ASID pool =====
+
+===== create_idle_thread =====
+
+===== cleanInvalidateL1Caches =====
+
+===== create_initial_thread =====
+
+===== create_untypeds =====
+
+===== create_device_frames =====
+
+===== no shared-frame caps =====
+
+===== bi_finalise =====
+
+===== cleanInvalidateL1Caches =====
+

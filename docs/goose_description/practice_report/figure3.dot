@@ -1,0 +1,4 @@
+digraph {
+	Node[shape=box];
+	"CONFIG" -> "SET ARGUMENT" -> "SPWAN" -> "SEND DATA" -> "WAIT" -> "UNMAP" -> "RESET" -> "DESTORY"
+}
