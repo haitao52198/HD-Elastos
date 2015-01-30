@@ -1,0 +1,343 @@
+<!-- MarkdownTOC -->
+* fatload(u-boot)
+* bootelf(u-boot)
+* @main@(tools/elfloader/src/arch-arm/boot.c)
+** Unpack ELF image
+*** Load kernel
+*** Load userspace
+** Setup MMU
+*** @init_boot_pd@(function)
+*** @arm_enable_mmu@(function)
+** Enter kernel
+*** @_start@(kernel/src/arch/arm/head.S)
+* @init_kernel@(kernel/src/arch/arm/kernel/boot.c)
+* @try_init_kernel@(function)
+** @map_kernel_window@(kernel/src/arch/arm/kernel/vspace.c)
+** @init_cpu@
+*** @activate_global_pd@(kernel/src/arch/arm/kernel/vspace.c)
+**** @cleanInvalidateL1Caches@
+**** @setCurrentPD@
+**** @invalidateTLB@
+**** @lockTLBEntry(kernelBase)@
+**** @lockTLBEntry(PPTR_VECTOR_TABLE)@
+** @init_plat@
+*** @initIRQController@
+*** @initTimer@
+*** @initL2Cache@
+** @init_freemem@
+** About capability and thread
+*** Create the root cnode
+*** Create some basic capability
+**** @create_domain_cap@
+**** @create_irq_cnode@
+*** @init_irqs@
+*** bootinfo preparation
+**** @allocate_bi_frame@
+**** @create_it_address_space@
+**** @create_bi_frame_cap@
+*** IPC buffer
+*** Frames for userland image
+*** ASID pool
+*** @create_idle_thread@
+*** @cleanInvalidateL1Caches@
+*** @create_initial_thread@
+*** @create_untypeds@
+** @create_device_frames@
+** _no shared-frame caps_
+** @bi_finalise@
+** @cleanInvalidateL1Caches@
+
+<!-- /MarkdownTOC -->
+
+h1(#fatloadu-boot). fatload(u-boot)
+
+<pre><code class="shell">
+    fatload mmc 0 0x80000000 <image_name>
+</code></pre>
+
+
+Load elf-image from disk to memory.
+
+h1(#bootelfu-boot). bootelf(u-boot)
+
+Jump to entry point of elf-image.
+
+h1(#maintoolselfloadersrcarch-armboot.c). @main@(tools/elfloader/src/arch-arm/boot.c)
+
+h2(#unpack-elf-image). Unpack ELF image
+
+h3(#load-kernel). Load kernel
+
+h3(#load-userspace). Load userspace
+
+We assume (and check) that the kernel is the first file in the archive, and then load the (n+1)'th file in the archive onto the (n)'th CPU.
+
+bq. We can load userspaces image for each CPU core. But the source code of seL4 just load for one CPU.
+
+
+
+h2(#setup-mmu). Setup MMU
+
+<pre><code class="c">
+/* Setup MMU. */
+cpu_mode = read_cpsr() & CPSR_MODE_MASK;
+    if(cpu_mode == CPSR_MODE_HYPERVISOR){
+        printf(“Enabling hypervisor MMU and paging\n”);
+        init_lpae_boot_pd(&kernel_info);
+        arm_enable_hyp_mmu();
+    }
+}
+/* If we are in HYP mode, we enable the SV MMU and paging
+ * just in case the kernel does not support hyp mode. */
+printf(“Enabling MMU and paging\n”);
+init_boot_pd(&kernel_info);
+arm_enable_mmu();
+</code></pre>
+
+h3(#init_boot_pdfunction). @init_boot_pd@(function)
+
+Create a “boot” page directory, which contains a 1:1 mapping below the kernel's first vaddr, and a virtual-to-physical mapping above the kernel's first vaddr.
+
+h3(#arm_enable_mmufunction). @arm_enable_mmu@(function)
+
+This is a function writen by arm assembly language, defined in ‘tools/elfloader/src/arch-arm/mmu-v7a.S'.
+
+It is expected that the code of this function will be mapped 1:1 virtual/physical in the pagetable we activate.
+
+h2(#enter-kernel). Enter kernel
+
+Jumping to kernel-image entry point.
+
+<pre><code class="c">
+/* Jump to the kernel. */
+((init_kernel_t)kernel_info.virt_entry)(user_info.phys_region_start,
+                                        user_info.phys_region_end,
+                                        user_info.phys_virt_offset,
+                                        user_info.virt_entry);
+</code></pre>
+
+kernel&#95;info is a symbol whose address defined in 'linker.lds'.
+
+kernel&#95;info.virt&#95;entry = 0xf0000000.
+
+And this is the address of symbol @_start@ defined in ‘kernel/src/arch/arm/head.S'.
+
+h3(#startkernelsrcarcharmhead.s). @_start@(kernel/src/arch/arm/head.S)
+
+<pre><code class="arm">
+BEGIN_FUNC(_start)
+    ...
+
+    /* Call bootstrapping implemented in C */
+    blx init_kernel
+
+    /* Restore the initial thread */
+    ldr r7, =ksCurThread
+    ldr sp, [r7]
+    add sp, sp, #PT_LR_svc
+    ldmdb sp, {r0-lr}^
+    rfeia sp
+END_FUNC(_start)
+</code></pre>
+
+Instruction @blx init_kernel@ will call the function in 'kernel/src/arch/arm/kernel/boot.c' to initialize the kernel.
+
+h1(#init_kernelkernelsrcarcharmkernelboot.c). @init_kernel@(kernel/src/arch/arm/kernel/boot.c)
+
+This is the entry point of kernel-image.
+
+Call function @try_init_kernel@.
+
+h1(#try_init_kernelfunction). @try_init_kernel@(function)
+
+h2(#map_kernel_windowkernelsrcarcharmkernelvspace.c). @map_kernel_window@(kernel/src/arch/arm/kernel/vspace.c)
+
+# Mapping of kernelBase (virtual address) to kernel's physBase up to end of virtual address space minus 16M using 16M frames[1].
+# Mapping of the next 15M[2] using 1M frames[3].
+# Map page table covering last 1M of virtual address space to page directory.
+# Start initialising the page table.
+# Map vector table
+# Map globals table
+# Map stack table
+
+bq. What is @BANCHMARK@?
+
+
+
+h2(#init_cpu). @init_cpu@
+
+h3(#activate_global_pdkernelsrcarcharmkernelvspace.c). @activate_global_pd@(kernel/src/arch/arm/kernel/vspace.c)
+
+Ensure that there's nothing stale in newly-mapped regions, and that everything we've written (particularly the kernel page tables) is committed.
+
+h4(#cleaninvalidatel1caches). @cleanInvalidateL1Caches@
+
+h4(#setcurrentpd). @setCurrentPD@
+
+h4(#invalidatetlb). @invalidateTLB@
+
+h4(#locktlbentrykernelbase). @lockTLBEntry(kernelBase)@
+
+h4(#locktlbentrypptr_vector_table). @lockTLBEntry(PPTR_VECTOR_TABLE)@
+
+h2(#init_plat). @init_plat@
+
+h3(#initirqcontroller). @initIRQController@
+
+h3(#inittimer). @initTimer@
+
+h3(#initl2cache). @initL2Cache@
+
+h2(#init_freemem). @init_freemem@
+
+make the free memory available to alloc&#95;region()
+
+h2(#about-capability-and-thread). About capability and thread
+
+Some operations about capability and thread by following.
+
+h3(#create-the-root-cnode). Create the root cnode
+
+<pre><code class="c">
+root_cnode_cap = create_root_cnode();
+if (cap_get_capType(root_cnode_cap) == cap_null_cap) {
+    return false;
+}
+</code></pre>
+
+In function @create_root_cnode@(kernel/src/kernel/boot.c):
+
+# Write the number of root CNode slots to global state.
+# Create an empty root CNode.
+# Write the root CNode cap into the root CNode.
+
+h3(#create-some-basic-capability). Create some basic capability
+
+<pre><code class="c">
+/* create the cap for managing thread domains */
+create_domain_cap(root_cnode_cap);
+
+/* create the IRQ CNode */
+if (!create_irq_cnode()) {
+    return false;
+}
+</code></pre>
+
+h4(#create_domain_cap). @create_domain_cap@
+
+Create the capability for managing thread domains.
+
+<pre><code class="c">
+cap = cap_domain_cap_new();
+write_slot(SLOT_PTR(pptr_of_cap(root_cnode_cap), BI_CAP_DOM), cap);
+</code></pre>
+
+h4(#create_irq_cnode). @create_irq_cnode@
+
+Create an empty region for intStateIRQNode.
+
+<pre><code class="c">
+pptr = alloc_region(PAGE_BITS);
+...
+memzero((void*)pptr, 1 << PAGE_BITS);
+intStateIRQNode = (cte_t*)pptr;
+</code></pre>
+
+h3(#init_irqs). @init_irqs@
+
+Initialise the IRQ states and provide the IRQ control cap.
+
+This function set all IRQState as inactive, except of KERNEL&#95;TIMER&#95;IRQ set as Timer. And then write slot to provide the IRQ control capability.
+
+h3(#bootinfo-preparation). bootinfo preparation
+
+h4(#allocate_bi_frame). @allocate_bi_frame@
+
+Create the bootinfo frame.
+
+h4(#create_it_address_space). @create_it_address_space@
+
+Construct an initial address space with enough virtual addresses to cover the user image + ipc buffer and bootinfo frames
+
+h4(#create_bi_frame_cap). @create_bi_frame_cap@
+
+Create and map bootinfo frame cap.
+
+h3(#ipc-buffer). IPC buffer
+
+<pre><code class="c">
+/* create the initial thread's IPC buffer */
+ipcbuf_cap = create_ipcbuf_frame(root_cnode_cap, it_pd_cap, ipcbuf_vptr);
+if (cap_get_capType(ipcbuf_cap) == cap_null_cap) {
+    return false;
+}
+</code></pre>
+
+h3(#frames-for-userland-image). Frames for userland image
+
+Call @create_frames_of_region@ to create a region for @ndks_boot.bi_frame->ui_frame_caps@.
+
+h3(#asid-pool). ASID pool
+
+Create/initialise the initial thread's ASID pool.
+
+<pre><code class="c">
+it_ap_cap = create_it_asid_pool(root_cnode_cap);
+if (cap_get_capType(it_ap_cap) == cap_null_cap) {
+    return false;
+}
+write_it_asid_pool(it_ap_cap, it_pd_cap);
+</code></pre>
+
+h3(#create_idle_thread). @create_idle_thread@
+
+# Allocate TCB(Thread Control Block) for idle thread.
+# configure idle thread by function @configureIdleThread@.
+
+h3(#cleaninvalidatel1caches-1). @cleanInvalidateL1Caches@
+
+h3(#create_initial_thread). @create_initial_thread@
+
+<pre><code class="c">
+BOOT_CODE bool_t
+create_initial_thread(
+    cap_t  root_cnode_cap,
+    cap_t  it_pd_cap,
+    vptr_t ui_v_entry,
+    vptr_t bi_frame_vptr,
+    vptr_t ipcbuf_vptr,
+    cap_t  ipcbuf_cap
+);
+</code></pre>
+
+Above is the declare of function @create_initial_thread@. Process by following.
+
+# Allocate TCB.
+# Derive a copy of the IPC buffer cap for inserting.
+# Initialise TCB (corresponds directly to abstract specification).
+# Initialise TCB.
+# Initialise current thread pointer.
+# Create initial thread's TCB cap.
+
+h3(#create_untypeds). @create_untypeds@
+
+Convert the remaining free memory into UT objects and provide the caps.
+
+h2(#create_device_frames). @create_device_frames@
+
+create device frames
+
+h2(#no-shared-frame-caps). _no shared-frame caps_
+
+h2(#bi_finalise). @bi_finalise@
+
+h2(#cleaninvalidatel1caches-2). @cleanInvalidateL1Caches@
+
+
+fn1. The size of a SuperSection is 16M. See @enum@ type variable @vm_page_sie@ and @frameSizeConstants@.
+
+fn2. If Define @CONFIG_BENCHMARK@, just map 14M and steal the last MB for logging.
+
+fn3. The size of a normal Section is 1M. Refer to above.
+
+

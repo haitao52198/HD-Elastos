@@ -1,0 +1,43 @@
+digraph pagefault {
+	call1[label="printf; (sel4utils_print_fault_message() in 'libsel4utils/src/thread.c')"];
+	call2[label="run_test() in 'sel4test-driver/src/main.c'"];
+	call3[label="FAILURE result from test endpoint; (seL4_Wait() in 'sel4test-driver/src/main.c')"];
+	call4[label="seL4_Send(); (main() in 'sel4test-tests/src/main.c')"];
+	call5[label="result = test->function(&env, test->args); (main() in 'sel4test-tests/src/main.c')"];
+	call6[label="void *mem = a->mspace.alloc(, byte,); (test_vka_allocator() in 'sel4test-tests/src/tests/tj_vka_alloc.c')"];
+	#call7[label="void *result = malloc(bytes); (_mspace_malloc_alloc() in 'libsel4allocman/src/mspace/malloc.c')"];
+	#call8[label="if (adjust_size(&n) < 0) return 0; (malloc() in 'libmuslc/src/malloc/malloc.c')"];
+	#call9[label="if (*n-1 > PTRDIFF_MAX - SIZE_ALIGN - PAGE_SIZE); (adjust_size() in 'libmuslc/src/malloc/malloc.c')"]
+	call7[label="_mspace_virtual_pool_alloc(, byte,); (_mspace_dual_pool_alloc() in 'libsel4allocman/src/mspace/dual_pool.c')"];
+	call8[label="mspace_k_r_malloc_alloc(, bytes); (_mspace_virtual_pool_alloc() in 'libsel4allocman/src/mspace/virtual_pool.c')"];
+
+	#define PTRDIFF_MAX     0x7fffffff
+	#define SIZE_ALIGN      16
+	#define PAGE_SIZE    (0x1000)
+	#PTRDIFF_MAX - SIZE_ALIGN - PAGE_SIZE = 
+	
+	call8 -> call4 -> call3 -> call2 -> call1;
+	call5 -> call6;
+	call6 -> call7 [label="bytes = 0x2000"];
+	call7 -> call8;
+	#call7 -> call8 [label="bytes = 8k"];
+	#call8 -> call9 [label="*n = 8k"];
+
+	allocman_t *bootstrap_use_current_1level(
+		seL4_CPtr root_cnode, 
+		int cnode_size, 
+		seL4_CPtr start_slot, 
+		seL4_CPtr end_slot, 
+		uint32_t pool_size, 
+		char *pool
+		)
+
+	allocman_t *bootstrap_new_1level_bootinfo(
+		seL4_BootInfo *bi,
+		int cnode_size,
+		uint32_t pool_size,
+		char *pool,
+		cspace_simple1level_t **old_cspace
+	 	)
+
+}

@@ -1,0 +1,25 @@
+
+
+
+Hello, this is a demo
+  Test: Hi~
+
+=================== [CONFIG] Hi! ===================
+=================== [ARGV] Hi! ===================
+=================== [SPWAN] Hi! ===================
+=================== [SENDDATA] Hi! ===================
+
+Hi~
+
+=================== [WAIT] Hi! ===================
+=================== [UNMAP] Hi! ===================
+=================== [RESET] Hi! ===================
+=================== [DESTORY] Hi! ===================
+
+Ignoring call to sys_rt_sigprocmask
+Ignoring call to sys_getpid
+Ignoring call to sys_getpid
+sys_tgtill assuming self kill
+
+
+
