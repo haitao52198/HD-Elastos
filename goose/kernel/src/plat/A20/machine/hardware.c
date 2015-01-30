@@ -18,6 +18,8 @@
 #include <plat/machine/devices.h>
 #include <plat/machine/hardware.h>
 
+#include <jiffies.h>
+
 /* Available physical memory regions on platform (RAM minus kernel image). */
 /* NOTE: Regions are not allowed to be adjacent! */
 
@@ -36,9 +38,14 @@ BOOT_CODE p_region_t get_avail_p_reg(unsigned int i)
     return avail_p_regs[i];
 }
 
+//temporary defined value
+#define A20GPT_DEVICE_PADDR               0x49031000
+
 const p_region_t BOOT_RODATA dev_p_regs[] = {
     /* sorted by increasing memory address */
     /* region caps must be a power of 2. */
+    { A20GPT_DEVICE_PADDR           , A20GPT_DEVICE_PADDR            + ( 2 << PAGE_BITS) },
+
 
 #if 0
     /* Boot space */
@@ -437,7 +444,7 @@ initTimer(void)
     priv_timer->ctrl |= TMR_CTRL_ENABLE;
 }
 
-uint64_t readGlobTimerCounter()
+inline uint64_t get_jiffies(void)
 {
     uint32_t u, u2, l;
     uint64_t u64;
@@ -455,7 +462,7 @@ uint64_t readGlobTimerCounter()
 
 }
 
-void writeGlobTimerCounter(uint64_t u64)
+inline void set_jiffies(uint64_t u64)
 {
     union {
         uint64_t u64;
