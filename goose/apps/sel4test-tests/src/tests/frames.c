@@ -238,7 +238,8 @@ test_frame_exported(env_t env, void *args)
             *data = 'U';
             test_assert(*data == 'U');
 
-#ifndef CONFIG_KERNEL_STABLE
+#if 0
+ndef CONFIG_KERNEL_STABLE
             err = seL4_ARCH_Page_Remap(frame.cptr,
                                        env->page_directory,
                                        seL4_AllRights,

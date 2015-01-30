@@ -38,8 +38,8 @@ BOOT_CODE p_region_t get_avail_p_reg(unsigned int i)
     return avail_p_regs[i];
 }
 
-//temporary defined value
-#define A20GPT_DEVICE_PADDR               0x49031000
+//temporary define
+#define A20GPT_DEVICE_PADDR 0x49031000
 
 const p_region_t BOOT_RODATA dev_p_regs[] = {
     /* sorted by increasing memory address */
@@ -185,10 +185,11 @@ map_kernel_devices(void)
 		AW_TIMER_MAP_BASE,
 		ARM_MP_PPTR1,
 		VMKernelOnly,
-		vm_attributes_new(
-			false, /* armParityEnabled */
-			false  /* armPageCacheable */
-		)
+        vm_attributes_new(
+            false, /* armParityEnabled */
+            false, /* armPageCacheable */
+            false  /* armExecuteNever */
+        )
 	);
     map_kernel_frame(
 		AW_GIC_DIST_BASE,
@@ -196,7 +197,8 @@ map_kernel_devices(void)
         VMKernelOnly,
         vm_attributes_new(
             false, /* armParityEnabled */
-            false  /* armPageCacheable */
+            false, /* armPageCacheable */
+            false  /* armExecuteNever */
         )
     );
     map_kernel_frame(
@@ -205,7 +207,8 @@ map_kernel_devices(void)
         VMKernelOnly,
         vm_attributes_new(
             false, /* armParityEnabled */
-            false  /* armPageCacheable */
+            false, /* armPageCacheable */
+            false  /* armExecuteNever */
         )
     );
 
@@ -216,7 +219,8 @@ map_kernel_devices(void)
         VMKernelOnly,
         vm_attributes_new(
             false, /* armParityEnabled */
-            false  /* armPageCacheable */
+            false, /* armPageCacheable */
+            false  /* armExecuteNever */
         )
     );
 
@@ -239,7 +243,8 @@ map_kernel_devices(void)
         VMKernelOnly,
         vm_attributes_new(
             false, /* armParityEnabled */
-            false  /* armPageCacheable */
+            false, /* armPageCacheable */
+            false  /* armExecuteNever */
         )
     );
 #endif
