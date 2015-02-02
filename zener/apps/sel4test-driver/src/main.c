@@ -362,7 +362,7 @@ init_timer_caps(env_t env)
     assert(error == 0);
 
     vka_cspace_make_path(&env->vka, cap, &env->frame_path);
-    error = simple_get_frame_cap(&env->simple, (void *) DEFAULT_TIMER_PADDR, PAGE_BITS_4K, &env->frame_path);
+    error = simple_get_frame_cap(&env->simple, (void *) /*DEFAULT_TIMER_PADDR */0x49031000, PAGE_BITS_4K, &env->frame_path);
     assert(error == 0);
 #elif CONFIG_ARCH_IA32
     env->io_port_cap = simple_get_IOPort_cap(&env->simple, PIT_IO_PORT_MIN, PIT_IO_PORT_MAX);
