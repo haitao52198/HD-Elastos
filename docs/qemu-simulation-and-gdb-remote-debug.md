@@ -303,6 +303,56 @@ $1 = {nodeID = 0, numNodes = 1, numIOPTLevels = 0, ipcBuffer = 0x2fc000,
 
 eclipse内部集成的debugger调试器，可自定义，配置也相当简单。
 
+下面我们以Eclipse LUNA为例简单介绍配置过程：
+（以下过程均假定你已安装Eclipse CDT插件。）
+
+(@) 打开`Run -> Debug Configurations`（或从Toolbar上点debug按钮旁的倒三角进入），
+双击左侧的`C/C++ Remote Application`，新建一个debug配置。
+
+    ![Debug Configurations](resource/qsagrd-figure1.png)
+
+(@file) 给配置起个名字，在`C/C++ Application`中选择要调试的符号文件路径
+（相当于gdb中file命令后的参数）。不需要填写`Project`路径，
+`Build Configuration`中选`Disable auto build`（不自动构建）。
+
+    ![Debug Configurations - Main](resource/qsagrd-figure2.png)
+
+(@debug) 切换Debug选项卡，取消勾选`Stop on startup at:`（老版本可能不能取消，
+但可以将后面的输入框置空），因为后面我们可能要切换符号文件，不同符号文件
+包含的入口符号会不一样。在下面的`Main -> GDB debugger:`中选择一个arm版本的
+gdb。
+
+    ![Debug Configurations - Debugger1](resource/qsagrd-figure3.png)
+
+> **NOTE:** 如果你的arm版gdb已在系统的全局搜索路径中，那么你可以直接输入
+> 命令的名字。否则，你可能需要指明一个绝对路径。在用户主目录下添加的变量
+> 配置是不生效的，因为Eclipse无法读取`.bashrc`文件中的配置，这个文件是对
+> bash环境的。
+
+(@) 仍然在Debug选项卡内，切换到`Debugger Options`的`Connection`子选项卡，
+将Port端口号修改为1234。
+
+    ![Debug Configurations - Debugger2](resource/qsagrd-figure4.png)
+
+(@) 这一步是可选的。切换到Common选项卡，在`Display in favor menu`中勾选`Debug`。
+这会使你能够在Toolbar上点击`Debug`直接选择这一配置，而不需要到`Debug As`中选择。
+虽然不这样你仍然可以执行该配置。
+
+    ![Debug Configurations - Common](resource/qsagrd-figure5.png)
+
+(@) 应用后关闭。将你的工程导入Eclipse的workspace，然后在你希望的地方插入一个
+初始断点（这是因为我们在(@debug)中取消了一个自动的初始断点）。之后从终端运行
+qemu来仿真执行你的镜像，你可以用系统的终端，也可以用Eclipse内置的，方法就和
+[qemu仿真]一节中介绍的一样。然后就可以点击`Debug`执行你的Debug配置了。之后
+镜像会停在你设置的初始断点上，你可以像调试其它本地程序一样插入断点、设置变量
+监视或进行单步调试了。
+
+    ![Debug with QEmu](resource/qsagrd-figure6.png)
+
+(@) 有时你可能需要切换符号文件以调试镜像的不同部分。这可能有些麻烦，目前我还没有
+想到好的办法在镜像运行的过程中实现这一点。你可能不得不重新返回(@file)的操作，
+在`C/C++ Application`中选择一个新的符号文件，然后重新运行你的qemu和debug。
+
 ### vimgdb
 
 待续
