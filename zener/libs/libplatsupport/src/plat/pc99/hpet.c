@@ -150,6 +150,8 @@ hpet_stop(const pstimer_t* device)
 {
     hpet_t *hpet = (hpet_t *) device->data;
 
+    hpet->periodic = false;
+
     /* turn off timer0 */
     hpet->timers[0].config &= ~(BIT(TN_INT_ENB_CNF));
 
@@ -180,6 +182,7 @@ hpet_oneshot_absolute(const pstimer_t *device, uint64_t absolute_ns)
     hpet_t *hpet = (hpet_t *) device->data;
     uint64_t absolute_fs = absolute_ns / hpet->period_ns;
 
+    hpet->periodic = false;
     hpet->timers[0].comparator = absolute_fs;
 
     if (hpet_get_time(device) > absolute_ns) {
@@ -202,7 +205,6 @@ hpet_periodic(const pstimer_t* device, uint64_t ns)
 {
     hpet_t *hpet = (hpet_t *) device->data;
 
-    hpet->periodic = true;
     hpet->period = ns;
 
     int error = hpet_oneshot_relative(device, ns);
@@ -210,6 +212,8 @@ hpet_periodic(const pstimer_t* device, uint64_t ns)
         hpet->periodic = false;
         return error;
     }
+
+    hpet->periodic = true;
 
     return 0;
 }
@@ -223,10 +227,9 @@ hpet_handle_irq(const pstimer_t* device, uint32_t irq UNUSED)
     hpet_t *hpet = (hpet_t *) device->data;
 
     if (hpet->periodic) {
-        int error = hpet_oneshot_relative(device, hpet->period);
+        int error = hpet_periodic(device, hpet->period);
         if (error != 0) {
             fprintf(stderr, "Repeat periodic timeout failed. Period: %llu\n", hpet->period);
-            hpet->periodic = false;
             assert(error == 0);
         }
     }
@@ -268,9 +271,9 @@ hpet_get_timer(hpet_config_t *config)
 
     timer->properties = (timer_properties_t) {
         .upcounter = true,
-        .timeouts = true,
-        .bit_width = 64,
-        .irqs = 1
+         .timeouts = true,
+          .bit_width = 64,
+           .irqs = 1
     };
 
     hpet->general_cap_id_reg = (uint64_t*) config->vaddr;
