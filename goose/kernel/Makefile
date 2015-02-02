@@ -17,7 +17,7 @@
 
 ARCH_LIST:=arm ia32
 CPU_LIST:=arm1136jf-s ixp420 cortex-a7 cortex-a8 cortex-a9 cortex-a15
-PLAT_LIST:=imx31 pc99 ixp420 omap3 am335x exynos4 exynos5 imx6 apq8064 omap4 A20
+PLAT_LIST:=imx31 pc99 ixp420 omap3 am335x exynos4 exynos5 imx6 apq8064 zynq7000 omap4 A20
 ARMV_LIST:=armv6 armv7-a
 
 ifndef SOURCE_ROOT
@@ -26,7 +26,7 @@ ifndef SOURCE_ROOT
     export SOURCE_ROOT
 endif
 
-# we don't ARCH or PLAT for the style target, but other 
+# we don't ARCH or PLAT for the style target, but other
 # targets fail -- so just bluff.
 ifeq (${MAKECMDGOALS}, style)
 ARCH:=ia32
@@ -68,7 +68,7 @@ endif
 ifeq ($V, 1)
 	BUILD_VERBOSE = 1
 	MAKE_SILENT = -s
-	quiet = 
+	quiet =
 	Q =
 else
 ifeq ($V, 2)

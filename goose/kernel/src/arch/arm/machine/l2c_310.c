@@ -279,21 +279,18 @@ initL2Cache(void)
                | CTRL_AUX_ASSOCIATIVITY_16WAY
                | CTRL_AUS_REPLPOLICY_RROBIN;
 
-#if defined(EXYNOS4)
+#if defined(EXYNOS4) || defined(IMX6) || defined(PLAT_ZYNQ7000)
     aux |= CTRL_AUX_WAYSIZE_64K;
 
-#elif defined(OMAP4) /* ! EXYNOS4 */
+#elif defined(OMAP4)
     aux |= CTRL_AUX_WAYSIZE_32K;
-
-#elif defined(IMX6) /* ! (EXYNOS4 || OMAP4) */
-    aux |= CTRL_AUX_WAYSIZE_64K;EXYNOS4
 
 #elif defined(A20) /* ! (EXYNOS4 || OMAP4 || IMX6) */
     aux |= CTRL_AUX_WAYSIZE_32K;
 
 #else /* ! (EXYNOS4 || OMAP4 || IMX6 || A20) */
 #error Unknown platform for L2C-310
-#endif /* EXYNOS4 || OMAP4 || IMX6 || A20 */
+#endif /* EXYNOS4 || A20 */
 
 #ifdef TI_MSHIELD
     /* Access secure registers through Security Middleware Call */
