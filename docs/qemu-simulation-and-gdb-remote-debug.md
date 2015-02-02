@@ -93,7 +93,7 @@ ln -s /usr/bin/arm-none-eabi-gdb /opt/arm-2013-11/bin/arm-none-eabi-gdb
 启动gdb：
 
 ```
-localhost:~$ arm-none-eabi-gdb
+user@localhost:seL4test$ arm-none-eabi-gdb
 GNU gdb (Sourcery CodeBench Lite 2012.09-63) 7.4.50.20120716-cvs
 Copyright (C) 2012 Free Software Foundation, Inc.
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
@@ -106,26 +106,202 @@ For bug reporting instructions, please see:
 (gdb) 
 ```
 
-### 一个实例
+建立远程调试连接：
 
-## 配置调试前端
+```
+(gdb) target remote :1234
+Remote debugging using :1234
+0x82000000 in ?? ()
+```
 
-待续
-
-### gdb for eclipse
-
-### vimgdb
-
-
-### remote debug
+加载要调试部分的符号，就可以读取源码信息，添加断点和监视进行调试了。
 
 ### 一个实例
 
+下面就对调试sel4test镜像进行实例演示：
+
+参考[qemu仿真]一节，我们修改项目顶层目录的Makefile，找到目标simulate-kzm，
+在命令后面追加两个参数：
+
+```make
+simulate-kzm:
+	qemu-system-arm -nographic -M kzm -S -s \
+		-kernel images/sel4test-driver-image-arm-imx31
+```
+
+编译并运行镜像：
+
+```
+user@localhost:seL4test$ make kzm_simulation_debug_xml_defconfig
+user@localhost:seL4test$ make
+user@localhost:seL4test$ make simulate-kzm
+qemu-system-arm -nographic -M kzm -S -s \
+		-kernel images/sel4test-driver-image-arm-imx31
+```
+
+然后加载elfloader代码段符号，这些信息就在最终镜像中：
+
+```
+(gdb) file images/sel4test-driver-image-arm-imx31
+A program is being debugged already.
+Are you sure you want to change the file? (y or n) y
+Reading symbols from /home/fno/Develop/seL4test/images/sel4test-driver-image-arm-imx31...done.
+```
+
+现在gdb已经读取了elfloader代码段的调试信息，可以正常的进行断点调试了：
+
+```
+(gdb) where    # 查看当前位置
+#0  0x82000000 in _start ()
+(gdb) b main    # 在main函数入口插入一个断点
+Breakpoint 1 at 0x82000d24: file /home/fno/Develop/seL4test/tools/common/../elfloader/src/arch-arm/boot.c, line 78.
+(gdb) c    # 运行到断点，指针停在main函数内第一条语句，是一个printf
+Continuing.
+
+Breakpoint 1, main ()
+    at /home/fno/Develop/seL4test/tools/common/../elfloader/src/arch-arm/boot.c:78
+78	    printf("\nELF-loader started on ");
+(gdb) n    # 单步运行，这时查看qemu，会发现终端输出了上面printf的内容
+79	    print_cpuid();
+(gdb) s    # 进入print_cpuid函数内部
+print_cpuid ()
+    at /home/fno/Develop/seL4test/tools/common/../elfloader/src/arch-arm/cpuid.c:84
+84	    cpuid = read_cpuid_id();
+(gdb) n
+85	    printf("CPU: %s ", cpuid_get_implementer_str(cpuid));
+(gdb) info local    # 查看当前栈帧中的局部变量
+cpuid = 1092072291
+```
+
+elfloader部分很快就会运行结束，它的功能主要是为了加载内核镜像和用户镜像。
+而这两部分的调试信息并没有直接装载于最终镜像当中。如果你需要调试这些部分，
+必须及时切换符号文件：
+
+```
+(gdb) file stage/arm/imx31/kernel.elf 
+A program is being debugged already.
+Are you sure you want to change the file? (y or n) y
+
+Load new symbol table from "/home/fno/Develop/seL4test/stage/arm/imx31/kernel.elf"? (y or n) y
+Reading symbols from /home/fno/Develop/seL4test/stage/arm/imx31/kernel.elf...done.
+(gdb) b init_kernel
+
+Breakpoint 2 at 0xf000334c: file /home/fno/Develop/seL4test/kernel/src/arch/arm/kernel/boot.c, line 505.
+(gdb) c
+Continuing.
+
+Breakpoint 2, init_kernel (ui_p_reg_start=2147704832, 
+    ui_p_reg_end=2150801408, pv_offset=-2147295232, v_entry=77348)
+    at /home/fno/Develop/seL4test/kernel/src/arch/arm/kernel/boot.c:505
+505	    result = try_init_kernel(ui_p_reg_start,
+
+...
+
+(gdb) file Develop/seL4test/stage/arm/imx31/bin/sel4test-driver 
+A program is being debugged already.
+Are you sure you want to change the file? (y or n) y
+
+Load new symbol table from "/home/fno/Develop/seL4test/stage/arm/imx31/bin/sel4test-driver"? (y or n) y
+Reading symbols from /home/fno/Develop/seL4test/stage/arm/imx31/bin/sel4test-driver...done.
+(gdb) b main
+Note: breakpoint 1 also set at pc 0x81fc.
+Breakpoint 3 at 0x81fc: file /home/fno/Develop/seL4test/apps/sel4test-driver/src/main.c, line 433.
+(gdb) c
+Continuing.
+
+Breakpoint 1, main ()
+    at /home/fno/Develop/seL4test/apps/sel4test-driver/src/main.c:433
+433	{
+(gdb) n
+434	    seL4_BootInfo *info = seL4_GetBootInfo();
+(gdb) n
+442	    simple_default_init_bootinfo(&env.simple, info);
+(gdb) info local
+info = 0x2fd000
+res = <optimized out>
+(gdb) p *info
+$1 = {nodeID = 0, numNodes = 1, numIOPTLevels = 0, ipcBuffer = 0x2fc000, 
+  empty = {start = 1032, end = 65536}, sharedFrames = {start = 0, end = 0}, 
+  userImageFrames = {start = 15, end = 771}, userImagePTs = {start = 12, 
+    end = 15}, untyped = {start = 771, end = 793}, untypedPaddrList = {
+    2147483648, 2150801408, 2150809600, 2150825984, 2150891520, 2151153664, 
+    2151677952, 2155872256, 2164260864, 2181038080, 2214592512, 2248146944, 
+    2264924160, 2273312768, 2277507072, 2279604224, 2280128512, 2280390656, 
+    2280521728, 2280587264, 2280603648, 2280611840, 0 <repeats 145 times>}, 
+  untypedSizeBitsList = "\020\r\016\020\022\023\026\027\030\031\031\030\027\026\025\023\022\021\020\016\r\f", '\000' <repeats 144 times>, 
+  initThreadCNodeSizeBits = 16 '\020', numDeviceRegions = 43, 
+  deviceRegions = {{basePaddr = 1140326400, frameSizeBits = 12, frames = {
+        start = 793, end = 794}}, {basePaddr = 1140342784, 
+      frameSizeBits = 12, frames = {start = 794, end = 795}}, {
+      basePaddr = 1140359168, frameSizeBits = 12, frames = {start = 795, 
+        end = 796}}, {basePaddr = 1140375552, frameSizeBits = 12, frames = {
+        start = 796, end = 797}}, {basePaddr = 1140391936, 
+      frameSizeBits = 12, frames = {start = 797, end = 798}}, {
+      basePaddr = 1140408320, frameSizeBits = 12, frames = {start = 798, 
+        end = 799}}, {basePaddr = 1140424704, frameSizeBits = 12, frames = {
+        start = 799, end = 800}}, {basePaddr = 1140441088, 
+      frameSizeBits = 12, frames = {start = 800, end = 801}}, {
+      basePaddr = 1140457472, frameSizeBits = 12, frames = {start = 801, 
+        end = 802}}, {basePaddr = 1140473856, frameSizeBits = 12, frames = {
+        start = 802, end = 803}}, {basePaddr = 1140490240, 
+      frameSizeBits = 12, frames = {start = 803, end = 804}}, {
+      basePaddr = 1140506624, frameSizeBits = 12, frames = {start = 804, 
+        end = 805}}, {basePaddr = 1140523008, frameSizeBits = 12, frames = {
+        start = 805, end = 806}}, {basePaddr = 1140539392, 
+      frameSizeBits = 12, frames = {start = 806, end = 807}}, {
+      basePaddr = 1342193664, frameSizeBits = 12, frames = {start = 807, 
+        end = 808}}, {basePaddr = 1342210048, frameSizeBits = 12, frames = {
+        start = 808, end = 809}}, {basePaddr = 1342226432, 
+      frameSizeBits = 12, frames = {start = 809, end = 810}}, {
+      basePaddr = 1342242816, frameSizeBits = 12, frames = {start = 810, 
+        end = 811}}, {basePaddr = 1342259200, frameSizeBits = 12, frames = {
+        start = 811, end = 812}}, {basePaddr = 1342275584, 
+      frameSizeBits = 12, frames = {start = 812, end = 813}}, {
+      basePaddr = 1342291968, frameSizeBits = 12, frames = {start = 813, 
+        end = 814}}, {basePaddr = 1342308352, frameSizeBits = 12, frames = {
+        start = 814, end = 815}}, {basePaddr = 1342324736, 
+      frameSizeBits = 12, frames = {start = 815, end = 816}}, {
+      basePaddr = 1342341120, frameSizeBits = 12, frames = {start = 816, 
+        end = 817}}, {basePaddr = 1342423040, frameSizeBits = 12, frames = {
+        start = 817, end = 818}}, {basePaddr = 1408761856, 
+      frameSizeBits = 12, frames = {start = 818, end = 819}}, {
+      basePaddr = 1408778240, frameSizeBits = 12, frames = {start = 819, 
+        end = 820}}, {basePaddr = 1408811008, frameSizeBits = 12, frames = {
+        start = 820, end = 821}}, {basePaddr = 1408827392, 
+      frameSizeBits = 12, frames = {start = 821, end = 822}}, {
+      basePaddr = 1408860160, frameSizeBits = 12, frames = {start = 822, 
+        end = 823}}, {basePaddr = 1408909312, frameSizeBits = 12, frames = {
+        start = 823, end = 827}}, {basePaddr = 1408958464, 
+      frameSizeBits = 12, frames = {start = 827, end = 828}}, {
+      basePaddr = 1409040384, frameSizeBits = 12, frames = {start = 828, 
+        end = 829}}, {basePaddr = 1409073152, frameSizeBits = 12, frames = {
+        start = 829, end = 833}}, {basePaddr = 1409089536, 
+      frameSizeBits = 12, frames = {start = 833, end = 837}}, {
+      basePaddr = 1409122304, frameSizeBits = 12, frames = {start = 837, 
+        end = 838}}, {basePaddr = 1409155072, frameSizeBits = 12, frames = {
+        start = 838, end = 839}}, {basePaddr = 1409204224, 
+      frameSizeBits = 12, frames = {start = 839, end = 840}}, {
+      basePaddr = 2684354560, frameSizeBits = 20, frames = {start = 840, 
+        end = 904}}, {basePaddr = 2818572288, frameSizeBits = 20, frames = {
+        start = 904, end = 936}}, {basePaddr = 3019898880, 
+      frameSizeBits = 20, frames = {start = 936, end = 968}}, {
+      basePaddr = 3053453312, frameSizeBits = 20, frames = {start = 968, 
+        end = 1000}}, {basePaddr = 3221225472, frameSizeBits = 20, frames = {
+        start = 1000, end = 1032}}, {basePaddr = 0, frameSizeBits = 0, 
+      frames = {start = 0, end = 0}} <repeats 156 times>}, 
+  initThreadDomain = 0 '\000'}
+```
+
 ## 配置调试前端
 
-待续
+直接在终端使用gdb固然可以，但对源码本身不熟悉的时候，调试起来效率会很低。
+条件允许的情况下，我们还是推荐用前端环境调用gdb调试。
+
+这里有一些可供选择的好用的gdb调试前端。
 
 ### gdb for eclipse
+
+eclipse内部集成的debugger调试器，可自定义，配置也相当简单。
 
 ### vimgdb
 
