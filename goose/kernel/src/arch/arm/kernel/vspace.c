@@ -267,9 +267,9 @@ map_kernel_window(void)
         PPTR_VECTOR_TABLE,
         VMKernelOnly,
         vm_attributes_new(
+            false /* armExecuteNever */
             true, /* armParityEnabled */
             true, /* armPageCacheable */
-            false /* armExecuteNever */
         )
     );
 
@@ -279,9 +279,9 @@ map_kernel_window(void)
         PPTR_GLOBALS_PAGE,
         VMReadOnly,
         vm_attributes_new(
+            false /* armExecuteNever */
             true, /* armParityEnabled */
             true, /* armPageCacheable */
-            false /* armExecuteNever */
         )
     );
 
@@ -291,9 +291,9 @@ map_kernel_window(void)
         PPTR_KERNEL_STACK,
         VMKernelOnly,
         vm_attributes_new(
+            false /* armExecuteNever */
             true, /* armParityEnabled */
             true, /* armPageCacheable */
-            false /* armExecuteNever */
         )
     );
 
