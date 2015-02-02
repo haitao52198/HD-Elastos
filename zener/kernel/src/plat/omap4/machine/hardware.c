@@ -178,8 +178,9 @@ map_kernel_devices(void)
 		ARM_MP_PPTR1,
 		VMKernelOnly,
 		vm_attributes_new(
-			false, /* armParityEnabled */
-			false  /* armPageCacheable */
+            false, /* armExecuteNever */
+            false, /* armParityEnabled */
+            false  /* armPageCacheable */
 		)
 	);
     map_kernel_frame(
@@ -187,6 +188,7 @@ map_kernel_devices(void)
 		ARM_MP_PPTR2,
         VMKernelOnly,
         vm_attributes_new(
+            false, /* armExecuteNever */
             false, /* armParityEnabled */
             false  /* armPageCacheable */
         )
@@ -198,6 +200,7 @@ map_kernel_devices(void)
         L2CC_L2C310_PPTR,
         VMKernelOnly,
         vm_attributes_new(
+            false, /* armExecuteNever */
             false, /* armParityEnabled */
             false  /* armPageCacheable */
         )
@@ -221,6 +224,7 @@ map_kernel_devices(void)
         UART3_PPTR,
         VMKernelOnly,
         vm_attributes_new(
+            false, /* armExecuteNever */
             false, /* armParityEnabled */
             false  /* armPageCacheable */
         )
@@ -384,7 +388,7 @@ resetTimer(void)
 uint64_t readGlobTimerCounter(void);
 void writeGlobTimerCounter(uint64_t u64);
 
-BOOT_CODE void 
+BOOT_CODE void
 initTimer(void)
 {
     /**
