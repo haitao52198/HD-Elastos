@@ -17,17 +17,6 @@ else
 CCACHE=
 endif
 
-### Goanna
-ifeq (${CONFIG_BUILDSYS_USE_GOANNA},y)
-GOANNA=$(shell which goannacc)
-else
-GONNA=
-endif
-ifneq (${GOANNA},)
-GOANNA += --license-server=goanna.ken.nicta.com.au --silent-profile \
-    --profile=${CONFIG_BUILDSYS_GOANNA_PROFILE}
-endif
-
 ### Verbose building
 ########################################
 
@@ -48,13 +37,24 @@ endif
 endif
 endif
 
-CC  := $(CCACHE) $(if ${GOANNA},${GOANNA},$(TOOLPREFIX)gcc$(TOOLSUFFIX))
+CC  := $(CCACHE) $(TOOLPREFIX)gcc$(TOOLSUFFIX)
 CXX := $(CCACHE) $(TOOLPREFIX)g++$(TOOLSUFFIX)
 ASM := $(CCACHE) $(TOOLPREFIX)as$(TOOLSUFFIX)
 LD  := $(CCACHE) $(TOOLPREFIX)ld$(TOOLSUFFIX)
 AR  := $(CCACHE) $(TOOLPREFIX)ar$(TOOLSUFFIX)
 CPP := $(CCACHE) $(TOOLPREFIX)cpp$(TOOLSUFFIX)
 OBJCOPY := $(CCACHE) $(TOOLPREFIX)objcopy$(TOOLSUFFIX)
+FMT := $(shell which clang-format)
+ifneq (${FMT},)
+  FMT += --style=LLVM
+else
+  FMT := $(shell which cat)
+endif
+SPONGE := $(shell which sponge)
+# If `sponge` is unavailable, emulate it.
+ifeq (${SPONGE},)
+  SPONGE := python -c 'import sys; data = sys.stdin.read(); f = open(sys.argv[1], "w"); f.write(data); f.close()'
+endif
 
 # Default path configuration (useful for local development)
 SEL4_LIBDIR     ?= $(STAGE_DIR)/lib
@@ -85,7 +85,7 @@ ENDGROUP := -Wl,--end-group
 
 ifeq (${CONFIG_USER_CFLAGS},)
     CFLAGS += $(WARNINGS:%=-W%) -nostdinc -std=gnu11
-    CXXFLAGS += $(WARNINGS:%=-W%) -nostdinc -std=c++11
+    CXXFLAGS += $(WARNINGS:%=-W%) -nostdinc -std=gnu++98
 
     ifeq (${CONFIG_USER_OPTIMISATION_Os},y)
         CFLAGS += -Os
@@ -156,7 +156,7 @@ LDFLAGS += -e ${ENTRY_POINT}
 ASFLAGS += $(NK_ASFLAGS)
 
 # Object files
-OBJFILES = $(ASMFILES:%.S=%.o) $(CFILES:%.c=%.o) $(OFILES)
+OBJFILES = $(ASMFILES:%.S=%.o) $(CFILES:%.c=%.o) $(CXXFILES:%.cxx=%.o) $(OFILES)
 
 # Define standard crt files if are building against a C library that has them
 ifeq (${CONFIG_HAVE_CRT},y)
@@ -179,6 +179,7 @@ vpath %.a $(SEL4_LIBDIR)
 
 # Where to find the sources
 vpath %.c $(SOURCE_DIR)
+vpath %.cxx $(SOURCE_DIR)
 vpath %.S $(SOURCE_DIR)
 
 # Default is to build/install all targets
@@ -186,7 +187,7 @@ default: $(PRIORITY_TARGETS) install-headers $(TARGETS)
 
 #
 # For each ".bin" or ".a" target, we also setup a rule to copy it into a final
-# binaries output directory.
+# binaries output directory. For binary files we want to remove the .bin suffix
 #
 default: $(patsubst %.bin,$(SEL4_BINDIR)/%,$(filter %.bin,$(TARGETS)))
 default: $(patsubst %.a,$(SEL4_LIBDIR)/%.a,$(filter %.a,$(TARGETS)))
@@ -284,7 +285,7 @@ $(TARGETS): $(LIBS:%=-l%)
 # (Default is .LIBPATTERNS = lib%.so lib%.a)
 .LIBPATTERNS = lib%.a
 
-DEPS = $(patsubst %.c,%.d,$(CFILES)) $(patsubst %.S,%.d,$(ASMFILES))
+DEPS = $(patsubst %.c,%.d,$(CFILES)) $(patsubst %.cxx,%.d,$(CXXFILES)) $(patsubst %.S,%.d,$(ASMFILES))
 
 ifneq "$(MAKECMDGOALS)" "clean"
   -include ${DEPS}

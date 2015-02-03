@@ -79,16 +79,16 @@ ifeq ($(CONFIG_X86_64),y)
 	cflags-y += $(call cc-option,-nostdinc,)
 	cflags-y += $(call cc-option, -std=gnu99,)
 	LDFLAGS += -m elf_x86_64 -nodefaultlibs
-	ASFLAGS  += --64 
+	ASFLAGS  += --64
 	NK_LDFLAGS += -Wl,-m -Wl,elf_x86_64
 	NK_CFLAGS  += -m64
-	NK_ASFLAGS += --64 
+	NK_ASFLAGS += --64
 	DEFINES += ARCH_IA32
 	DEFINES += X86_64
 	DEFINES += CONFIG_X86_64
 	DEFINES += __KERNEL_64__
 	export __X86_64__ = y
-	export CONFIG_X86_64 = y 
+	export CONFIG_X86_64 = y
 	export KERNEL_64 = y
 endif
 
@@ -201,6 +201,11 @@ ifeq ($(CONFIG_PLAT_IMX6),y)
 	DEFINES += IMX6
 	DEFINES += PLAT_IMX6
 	export PLAT=imx6
+endif
+
+ifeq ($(CONFIG_PLAT_ZYNQ7000),y)
+	DEFINES += PLAT_ZYNQ7000
+	export PLAT=zynq7000
 endif
 
 ifeq ($(CONFIG_PLAT_OMAP4),y)
