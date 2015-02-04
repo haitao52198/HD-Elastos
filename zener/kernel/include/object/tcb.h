@@ -47,6 +47,7 @@ exception_t decodeWriteRegisters(cap_t cap, unsigned int length, word_t *buffer)
 exception_t decodeTCBConfigure(cap_t cap, unsigned int length,
                                cte_t* slot, extra_caps_t rootCaps, word_t *buffer);
 exception_t decodeSetPriority(cap_t cap, unsigned int length, word_t *buffer);
+exception_t decodeSetPolicy(cap_t cap, unsigned int length, word_t *buffer);
 exception_t decodeSetIPCBuffer(cap_t cap, unsigned int length,
                                cte_t* slot, extra_caps_t extraCaps, word_t *buffer);
 exception_t decodeSetSpace(cap_t cap, unsigned int length,
@@ -59,6 +60,7 @@ enum thread_control_flag {
     thread_control_update_ipc_buffer = 0x2,
     thread_control_update_space = 0x4,
     thread_control_update_all = 0x7,
+    thread_control_update_policy = 0x8
 };
 
 typedef uint32_t thread_control_flag_t;

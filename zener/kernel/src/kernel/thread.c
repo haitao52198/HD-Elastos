@@ -381,6 +381,19 @@ setPriority(tcb_t *tptr, prio_t prio)
     }
 }
 
+void
+setPolicy(tcb_t *tptr, policy_t policy)
+{
+    tcbSchedDequeue(tptr);
+    tptr->tcbPolicy = policy;
+    if (isRunnable(tptr)) {
+        tcbSchedEnqueue(tptr);
+    }
+    if (tptr == ksCurThread) {
+        rescheduleRequired();
+    }
+}
+
 static void
 possibleSwitchTo(tcb_t* target, bool_t onSamePriority)
 {

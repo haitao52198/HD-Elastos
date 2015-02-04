@@ -35,6 +35,7 @@ void switchToThread(tcb_t *thread) VISIBLE;
 void switchToIdleThread(void);
 void setDomain(tcb_t *tptr, dom_t dom);
 void setPriority(tcb_t *tptr, prio_t prio);
+void setPolicy(tcb_t *tptr, policy_t policy);
 void scheduleTCB(tcb_t *tptr);
 void attemptSwitchTo(tcb_t *tptr);
 void switchIfRequiredTo(tcb_t *tptr);

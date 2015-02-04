@@ -8,7 +8,7 @@
 
      @TAG(NICTA_BSD)
   -->
-<api>	
+<api>
     <interface name="seL4_Untyped">
        	<method id="UntypedRetype" name="Retype">
             <param dir="in" name="type" type="int"/>
@@ -51,8 +51,11 @@
 			<param dir="in" name="buffer" type="seL4_Word"/>
 			<param dir="in" name="bufferFrame" type="seL4_CPtr"/>
 		</method>
-		<method id="TCBSetPriority" name="SetPriority">
+ 		<method id="TCBSetPriority" name="SetPriority">
 			<param dir="in" name="priority" type="uint8_t"/>
+		</method>
+		<method id="TCBSetPolicy" name="SetPolicy">
+			<param dir="in" name="policy" type="uint8_t"/>
 		</method>
 		<method id="TCBSetIPCBuffer" name="SetIPCBuffer">
 			<param dir="in" name="buffer" type="seL4_Word"/>

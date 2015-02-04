@@ -297,6 +297,9 @@ decodeTCBInvocation(word_t label, unsigned int length, cap_t cap,
     case TCBSetPriority:
         return decodeSetPriority(cap, length, buffer);
 
+    case TCBSetPolicy:
+        return decodeSetPolicy(cap, length, buffer);
+
     case TCBSetIPCBuffer:
         return decodeSetIPCBuffer(cap, length, slot, extraCaps, buffer);
 
@@ -592,6 +595,39 @@ decodeSetPriority(cap_t cap, unsigned int length, word_t *buffer)
 }
 
 exception_t
+decodeSetPolicy(cap_t cap, unsigned int length, word_t *buffer)
+{
+    enum policyConstants newPolicy;
+
+    if (length < 1) {
+        userError("TCB SetPriority: Truncated message.");
+        current_syscall_error.type = seL4_TruncatedMessage;
+        return EXCEPTION_SYSCALL_ERROR;
+    }
+
+    newPolicy = getSyscallArg(0, buffer);
+
+    /* assuming here seL4_MaxPrio is of form 2^n - 1 */
+    newPolicy = newPolicy & MASK(8);
+
+    if (newPolicy > 5) {
+        userError("TCB Setolicy: Requested policy %d too high (max %d).",
+                  (int)newPolicy, 5);
+        current_syscall_error.type = seL4_IllegalOperation;
+        return EXCEPTION_SYSCALL_ERROR;
+    }
+
+    setThreadState(ksCurThread, ThreadState_Restart);
+    return invokeTCB_ThreadControl(
+               TCB_PTR(cap_thread_cap_get_capTCBPtr(cap)), NULL,
+               0, newPolicy,
+               cap_null_cap_new(), NULL,
+               cap_null_cap_new(), NULL,
+               0, cap_null_cap_new(),
+               NULL, thread_control_update_policy);
+}
+
+exception_t
 decodeSetIPCBuffer(cap_t cap, unsigned int length, cte_t* slot,
                    extra_caps_t extraCaps, word_t *buffer)
 {
@@ -793,6 +829,10 @@ invokeTCB_ThreadControl(tcb_t *target, cte_t* slot,
 
     if (updateFlags & thread_control_update_priority) {
         setPriority(target, priority);
+    }
+
+    if (updateFlags & thread_control_update_policy) {
+        setPolicy(target, priority);
     }
 
     if (updateFlags & thread_control_update_space) {
