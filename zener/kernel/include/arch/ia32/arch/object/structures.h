@@ -182,6 +182,9 @@ struct tcb {
     /* Priority, 1 byte (packed to 4) */
     uint32_t tcbPriority;
 
+    /* policy */
+    uint32_t tcbPolicy;
+
     /* Timeslice remaining, 4 bytes */
     word_t tcbTimeSlice;
 

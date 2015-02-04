@@ -21,9 +21,23 @@
 
 /* cap_rights_t defined in api/types.bf */
 
-typedef uint32_t prio_t;
-typedef uint32_t  dom_t;
-typedef uint32_t cptr_t;
+typedef uint32_t   prio_t;
+typedef uint32_t    dom_t;
+typedef uint32_t   cptr_t;
+typedef uint32_t policy_t;
+
+/*
+ * Scheduling policies
+ */
+enum policyConstants {
+    SCHED_NORMAL = 0,          //
+    SCHED_INTERACTIVE = 1,     //
+    SCHED_BATCH = 2,           //
+    SCHED_REALTIME_FIFO = 3,   // SCHED_FIFO can't be preempted (context switched to another process) unless
+                               // another process of higher priority shows up in the execution queue.
+    SCHED_REALTIME_RR = 4,     // SCHED_RR can be preempted by a time quantum (delay given to a process to execute).
+    SCHED_IDLE = 5             //
+};
 
 enum domainConstants {
     minDom = 0,
