@@ -17,6 +17,7 @@
 #include <arch/kernel/boot.h>
 #include <arch/kernel/vspace.h>
 #include <arch/benchmark.h>
+#include <arch/user_access.h>
 #include <arch/linker.h>
 #include <plat/machine/hardware.h>
 #include <machine.h>
@@ -220,7 +221,7 @@ create_it_address_space(cap_t root_cnode_cap, v_region_t it_v_reg)
             IT_ASID, /* capPDMappedASID */
             pd_pptr  /* capPDBasePtr    */
         );
-    write_slot(SLOT_PTR(pptr_of_cap(root_cnode_cap), BI_CAP_IT_PD), pd_cap);
+    write_slot(SLOT_PTR(pptr_of_cap(root_cnode_cap), BI_CAP_IT_VSPACE), pd_cap);
 
     /* create all PT objs and caps necessary to cover userland image */
     slot_pos_before = ndks_boot.slot_pos_cur;
@@ -316,7 +317,7 @@ init_plat(void)
 {
     initIRQController();
     initTimer();
-    //initL2Cache();
+    initL2Cache();
 }
 
 /* Main kernel initialisation function. */
@@ -461,9 +462,9 @@ try_init_kernel(
     /* convert the remaining free memory into UT objects and provide the caps */
     if (!create_untypeds(
                 root_cnode_cap,
-                (region_t) {
-                    kernelBase, (pptr_t)ki_boot_end
-                } /* reusable boot code/data */
+    (region_t) {
+    kernelBase, (pptr_t)ki_boot_end
+    } /* reusable boot code/data */
             )) {
         return false;
     }
@@ -487,6 +488,9 @@ try_init_kernel(
 #ifdef CONFIG_BENCHMARK
     armv_init_ccnt();
 #endif /* CONFIG_BENCHMARK */
+
+    /* Export selected CPU features for access by PL0 */
+    armv_init_user_access();
 
     /* kernel successfully initialized */
     return true;
