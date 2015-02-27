@@ -189,6 +189,7 @@ config ARCH_IA32
                 Support for A20 platform (LAMOBO-M1).
     endchoice
 
+source "$KERNEL_PATH/src/arch/arm/Kconfig"
 source "$KERNEL_PATH/src/plat/pc99/Kconfig"
 
 endmenu
