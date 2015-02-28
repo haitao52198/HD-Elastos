@@ -61,7 +61,7 @@
 #define INITIAL_BOTTOM_LEVEL_TABLES (INITIAL_BOTTOM_LEVEL_PAGES / PAGES_FOR_BOTTOM_LEVEL)
 
 /* sanity checks - check our constants above are what we say they are */
-#ifndef CONFIG_X86_64
+#if !defined(CONFIG_X86_64) && !defined(CONFIG_PAE_PAGING)
 compile_time_assert(sel4utils_vspace_1, TOP_LEVEL_INDEX(TOP_LEVEL_PAGE_TABLE_VADDR) == 893);
 compile_time_assert(sel4utils_vspace_2, BOTTOM_LEVEL_INDEX(TOP_LEVEL_PAGE_TABLE_VADDR) == 1023);
 compile_time_assert(sel4utils_vspace_3, TOP_LEVEL_INDEX(FIRST_BOTTOM_LEVEL_PAGE_TABLE_VADDR) == 894);
@@ -79,6 +79,7 @@ common_init(vspace_t *vspace, vka_t *vka, seL4_CPtr page_directory,
     sel4utils_alloc_data_t *data = get_alloc_data(vspace);
     data->vka = vka;
     data->last_allocated = (void *) 0x10000000;
+    data->reservation_head = NULL;
 
     data->page_directory = page_directory;
     vspace->allocated_object = allocated_object_fn;
@@ -195,12 +196,14 @@ alloc_and_map_bootstrap_frame(vspace_t *vspace, vka_object_t *frame, void *vaddr
         return error;
     }
 
-    vka_object_t pagetable = {0};
+    vka_object_t objects[3];
+    int num = 3;
 
     error = sel4utils_map_page(data->vka, data->page_directory, frame->cptr, vaddr,
-                               seL4_AllRights, 1, &pagetable);
+                               seL4_AllRights, 1, objects, &num);
 
     if (error) {
+        vka_free_object(data->vka, frame);
         LOG_ERROR("Failed to map bootstrap frame at %p, error: %d", vaddr, error);
         return error;
     }
@@ -208,8 +211,8 @@ alloc_and_map_bootstrap_frame(vspace_t *vspace, vka_object_t *frame, void *vaddr
     /* Zero the memory */
     memset(vaddr, 0, PAGE_SIZE_4K);
 
-    if (pagetable.cptr != 0) {
-        vspace_maybe_call_allocated_object(vspace, pagetable);
+    for (int i = 0; i < num; i++) {
+        vspace_maybe_call_allocated_object(vspace, objects[i]);
     }
 
     return seL4_NoError;

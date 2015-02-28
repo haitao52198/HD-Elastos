@@ -32,7 +32,9 @@ static int UNUSED sel4_supported_page_sizes[] = {12, 16, 20, 24};
 #define seL4_ARCH_Page_GetAddress      seL4_ARM_Page_GetAddress
 #define seL4_ARCH_Page_GetAddress_t    seL4_ARM_Page_GetAddress_t
 #define seL4_ARCH_PageTable_Map        seL4_ARM_PageTable_Map
+#define seL4_ARCH_PageTable_Unmap      seL4_ARM_PageTable_Unmap
 #define seL4_ARCH_ASIDPool_Assign      seL4_ARM_ASIDPool_Assign
+#define seL4_ARCH_ASIDControl_MakePool seL4_ARM_ASIDControl_MakePool
 #define seL4_ARCH_PageTableObject      seL4_ARM_PageTableObject
 #define seL4_ARCH_PageDirectoryObject  seL4_ARM_PageDirectoryObject
 #define seL4_ARCH_Default_VMAttributes seL4_ARM_Default_VMAttributes
@@ -40,6 +42,7 @@ static int UNUSED sel4_supported_page_sizes[] = {12, 16, 20, 24};
 #define seL4_ARCH_4KPage               seL4_ARM_SmallPageObject
 /* Remap does not exist on all kernels */
 #define seL4_ARCH_Page_Remap           seL4_ARM_Page_Remap
+#define ARCHPageGetAddress             ARMPageGetAddress
 
 #elif defined(CONFIG_X86_64)
 
@@ -68,7 +71,9 @@ static int UNUSED sel4_supported_page_sizes[] = {12, 22};
 #define seL4_ARCH_Page_GetAddress      seL4_IA32_Page_GetAddress
 #define seL4_ARCH_Page_GetAddress_t    seL4_IA32_Page_GetAddress_t
 #define seL4_ARCH_PageTable_Map        seL4_IA32_PageTable_Map
+#define seL4_ARCH_PageTable_Unmap      seL4_IA32_PageTable_Unmap
 #define seL4_ARCH_ASIDPool_Assign      seL4_IA32_ASIDPool_Assign
+#define seL4_ARCH_ASIDControl_MakePool seL4_IA32_ASIDControl_MakePool
 #define seL4_ARCH_PageTableObject      seL4_IA32_PageTableObject
 #define seL4_ARCH_PageDirectoryObject  seL4_IA32_PageDirectoryObject
 #define seL4_ARCH_Default_VMAttributes seL4_IA32_Default_VMAttributes
@@ -77,6 +82,7 @@ static int UNUSED sel4_supported_page_sizes[] = {12, 22};
 #define seL4_ARCH_Uncached_VMAttributes 0
 /* Remap does not exist on all kernels */
 #define seL4_ARCH_Page_Remap           seL4_IA32_Page_Remap
+#define ARCHPageGetAddress             IA32PageGetAddress
 
 #endif /* CONFIG_ARCH_IA32 */
 
@@ -96,20 +102,23 @@ static int UNUSED sel4_supported_page_sizes[] = {12, 22};
 * @param vaddr unmapped virutal address to map the page into
 * @param rights permissions to map the page with
 * @param cacheable 1 if the page should be cached (0 if it is for DMA)
-* @param pagetable empty vka_object_t structure to be populated with page table
-*                  info if one is allocated
+* @param objects array of vka_object_t structure to be populated with paging structures
+*                info any one are allocated
+* @param num_objects Pointer to both the size of the objects array, and the number of
+*                    objects that get allocated
 *
 * @return error sel4 error code or -1 if allocation failed.
 */
 int sel4utils_map_page(vka_t *vka, seL4_CPtr pd, seL4_CPtr frame, void *vaddr,
-                       seL4_CapRights rights, int cacheable, vka_object_t *pagetable);
+                       seL4_CapRights rights, int cacheable, vka_object_t *objects, int *num_objects);
 
 /** convenient wrapper this if you don't want to track allocated page tables */
 static inline int sel4utils_map_page_leaky(vka_t *vka, seL4_CPtr pd, seL4_CPtr frame, void *vaddr,
                                            seL4_CapRights rights, int cacheable)
 {
-    vka_object_t pagetable;
-    return sel4utils_map_page(vka, pd, frame, vaddr, rights, cacheable, &pagetable);
+    vka_object_t objects[3];
+    int num = 3;
+    return sel4utils_map_page(vka, pd, frame, vaddr, rights, cacheable, objects, &num);
 }
 
 #ifdef CONFIG_LIB_SEL4_VSPACE
