@@ -41,16 +41,16 @@ case "$PLAT" in
         ENTRY_ADDR=0x20000000;
         FORMAT=elf32-littlearm
         ;;
+    "zynq7000")
+        ENTRY_ADDR=0x20000000;
+        FORMAT=elf32-littlearm
+        ;;
     "apq8064")
         ENTRY_ADDR=0x82008000;
         FORMAT=elf32-littlearm
         ;;
     "imx31"|"omap3"|"am335x"|"omap4")
         ENTRY_ADDR=0x82000000
-        FORMAT=elf32-littlearm
-        ;;
-    "A20")
-        ENTRY_ADDR=0x42000000;
         FORMAT=elf32-littlearm
         ;;
     *)
@@ -102,6 +102,8 @@ fail() {
 mkdir -p "${TEMP_DIR}/cpio"
 cp -f ${KERNEL_IMAGE} ${TEMP_DIR}/cpio/kernel.elf
 cp -f ${USER_IMAGE} ${TEMP_DIR}/cpio
+${TOOLPREFIX}strip --strip-all ${TEMP_DIR}/cpio/*
+
 pushd "${TEMP_DIR}/cpio" &>/dev/null
 printf "kernel.elf\n$(basename ${USER_IMAGE})\n" | cpio --quiet -o -H newc > ${TEMP_DIR}/archive.cpio
 
@@ -133,7 +135,7 @@ ${TOOLPREFIX}ld -T "${SCRIPT_DIR}/linker.lds" \
         "${SCRIPT_DIR}/elfloader.o" "${TEMP_DIR}/archive.o" \
         -Ttext=${ENTRY_ADDR} -o "${OUTPUT_FILE}" \
         || fail
-
+${TOOLPREFIX}strip --strip-all ${OUTPUT_FILE}
 
 # Done
 rm -rf ${TEMP_DIR}
