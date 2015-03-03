@@ -142,8 +142,6 @@ enum IRQConstants {
     maxIRQ = 122
 } platform_interrupt_t;
 
-#define DEFAULT_TIMER_INTERRUPT    TIMER_0
-
 enum irqNumbers {
     irqInvalid = 255
 };

@@ -10,6 +10,11 @@
 #ifndef _SEL4PLATSUPPORT_PLAT_TIMER_H
 #define _SEL4PLATSUPPORT_PLAT_TIMER_H
 
-//#include <sel4platsupport/mach/gpt.h>
+#include <platsupport/plat/timer.h>
+#include <platsupport/plat/machine.h>
+
+#define DEFAULT_TIMER_PADDR SW_VA_TIMERC_IO_BASE
+#define DEFAULT_TIMER_INTERRUPT TIMER_0
+
 
 #endif /* _SEL4PLATSUPPORT_PLAT_TIMER_H */
