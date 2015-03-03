@@ -8,10 +8,10 @@
  * @TAG(GD_GPL)
  */
 
+//this file is duplicated from /HD-Elastos/zener/kernel/include/plat/A20/plat/machine.h
+
 #ifndef __PLAT_MACHINE_H
 #define __PLAT_MACHINE_H
-
-#include <arch/machine/gic_pl390.h>
 
 #define N_INTERRUPTS 122
 
@@ -142,7 +142,7 @@ enum IRQConstants {
     maxIRQ = 122
 } platform_interrupt_t;
 
-#define KERNEL_TIMER_IRQ    TIMER_0
+#define DEFAULT_TIMER_INTERRUPT    TIMER_0
 
 enum irqNumbers {
     irqInvalid = 255
