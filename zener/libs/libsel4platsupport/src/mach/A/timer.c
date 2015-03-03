@@ -11,10 +11,13 @@
 #include <vka/vka.h>
 #include <vspace/vspace.h>
 #include <simple/simple.h>
-#include <sel4platsupport/plat/timer.h>
+#include <sel4platsupport/timer.h>
+#include <platsupport/plat/timer.h>
+#include <platsupport/plat/machine.h>
 
 
 seL4_timer_t *sel4platsupport_get_default_timer(vka_t *vka, vspace_t *vspace, simple_t *simple, seL4_CPtr aep)
 {
-    return sel4platsupport_get_gpt(vspace, simple, vka, aep, GPT1, 1);
+    //return sel4platsupport_get_gpt(vspace, simple, vka, aep, 1, 1);
+    return  NULL;
 }
