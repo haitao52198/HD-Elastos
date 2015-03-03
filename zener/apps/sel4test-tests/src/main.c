@@ -20,9 +20,9 @@
 #include <sel4/sel4.h>
 #include <sel4/types.h>
 
-#include <sel4platsupport/timer.h>
-#include <sel4platsupport/plat/timer.h>
-#include <platsupport/timer.h>
+#include <sel4platsupport/timer.h>         ///.../libs/libsel4platsupport/include/sel4platsupport/timer.h
+#include <sel4platsupport/plat/timer.h>    ///.../libs/libsel4platsupport/plat_include/A20/sel4platsupport/plat/timer.h
+#include <platsupport/timer.h>             ///.../libs/libplatsupport/include/platsupport/timer.h
 
 #ifdef CONFIG_IA32
 #include <platsupport/plat/pit.h>
