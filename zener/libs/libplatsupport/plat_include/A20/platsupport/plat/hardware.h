@@ -23,7 +23,9 @@
 #ifndef __SW_HARDWARE_H
 #define __SW_HARDWARE_H
 
-#define IO_ADDRESS(x)		((x) + 0xf0000000)
-#define __io_address(n)		__io(IO_ADDRESS(n))
+// Linux
+//#define IO_ADDRESS(x)		((x) + 0xf0000000)
+//#define __io_address(n)		__io(IO_ADDRESS(n))
+#define IO_ADDRESS(x)		(x)
 
 #endif

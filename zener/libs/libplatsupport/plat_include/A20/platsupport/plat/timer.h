@@ -16,11 +16,6 @@
 #ifndef __AW_TIMER_H__
 #define __AW_TIMER_H__
 
-#include <platsupport/mach/gpt.h>
-
-//Linux
-#if 0
-
 #include "platform.h"
 
 /* timer reg offset */
@@ -136,6 +131,7 @@
 #error "AW_HPET_CLOCK_SOURCE_HZ invalid! please set it!"
 #endif
 
+#if 0
 void __init aw_clksrc_init(void);
 void aw_clkevt_init(void);
 #endif
