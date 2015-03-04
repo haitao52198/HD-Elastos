@@ -26,22 +26,22 @@ although the principles are the same everywhere.
 #define __RAW_IO_H__
 
 
-static unsigned char rawReadUInt8(unsigned int ptr)
+inline unsigned char rawReadUInt8(unsigned int ptr)
 {
 	return *((volatile unsigned char *)ptr);
 }
 
-static unsigned int rawReadUInt32(unsigned int ptr)
+inline unsigned int rawReadUInt32(unsigned int ptr)
 {
 	return *((volatile unsigned int *)ptr);
 }
 
-static void rawWriteUInt8(unsigned char value, unsigned int ptr)
+inline void rawWriteUInt8(unsigned char value, unsigned int ptr)
 {
 	*((volatile unsigned char *)ptr) = value;
 }
 
-static void rawWriteUInt32(unsigned int value, unsigned int ptr)
+inline void rawWriteUInt32(unsigned int value, unsigned int ptr)
 {
 	*((volatile unsigned int *)ptr) = value;
 }
