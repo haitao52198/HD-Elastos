@@ -36,12 +36,12 @@ inline unsigned int rawReadUInt32(unsigned int ptr)
 	return *((volatile unsigned int *)ptr);
 }
 
-inline void rawWriteUInt8(unsigned char value, unsigned int ptr)
+inline void rawWriteUInt8(unsigned int ptr, unsigned char value)
 {
 	*((volatile unsigned char *)ptr) = value;
 }
 
-inline void rawWriteUInt32(unsigned int value, unsigned int ptr)
+inline void rawWriteUInt32(unsigned int ptr, unsigned int value)
 {
 	*((volatile unsigned int *)ptr) = value;
 }
