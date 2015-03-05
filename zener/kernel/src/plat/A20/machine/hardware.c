@@ -39,7 +39,7 @@ BOOT_CODE p_region_t get_avail_p_reg(unsigned int i)
 }
 
 //temporary define
-#define A20GPT_DEVICE_PADDR 0x49031000
+#define A20GPT_DEVICE_PADDR 0x01c20000
 
 const p_region_t BOOT_RODATA dev_p_regs[] = {
     /* sorted by increasing memory address */

@@ -26,6 +26,17 @@
 #include "../../timer_common.h"
 
 
+//Clock Source in A20, The CCU(Clock Control Unit) is made up of 7 PLLs.
+enum tagA20ClockSource {
+    CLK_LowerOSC  = 32768,
+    CLK_PLL6      = 200 * 1024 * 1024,
+    CLK_OSC24M    = 24 * 1024 * 1024,
+    CLK_CLKIN0    = 24 * 1024 * 1024,
+    CLK_AHB       = 276 * 1024 * 1024,
+    CLK_USB       = 480 * 1024 * 1024,
+    CLK_CPU32     = 1200 * 1024 * 1024
+};
+
 
 static seL4_timer_t *get_a20t(vspace_t *vspace, simple_t *simple, vka_t *vka, seL4_CPtr aep, int id, uint32_t prescaler);
 static void destroy_a20t(seL4_timer_t *timer, vka_t *vka, vspace_t *vspace);
@@ -49,7 +60,7 @@ static seL4_timer_t *get_a20t(vspace_t *vspace, simple_t *simple, vka_t *vka, se
         goto error;
     }
 
-    paddr = (void *)SW_PA_TIMERC_IO_BASE;
+    paddr = (void *)0x01c20000;
     switch (id) {
         case 0:
             irq = TIMER_0;
@@ -126,12 +137,12 @@ static int a20t_timer_start(const pstimer_t *timer)
 
     switch (a20t->id) {
     	case 0:
-            rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF) | BIT(0));
+            rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF) | BIT(1) | BIT(0));
             rawWriteUInt32(a20t->a20t_map + TMR_IRQ_EN_REG_OFF, BIT(0));
             rawWriteUInt32(a20t->a20t_map + TMR_IRQ_STA_REG_OFF, BIT(0));
             break;
         case 1:
-            rawWriteUInt32(a20t->a20t_map + TMR1_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR1_CTRL_REG_OFF) | BIT(0));
+            rawWriteUInt32(a20t->a20t_map + TMR1_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR1_CTRL_REG_OFF) | BIT(1) | BIT(0));
             rawWriteUInt32(a20t->a20t_map + TMR_IRQ_EN_REG_OFF, BIT(1));
             rawWriteUInt32(a20t->a20t_map + TMR_IRQ_STA_REG_OFF, BIT(1));
             break;
@@ -163,8 +174,8 @@ void configure_timeout(const pstimer_t *timer, uint64_t ns) {
 
     switch (a20t->id) {
         case 0:
-            rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF) | BIT(7) | (a20t->prescaler << 4) | BIT(1) );
-            rawWriteUInt32(a20t->a20t_map + TMR0_INTV_VALUE_REG_OFF, TIMER_INTERVAL_TICKS(ns));
+            rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, BIT(7) | (a20t->prescaler << 4) | (0x1 << 2) | BIT(1) );
+            rawWriteUInt32(a20t->a20t_map + TMR0_INTV_VALUE_REG_OFF, TIMER_CLK_INTERVAL_TICKS(CLK_OSC24M,ns)/a20t->prescaler);
             rawWriteUInt32(a20t->a20t_map + TMR_IRQ_EN_REG_OFF, BIT(0));
             rawWriteUInt32(a20t->a20t_map + TMR_IRQ_STA_REG_OFF, BIT(0));
             break;
@@ -279,7 +290,7 @@ pstimer_t *a20t_get_timer(void *vaddr, uint32_t prescaler)
     timer->get_nth_irq = a20t_get_nth_irq;
 
     a20t->prescaler = prescaler;
-    a20t->a20t_map = vaddr;
+    a20t->a20t_map = vaddr + 0xc00;
 
     return timer;
 }

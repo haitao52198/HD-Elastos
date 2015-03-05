@@ -20,4 +20,7 @@
 #define TIMER_INTERVAL_TICKS(ns) ((uint32_t)(1ULL * (ns) * CLK_FREQ / 1000 / 1000 / 1000))
 #define TIMER_INTERVAL_NS(ticks) ((uint32_t)(1ULL * (ticks) * 1000 * 1000 * 1000 / CLK_FREQ))
 
+#define TIMER_CLK_INTERVAL_TICKS(clk,ns) ((uint32_t)(1ULL * (ns) * clk / 1000 / 1000 / 1000))
+#define TIMER_CLK_INTERVAL_NS(clk,ticks) ((uint32_t)(1ULL * (ticks) * 1000 * 1000 * 1000 / clk))
+
 #endif

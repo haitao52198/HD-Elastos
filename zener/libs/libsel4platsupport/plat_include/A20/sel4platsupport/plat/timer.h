@@ -13,7 +13,8 @@
 #include <platsupport/plat/timer.h>
 #include <platsupport/plat/machine.h>
 
-#define DEFAULT_TIMER_PADDR SW_VA_TIMERC_IO_BASE
+#define DEFAULT_TIMER_PADDR 0x01c20000
+ //SW_VA_TIMERC_IO_BASE
 #define DEFAULT_TIMER_INTERRUPT TIMER_0
 
 
