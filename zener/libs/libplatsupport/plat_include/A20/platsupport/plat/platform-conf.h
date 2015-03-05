@@ -18,6 +18,6 @@
 #define CLK_FREQ (1 * 1024 * 1024 * 1024)
 
 #define TIMER_INTERVAL_TICKS(ns) ((uint32_t)(1ULL * (ns) * CLK_FREQ / 1000 / 1000 / 1000))
-#define TIMER_INTERVAL_NS(ticks) ((uint32_t)(1ULL * (ticks) / CLK_FREQ * 1000 * 1000 * 1000))
+#define TIMER_INTERVAL_NS(ticks) ((uint32_t)(1ULL * (ticks) * 1000 * 1000 * 1000 / CLK_FREQ))
 
 #endif
