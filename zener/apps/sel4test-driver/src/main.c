@@ -355,7 +355,6 @@ init_timer_caps(env_t env)
     vka_cspace_make_path(&env->vka, cap, &env->irq_path);
     error = simple_get_IRQ_control(&env->simple, DEFAULT_TIMER_INTERRUPT, env->irq_path);
     assert(error == 0);
-
 #ifdef CONFIG_ARCH_ARM
     /* get the timer frame cap */
     error = vka_cspace_alloc(&env->vka, &cap);
@@ -394,6 +393,7 @@ void *main_continued(void *arg UNUSED)
     env.init = (test_init_data_t *) vspace_new_pages(&env.vspace, seL4_AllRights, 1, PAGE_BITS_4K);
     assert(env.init != NULL);
 
+    env.init->ComputeEnvType = 2;
     /* copy the cap to map into the remote process */
     cspacepath_t src, dest;
     vka_cspace_make_path(&env.vka, vspace_get_cap(&env.vspace, env.init), &src);
@@ -435,11 +435,15 @@ int main(void)
     compile_time_assert(init_data_fits_in_ipc_buffer, sizeof(test_init_data_t) < PAGE_SIZE_4K);
     /* initialise libsel4simple, which abstracts away which kernel version
      * we are running on */
+
+/*
 #ifdef CONFIG_KERNEL_STABLE
     simple_stable_init_bootinfo(&env.simple, info);
 #else
     simple_default_init_bootinfo(&env.simple, info);
 #endif
+*/
+    simple_init_bootinfo(&env.simple, info);
 
     /* initialise the test environment - allocator, cspace manager, vspace manager, timer */
     init_env(&env);

@@ -30,6 +30,7 @@
 /* data shared between sel4test-driver and the sel4test-tests app.
  * all caps are in the sel4test-tests process' cspace */
 typedef struct {
+    int ComputeEnvType;
     /* page directory of the test process */
     seL4_CPtr page_directory;
     /* root cnode of the test process */

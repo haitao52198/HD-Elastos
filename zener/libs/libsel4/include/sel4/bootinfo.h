@@ -50,6 +50,12 @@ typedef struct {
 } seL4_DeviceRegion;
 
 typedef struct {
+    /*
+     * The compute environment struct type
+     * This must be the first field of this kind of sturct.
+     */
+    uint32_t  ComputeEnvType;
+
     seL4_Word         nodeID;          /* ID [0..numNodes-1] of the seL4 node (0 if uniprocessor) */
     seL4_Word         numNodes;        /* number of seL4 nodes (1 if uniprocessor) */
     seL4_Word         numIOPTLevels;   /* number of IOMMU PT levels (0 if no IOMMU support) */

@@ -54,6 +54,12 @@ typedef struct bi_dev_reg {
 } bi_dev_reg_t;
 
 typedef struct bi {
+    /*
+     * The compute environment struct type
+     * This must be the first field of this kind of sturct.
+     */
+    uint32_t  ComputeEnvType;
+
     node_id_t     node_id;
     uint32_t      num_nodes;
     uint32_t      num_iopt_levels; /* number of IOMMU PT levels (0 if no IOMMU support) */

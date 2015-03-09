@@ -1,18 +1,19 @@
 /*
- * Copyright 2014, NICTA
+ * Copyright 2015, Tongji Operating System Group & elastos.org
  *
  * This software may be distributed and modified according to the terms of
  * the BSD 2-Clause license. Note that NO WARRANTY is provided.
  * See "LICENSE_BSD2.txt" for details.
  *
- * @TAG(NICTA_BSD)
  */
-/* this file is shared between sel4test-driver an sel4test-tests */
+
 #ifndef __TEST_H
 #define __TEST_H
 
 #include <autoconf.h>
 #include <sel4/bootinfo.h>
+
+ #include <sel4/sel4.h>
 
 #include <vka/vka.h>
 #include <vka/object.h>
@@ -30,7 +31,13 @@
 /* data shared between sel4test-driver and the sel4test-tests app.
  * all caps are in the sel4test-tests process' cspace */
 typedef struct {
-    int ComputeEnvType;
+
+    /*
+     * The compute environment struct type
+     * This must be the first field of this kind of sturct.
+     */
+    uint32_t  ComputeEnvType;
+
     /* page directory of the test process */
     seL4_CPtr page_directory;
     /* root cnode of the test process */
@@ -83,5 +90,19 @@ typedef struct {
     /* the number of elf regions */
     int num_elf_regions;
 } test_init_data_t;
+
+
+/* ===================== Copy from <sel4test/test.h> ========================= */
+/* Fails a test case, stop everything. */
+static inline void _test_abort()
+{
+    printf("Halting on fatal assertion...\n");
+#ifdef CONFIG_DEBUG_BUILD
+    seL4_DebugHalt();
+#endif /* CONFIG_DEBUG_BUILD */
+    while(1);
+}
+
+#define test_assert_fatal(e) if (!(e)) _test_abort()
 
 #endif /* __TEST_H */

@@ -21,9 +21,9 @@
 
 /**
  * Get the cap to the physcial frame of memory and put it at specified location
- * 
+ *
  * @param data cookie for the underlying implementation
- * 
+ *
  * @param page aligned physical address
  *
  * @param size of the region in bits
@@ -33,12 +33,12 @@
 typedef seL4_Error (*simple_get_frame_cap_fn)(void *data, void *paddr, int size_bits, cspacepath_t *path);
 
 /**
- * Request mapped address to a region of physical memory. 
+ * Request mapped address to a region of physical memory.
  *
  * Note: This function will only return the mapped virtual address that it knows about. It does not do any mapping its self nor can it guess where mapping functions are going to map.
  *
  * @param data cookie for the underlying implementation
- * 
+ *
  * @param page aligned physical address
  *
  * @param size of the region in bits
@@ -49,12 +49,12 @@ typedef seL4_Error (*simple_get_frame_cap_fn)(void *data, void *paddr, int size_
 typedef void *(*simple_get_frame_mapping_fn)(void *data, void *paddr, int size_bits);
 
 /**
- * Request data to a region of physical memory. 
+ * Request data to a region of physical memory.
  *
  * Note: This function will only return the mapped virtual address that it knows about. It does not do any mapping its self nor can it guess where mapping functions are going to map.
  *
  * @param data cookie for the underlying implementation
- * 
+ *
  * @param page aligned physical address for the frame
  *
  * @param size of the region in bits
@@ -128,7 +128,7 @@ typedef seL4_CPtr (*simple_get_nth_cap_fn)(void *data, int n);
 typedef seL4_CPtr (*simple_get_init_cap_fn)(void *data, seL4_CPtr cap);
 
 /**
- * Get the size of the threads cnode in bits 
+ * Get the size of the threads cnode in bits
  *
  * @param data for the underlying implementation
 */
@@ -220,125 +220,32 @@ typedef struct simple_t {
 } simple_t;
 
 
-static inline void *simple_get_frame_info(simple_t *simple, void *paddr, int size_bits, seL4_CPtr *frame_cap, seL4_Word *ut_offset) {
-    assert(simple);
-    assert(simple->frame_info);
-    return simple->frame_info(simple->data, paddr, size_bits, frame_cap, ut_offset);
-}
-
-static inline seL4_Error simple_get_frame_cap(simple_t *simple, void *paddr, int size_bits, cspacepath_t *path) {
-    assert(simple);
-    assert(simple->frame_cap);
-    return simple->frame_cap(simple->data, paddr, size_bits, path);
-}
-
-static inline void *simple_get_frame_vaddr(simple_t *simple, void *paddr, int size_bits) {
-    assert(simple);
-    assert(simple->frame_mapping);
-    return simple->frame_mapping(simple->data, paddr, size_bits);
-}
-
-static inline seL4_Error simple_get_IRQ_control(simple_t *simple, int irq, cspacepath_t path) {
-        assert(simple);
-        assert(simple->irq);
-        return simple->irq(simple->data, irq, path.root, path.capPtr, path.capDepth);
-}
-
-static inline seL4_Error simple_ASIDPool_assign(simple_t *simple, seL4_CPtr vspace) {
-    assert(simple);
-    assert(simple->ASID_assign);
-    return simple->ASID_assign(simple->data, vspace);
-}
-
-static inline seL4_CPtr simple_get_IOPort_cap(simple_t *simple, uint16_t start_port, uint16_t end_port) {
-    assert(simple);
-    assert(simple->IOPort_cap);
-    return simple->IOPort_cap(simple->data, start_port, end_port);
-}
-
-static inline int simple_get_cap_count(simple_t *simple) {
-    assert(simple);
-    assert(simple->cap_count);
-    return simple->cap_count(simple->data);
-}
-
-static inline seL4_CPtr simple_get_nth_cap(simple_t *simple, int n) {
-    assert(simple);
-    assert(simple->nth_cap);
-    return simple->nth_cap(simple->data, n);
-}
-
-static inline seL4_CPtr simple_get_cnode(simple_t *simple) {
-    assert(simple);
-    assert(simple->init_cap);
-    return simple->init_cap(simple->data,seL4_CapInitThreadCNode);
-}
-
-static inline int simple_get_cnode_size_bits(simple_t *simple) {
-    assert(simple);
-    assert(simple->cnode_size);
-    return simple->cnode_size(simple->data);
-}
-
-static inline seL4_CPtr simple_get_tcb(simple_t *simple) {
-    assert(simple);
-    assert(simple->init_cap);
-    return simple->init_cap(simple->data,seL4_CapInitThreadTCB);
-}
-
-static inline seL4_CPtr simple_get_pd(simple_t *simple) {
-    assert(simple);
-    assert(simple->init_cap);
-    return simple->init_cap(simple->data,seL4_CapInitThreadPD);
-}
-
-static inline seL4_CPtr simple_get_irq_ctrl(simple_t *simple) {
-    assert(simple);
-    assert(simple->init_cap);
-    return simple->init_cap(simple->data,seL4_CapIRQControl);
-}
-
-static inline seL4_CPtr simple_get_init_cap(simple_t *simple, seL4_CPtr cap) {
-    assert(simple);
-    assert(simple->init_cap);
-    return simple->init_cap(simple->data,cap);
-}
-
-static inline int simple_get_untyped_count(simple_t *simple) {
-    assert(simple);
-    assert(simple->untyped_count);
-    return simple->untyped_count(simple->data);
-}
-
-static inline seL4_CPtr simple_get_nth_untyped(simple_t *simple, int n, uint32_t *size_bits, uint32_t *paddr) {
-    assert(simple);
-    assert(simple->nth_untyped);
-    return simple->nth_untyped(simple->data, n, size_bits, paddr);
-}
-
-static inline int simple_get_userimage_count(simple_t *simple) {
-    assert(simple);
-    assert(simple->userimage_count);
-    return simple->userimage_count(simple->data);
-}
-
-static inline seL4_CPtr simple_get_nth_userimage(simple_t *simple, int n) {
-    assert(simple);
-    assert(simple->nth_userimage);
-    return simple->nth_userimage(simple->data, n);
-}
+void *simple_get_frame_info(simple_t *simple, void *paddr, int size_bits, seL4_CPtr *frame_cap, seL4_Word *offset);
+seL4_Error simple_get_frame_cap(simple_t *simple, void *paddr, int size_bits, cspacepath_t *path);
+void *simple_get_frame_vaddr(simple_t *simple, void *paddr, int size_bits);
+seL4_Error simple_get_IRQ_control(simple_t *simple, int irq, cspacepath_t path);
+seL4_Error simple_ASIDPool_assign(simple_t *simple, seL4_CPtr vspace);
+seL4_CPtr simple_get_IOPort_cap(simple_t *simple, uint16_t start_port, uint16_t end_port);
+int simple_get_cap_count(simple_t *simple);
+seL4_CPtr simple_get_nth_cap(simple_t *simple, int n);
+seL4_CPtr simple_get_cnode(simple_t *simple);
+int simple_get_cnode_size_bits(simple_t *simple);
+seL4_CPtr simple_get_tcb(simple_t *simple);
+seL4_CPtr simple_get_pd(simple_t *simple);
+seL4_CPtr simple_get_irq_ctrl(simple_t *simple);
+seL4_CPtr simple_get_init_cap(simple_t *simple, seL4_CPtr cap);
+int simple_get_untyped_count(simple_t *simple);
+seL4_CPtr simple_get_nth_untyped(simple_t *simple, int n, uint32_t *size_bits, uint32_t *paddr);
+int simple_get_userimage_count(simple_t *simple);
+seL4_CPtr simple_get_nth_userimage(simple_t *simple, int n);
 
 #ifdef CONFIG_IOMMU
-static inline seL4_CPtr simple_get_iospace(simple_t *simple, uint16_t domainID, uint16_t deviceID, cspacepath_t *path) {
-    assert(simple);
-    assert(simple->iospace);
-    return simple->iospace(simple->data, domainID, deviceID, path);
-}
+seL4_CPtr simple_get_iospace(simple_t *simple, uint16_t domainID, uint16_t deviceID, cspacepath_t *path);
 #endif
 
-static inline void simple_print(simple_t *simple) {
-    assert(simple);
-    assert(simple->print);
-    simple->print(simple->data);
-}
+void simple_print(simple_t *simple);
+
+void simple_init_bootinfo(simple_t *simple, seL4_BootInfo *bi);
+
+
 #endif /* _INTERFACE_SIMPLE_H_ */

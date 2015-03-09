@@ -104,7 +104,7 @@ _platsupport_find_device_cap(seL4_Word paddr, seL4_Word page_bits, simple_t *sim
 }
 
 static void*
-__map_device_page_failsafe(void* cookie UNUSED, uintptr_t paddr, size_t size, 
+__map_device_page_failsafe(void* cookie UNUSED, uintptr_t paddr, size_t size,
                           int cached UNUSED, ps_mem_flags_t flags UNUSED)
 {
     int bits = CTZ(size);
@@ -136,7 +136,7 @@ __map_device_page_failsafe(void* cookie UNUSED, uintptr_t paddr, size_t size,
 }
 
 static void*
-__map_device_page_regular(void* cookie UNUSED, uintptr_t paddr, size_t size, 
+__map_device_page_regular(void* cookie UNUSED, uintptr_t paddr, size_t size,
                           int cached UNUSED, ps_mem_flags_t flags UNUSED)
 {
     int bits = CTZ(size);
@@ -234,11 +234,15 @@ platsupport_serial_setup_bootinfo_failsafe(void)
     setup_status = SETUP_COMPLETE;
 #else
     setup_status = START_FAILSAFE_SETUP;
+/*
     #ifdef CONFIG_KERNEL_STABLE
         simple_stable_init_bootinfo(&_simple_mem, seL4_GetBootInfo());
     #else
         simple_default_init_bootinfo(&_simple_mem, seL4_GetBootInfo());
     #endif
+        */
+    simple_init_bootinfo(&_simple_mem, seL4_GetBootInfo());
+
     simple = &_simple_mem;
     vka = &_vka_mem;
     simple_make_vka(simple, vka);
