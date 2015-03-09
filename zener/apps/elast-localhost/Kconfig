@@ -8,8 +8,8 @@
 # @TAG(NICTA_BSD)
 #
 
-menuconfig APP_HELLO
-    bool "seL4 Hello"
+menuconfig APP_ELAST_LOCALHOST
+    bool "elast localhost"
     default n
     depends on LIB_SEL4 && (LIB_MUSL_C || LIB_SEL4_C) && LIB_SEL4_PLAT_SUPPORT && LIB_SEL4_VKA && LIB_SEL4_TEST && LIB_SEL4_UTILS && LIB_UTILS
     help

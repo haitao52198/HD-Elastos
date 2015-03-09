@@ -176,6 +176,7 @@ seL4_Error simple_get_frame_cap(simple_t *simple, void *paddr, int size_bits, cs
     seL4_CPtr frame_cap;
     seL4_Word offset;
 
+    /* Lookup ComputeEnvType */
     switch ( *(int *)data ) {
         case 1:
             simple_default_get_frame_info(data, paddr, size_bits, &frame_cap, &offset);
@@ -219,6 +220,7 @@ seL4_Error simple_get_IRQ_control(simple_t *simple, int irq, cspacepath_t path)
     void *data = simple->data;
     assert(data);
 
+    /* Lookup ComputeEnvType */
     switch ( *(int *)data ) {
         case 1:
             return seL4_IRQControl_Get(seL4_CapIRQControl, irq, path.root, path.capPtr, path.capDepth);
@@ -552,7 +554,6 @@ static void *simple_default_get_frame_info(void *data, void *paddr, int size_bit
     int i;
     seL4_DeviceRegion* region;
 
-printf("paddr: 0x%x bi->numDeviceRegions: %d\n", paddr, bi->numDeviceRegions);
     *offset = 0;
     *frame_cap = seL4_CapNull;
     region = bi->deviceRegions;
@@ -576,7 +577,7 @@ printf("paddr: 0x%x bi->numDeviceRegions: %d\n", paddr, bi->numDeviceRegions);
 #ifdef CONFIG_ARCH_ARM
 static seL4_Error get_frame_cap(void *data, void *paddr, int size_bits, cspacepath_t *path)
 {
-    test_init_data_t *init = (test_init_data_t *) data;
+    compute_env_data_t *init = (compute_env_data_t *) data;
 
     //assert(paddr == (void*) DEFAULT_TIMER_PADDR);
     assert(size_bits == seL4_PageBits);
@@ -600,7 +601,7 @@ static seL4_Error get_frame_cap(void *data, void *paddr, int size_bits, cspacepa
  */
  static seL4_CPtr get_IOPort_cap(void *data, uint16_t start_port, uint16_t end_port)
 {
-    test_init_data_t *init = (test_init_data_t *) data;
+    compute_env_data_t *init = (compute_env_data_t *) data;
     //assert(start_port >= PIT_IO_PORT_MIN);
     //assert(end_port <= PIT_IO_PORT_MAX);
 
@@ -610,7 +611,7 @@ static seL4_Error get_frame_cap(void *data, void *paddr, int size_bits, cspacepa
 
 static seL4_Error get_irq(void *data, int irq, seL4_CNode root, seL4_Word index, uint8_t depth)
 {
-    test_init_data_t *init = (test_init_data_t *) data;
+    compute_env_data_t *init = (compute_env_data_t *) data;
     //assert(irq == DEFAULT_TIMER_INTERRUPT);
 
     int error = seL4_CNode_Copy(root, index, depth, init->root_cnode,

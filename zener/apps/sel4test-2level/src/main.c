@@ -63,7 +63,7 @@ struct env {
     seL4_CPtr io_port_cap;
 #endif
     /* init data frame vaddr */
-    test_init_data_t *init;
+    compute_env_data_t *init;
     /* extra cap to the init data frame for mapping into the remote vspace */
     seL4_CPtr init_frame_cap_copy;
 };
@@ -244,7 +244,7 @@ send_init_data(env_t env, seL4_CPtr endpoint, sel4utils_process_t *process)
 
 /* copy the caps required to set up the sel4platsupport default timer */
 static void
-copy_timer_caps(test_init_data_t *init, env_t env, sel4utils_process_t *test_process)
+copy_timer_caps(compute_env_data_t *init, env_t env, sel4utils_process_t *test_process)
 {
 #ifdef CONFIG_ARCH_ARM
     /* Timer frame cap (only for arm). Here we assume the sel4platsupport
@@ -409,7 +409,7 @@ int main_continued(void)
 
     /* create a frame that will act as the init data, we can then map that
      * in to target processes */
-    env.init = (test_init_data_t *) vspace_new_pages(&env.vspace, seL4_AllRights, 1, PAGE_BITS_4K);
+    env.init = (compute_env_data_t *) vspace_new_pages(&env.vspace, seL4_AllRights, 1, PAGE_BITS_4K);
     assert(env.init != NULL);
 
     /* copy the cap to map into the remote process */
@@ -454,7 +454,7 @@ int main(void)
 {
     seL4_BootInfo *info = seL4_GetBootInfo();
 
-    compile_time_assert(init_data_fits_in_ipc_buffer, sizeof(test_init_data_t) < PAGE_SIZE_4K);
+    compile_time_assert(init_data_fits_in_ipc_buffer, sizeof(compute_env_data_t) < PAGE_SIZE_4K);
     /* initialise libsel4simple, which abstracts away which kernel version
      * we are running on */
 #ifdef CONFIG_KERNEL_STABLE

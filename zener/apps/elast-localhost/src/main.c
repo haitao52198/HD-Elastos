@@ -29,11 +29,14 @@
 #include <sel4utils/process.h>
 
 #include <simple/simple.h>
+
+/*
 #ifdef CONFIG_KERNEL_STABLE
 #include <simple-stable/simple-stable.h>
 #else
 #include <simple-default/simple-default.h>
 #endif
+*/
 
 #include <utils/util.h>
 
@@ -63,7 +66,7 @@ struct env {
     seL4_CPtr io_port_cap;
 #endif
     /* init data frame vaddr */
-    test_init_data_t *init;
+    compute_env_data_t *init;
     /* extra cap to the init data frame for mapping into the remote vspace */
     seL4_CPtr init_frame_cap_copy;
 };
@@ -242,7 +245,7 @@ send_init_data(env_t env, seL4_CPtr endpoint, sel4utils_process_t *process)
 
 /* copy the caps required to set up the sel4platsupport default timer */
 static void
-copy_timer_caps(test_init_data_t *init, env_t env, sel4utils_process_t *test_process)
+copy_timer_caps(compute_env_data_t *init, env_t env, sel4utils_process_t *test_process)
 {
 #ifdef CONFIG_ARCH_ARM
     /* Timer frame cap (only for arm). Here we assume the sel4platsupport
@@ -391,14 +394,14 @@ run_hi(void)
     return result;
 }
 
-int main_continued(void)
+void *main_continued(void *arg UNUSED)
 {
     /* allocate lots of untyped memory for tests to use */
     num_untypeds = populate_untypeds(untypeds);
 
     /* create a frame that will act as the init data, we can then map that
      * in to target processes */
-    env.init = (test_init_data_t *) vspace_new_pages(&env.vspace, seL4_AllRights, 1, PAGE_BITS_4K);
+    env.init = (compute_env_data_t *) vspace_new_pages(&env.vspace, seL4_AllRights, 1, PAGE_BITS_4K);
     assert(env.init != NULL);
 
     /* copy the cap to map into the remote process */
@@ -450,14 +453,18 @@ int main(void)
 {
     seL4_BootInfo *info = seL4_GetBootInfo();
 
-    compile_time_assert(init_data_fits_in_ipc_buffer, sizeof(test_init_data_t) < PAGE_SIZE_4K);
+    compile_time_assert(init_data_fits_in_ipc_buffer, sizeof(compute_env_data_t) < PAGE_SIZE_4K);
     /* initialise libsel4simple, which abstracts away which kernel version
      * we are running on */
+
+/*
 #ifdef CONFIG_KERNEL_STABLE
     simple_stable_init_bootinfo(&env.simple, info);
 #else
     simple_default_init_bootinfo(&env.simple, info);
 #endif
+*/
+    simple_init_bootinfo(&env.simple, info);
 
     /* initialise the test environment - allocator, cspace manager, vspace manager, timer */
     init_env(&env);
@@ -469,7 +476,7 @@ int main(void)
      * before starting the tests */
     printf("Switching to a safer, bigger stack... ");
     fflush(stdout);
-    int res = sel4utils_run_on_stack(&env.vspace, main_continued);
+    int res = (int)sel4utils_run_on_stack(&env.vspace, main_continued, NULL);
     test_assert_fatal(res == 0);
 
     return 0;

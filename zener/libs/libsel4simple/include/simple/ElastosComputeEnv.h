@@ -98,7 +98,7 @@ typedef struct {
 
     /* the number of elf regions */
     int num_elf_regions;
-} test_init_data_t;
+} compute_env_data_t;
 
 
 /* ===================== Copy from <sel4test/test.h> ========================= */

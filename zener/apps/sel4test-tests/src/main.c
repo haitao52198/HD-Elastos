@@ -85,7 +85,7 @@ find_test(char *name)
     return test;
 }
 
-static test_init_data_t *
+static compute_env_data_t *
 receive_init_data(seL4_CPtr endpoint)
 {
     /* wait for a message */
@@ -98,7 +98,7 @@ receive_init_data(seL4_CPtr endpoint)
     assert(seL4_MessageInfo_get_label(info) == seL4_NoFault);
     assert(seL4_MessageInfo_get_length(info) == 1);
 
-    test_init_data_t *init_data = (test_init_data_t *) seL4_GetMR(0);
+    compute_env_data_t *init_data = (compute_env_data_t *) seL4_GetMR(0);
     assert(init_data->free_slots.start != 0);
     assert(init_data->free_slots.end != 0);
 
@@ -106,7 +106,7 @@ receive_init_data(seL4_CPtr endpoint)
 }
 
 static void
-init_allocator(env_t env, test_init_data_t *init_data)
+init_allocator(env_t env, compute_env_data_t *init_data)
 {
     UNUSED int error;
     UNUSED reservation_t virtual_reservation;
@@ -155,7 +155,7 @@ init_allocator(env_t env, test_init_data_t *init_data)
 static seL4_Error
 get_frame_cap(void *data, void *paddr, int size_bits, cspacepath_t *path)
 {
-    test_init_data_t *init = (test_init_data_t *) data;
+    compute_env_data_t *init = (compute_env_data_t *) data;
 
     assert(paddr == (void*) DEFAULT_TIMER_PADDR);
     assert(size_bits == seL4_PageBits);
@@ -172,7 +172,7 @@ get_frame_cap(void *data, void *paddr, int size_bits, cspacepath_t *path)
 #ifdef CONFIG_ARCH_IA32
 seL4_CPtr get_IOPort_cap(void *data, uint16_t start_port, uint16_t end_port)
 {
-    test_init_data_t *init = (test_init_data_t *) data;
+    compute_env_data_t *init = (compute_env_data_t *) data;
     assert(start_port >= PIT_IO_PORT_MIN);
     assert(end_port <= PIT_IO_PORT_MAX);
 
@@ -183,7 +183,7 @@ seL4_CPtr get_IOPort_cap(void *data, uint16_t start_port, uint16_t end_port)
 static seL4_Error
 get_irq(void *data, int irq, seL4_CNode root, seL4_Word index, uint8_t depth)
 {
-    test_init_data_t *init = (test_init_data_t *) data;
+    compute_env_data_t *init = (compute_env_data_t *) data;
     assert(irq == DEFAULT_TIMER_INTERRUPT);
 
     int error = seL4_CNode_Copy(root, index, depth, init->root_cnode,
@@ -192,7 +192,7 @@ get_irq(void *data, int irq, seL4_CNode root, seL4_Word index, uint8_t depth)
     return error;
 }
 
-void init_timer(env_t env, test_init_data_t *init_data)
+void init_timer(env_t env, compute_env_data_t *init_data)
 {
     /* minimal simple implementation to get the platform
      * default timer off the ground */
@@ -221,7 +221,7 @@ int
 main(int argc, char **argv)
 {
 
-    test_init_data_t *init_data;
+    compute_env_data_t *init_data;
     struct env env;
 
     assert(argc >= 2);
