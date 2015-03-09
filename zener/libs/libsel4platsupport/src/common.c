@@ -31,12 +31,6 @@
 #include <string.h>
 #include <sel4platsupport/arch/io.h>
 
-#ifdef CONFIG_KERNEL_STABLE
-    #include <simple-stable/simple-stable.h>
-#else
-    #include <simple-default/simple-default.h>
-#endif
-
 enum serial_setup_status {
     NOT_INITIALIZED = 0,
     START_REGULAR_SETUP,

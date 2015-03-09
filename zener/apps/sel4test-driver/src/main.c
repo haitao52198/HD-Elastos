@@ -29,11 +29,14 @@
 #include <sel4utils/process.h>
 
 #include <simple/simple.h>
+
+/*
 #ifdef CONFIG_KERNEL_STABLE
 #include <simple-stable/simple-stable.h>
 #else
 #include <simple-default/simple-default.h>
 #endif
+*/
 
 #include <utils/util.h>
 

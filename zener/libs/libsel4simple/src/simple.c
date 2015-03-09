@@ -15,7 +15,6 @@
 
 #include <sel4/sel4.h>
 #include <simple/simple.h>
-#include <sel4utils/mapping.h>
 #include <simple/simple_helpers.h>
 #include <simple/ElastosComputeEnv.h>
 
@@ -23,6 +22,12 @@ static void *simple_default_get_frame_info(void *data, void *paddr, int size_bit
 static seL4_Error get_frame_cap(void *data, void *paddr, int size_bits, cspacepath_t *path);
 static seL4_CPtr get_IOPort_cap(void *data, uint16_t start_port, uint16_t end_port);
 static seL4_Error get_irq(void *data, int irq, seL4_CNode root, seL4_Word index, uint8_t depth);
+
+#if defined(CONFIG_ARCH_ARM)
+#define seL4_ARCH_ASIDPool_Assign      seL4_ARM_ASIDPool_Assign
+#elif defined(CONFIG_ARCH_IA32) /* CONFIG_ARCH_ARM */
+#define seL4_ARCH_ASIDPool_Assign      seL4_IA32_ASIDPool_Assign
+#endif /* CONFIG_ARCH_IA32 */
 
 int simple_is_untyped_cap(simple_t *simple, seL4_CPtr pos)
 {
@@ -131,6 +136,18 @@ seL4_CPtr simple_last_valid_cap(simple_t *simple)
     return largest;
 }
 
+/**
+ * Request data to a region of physical memory.
+ *
+ * Note: This function will only return the mapped virtual address that it knows about. It does not do any mapping its self nor can it guess where mapping functions are going to map.
+ *
+ * @param data cookie for the underlying implementation
+ * @param page aligned physical address for the frame
+ * @param size of the region in bits
+ * @param cap to the frame gets set. Will return the untyped cap unless the underlying implementation has access to the frame cap. Check with implementation but it should be a frame cap if and only if a vaddr is returned.
+ * @param (potentially) the offset within the untyped cap that was returned
+ * Returns the vritual address to which this physical address is mapped or NULL if frame is unmapped
+ */
 void *simple_get_frame_info(simple_t *simple, void *paddr, int size_bits, seL4_CPtr *frame_cap, seL4_Word *offset)
 {
     assert(simple);
@@ -141,6 +158,14 @@ void *simple_get_frame_info(simple_t *simple, void *paddr, int size_bits, seL4_C
     return simple_default_get_frame_info(data, paddr, size_bits, frame_cap, offset);
 }
 
+/**
+ * Get the cap to the physcial frame of memory and put it at specified location
+ *
+ * @param data cookie for the underlying implementation
+ * @param page aligned physical address
+ * @param size of the region in bits
+ * @param The path to where to put this cap
+ */
 seL4_Error simple_get_frame_cap(simple_t *simple, void *paddr, int size_bits, cspacepath_t *path)
 {
     assert(simple);
@@ -164,11 +189,29 @@ seL4_Error simple_get_frame_cap(simple_t *simple, void *paddr, int size_bits, cs
 
 }
 
+/**
+ * Request mapped address to a region of physical memory.
+ *
+ * Note: This function will only return the mapped virtual address that it knows about. It does not do any mapping its self nor can it guess where mapping functions are going to map.
+ *
+ * @param data cookie for the underlying implementation
+ * @param page aligned physical address
+ * @param size of the region in bits
+ * Returns the vritual address to which this physical address is mapped or NULL if frame is unmapped
+ */
 void *simple_get_frame_vaddr(simple_t *simple, void *paddr, int size_bits)
 {
     return NULL;
 }
 
+/**
+ * Request a cap to a specific IRQ number on the system
+ *.
+ * @param data cookie for the underlying implementation
+ * @param the CNode in which to put this cap
+ * @param the index within the CNode to put cap
+ * @param Depth of index
+ */
 seL4_Error simple_get_IRQ_control(simple_t *simple, int irq, cspacepath_t path)
 {
     assert(simple);
@@ -185,6 +228,12 @@ seL4_Error simple_get_IRQ_control(simple_t *simple, int irq, cspacepath_t path)
     return seL4_InvalidArgument;
 }
 
+/**
+ * Assign the vpsace to the current threads ASID pool
+ *
+ * @param data cookie for the underlying implementation
+ * @param vspace to assign
+ */
 seL4_Error simple_ASIDPool_assign(simple_t *simple, seL4_CPtr vspace)
 {
     return seL4_ARCH_ASIDPool_Assign(seL4_CapInitThreadASIDPool, vspace);
@@ -219,6 +268,11 @@ seL4_CPtr simple_get_IOPort_cap(simple_t *simple, uint16_t start_port, uint16_t 
 #define DEVICE_RANGE (device_caps + UNTYPED_RANGE)
 
 
+/**
+ * Get the total number of caps this library can address
+ *
+ * @param data cookie for the underlying implementation
+ */
 int simple_get_cap_count(simple_t *simple)
 {
     assert(simple);
@@ -242,7 +296,13 @@ int simple_get_cap_count(simple_t *simple)
            + INIT_CAP_TOP_RANGE; //Include all the init caps
 }
 
-seL4_CPtr simple_get_nth_cap(simple_t *simple, int n)
+/**
+ * Get the nth cap that this library can address
+ *
+ * @param data cookie for the underlying implementation
+ * @param the nth starting at 0
+ */
+ seL4_CPtr simple_get_nth_cap(simple_t *simple, int n)
 {
     assert(simple);
 
@@ -299,6 +359,11 @@ seL4_CPtr simple_get_cnode(simple_t *simple)
     return (seL4_CPtr) seL4_CapInitThreadCNode;
 }
 
+/**
+ * Get the size of the threads cnode in bits
+ *
+ * @param data for the underlying implementation
+ */
 int simple_get_cnode_size_bits(simple_t *simple)
 {
     assert(simple);
@@ -322,10 +387,22 @@ seL4_CPtr simple_get_irq_ctrl(simple_t *simple) {
     return (seL4_CPtr)seL4_CapIRQControl;
 }
 
+/**
+ * Get the cap to init caps with numbering based on bootinfo.h
+ *
+ * @param data for the underlying implementation
+ * @param the value of the enum matching in bootinfo.h
+ */
 seL4_CPtr simple_get_init_cap(simple_t *simple, seL4_CPtr cap) {
     return cap;
 }
 
+/**
+ * Get the amount of untyped caps availible
+ *
+ * @param data for the underlying implementation
+ *
+ */
 int simple_get_untyped_count(simple_t *simple)
 {
     assert(simple);
@@ -336,6 +413,14 @@ int simple_get_untyped_count(simple_t *simple)
     return ((seL4_BootInfo *)data)->untyped.end - ((seL4_BootInfo *)data)->untyped.start;
 }
 
+/**
+ * Get the nth untyped cap that this library can address
+ *
+ * @param data cookie for the underlying implementation
+ * @param the nth starting at 0
+ * @param the size of the untyped for the returned cap
+ * @param the physical address of the returned cap
+ */
 seL4_CPtr simple_get_nth_untyped(simple_t *simple, int n, uint32_t *size_bits, uint32_t *paddr)
 {
     assert(simple);
@@ -358,7 +443,13 @@ seL4_CPtr simple_get_nth_untyped(simple_t *simple, int n, uint32_t *size_bits, u
     return seL4_CapNull;
 }
 
-int simple_get_userimage_count(simple_t *simple)
+/**
+ * Get the amount of user image caps availible
+ *
+ * @param data for the underlying implementation
+ *
+ */
+ int simple_get_userimage_count(simple_t *simple)
 {
     assert(simple);
 
@@ -368,7 +459,14 @@ int simple_get_userimage_count(simple_t *simple)
     return ((seL4_BootInfo *)data)->userImageFrames.end - ((seL4_BootInfo *)data)->userImageFrames.start;
 }
 
-seL4_CPtr simple_get_nth_userimage(simple_t *simple, int n)
+/**
+ * Get the nth untyped cap that this library can address
+ *
+ * @param data cookie for the underlying implementation
+ * @param the nth starting at 0
+ *
+ */
+ seL4_CPtr simple_get_nth_userimage(simple_t *simple, int n)
 {
     assert(simple);
 
@@ -385,7 +483,16 @@ seL4_CPtr simple_get_nth_userimage(simple_t *simple, int n)
 }
 
 #ifdef CONFIG_IOMMU
-seL4_CPtr simple_get_iospace(simple_t *simple, uint16_t domainID, uint16_t deviceID, cspacepath_t *path)
+/**
+ * Get the IO space capability for the specified pci device and domain ID
+ *
+ * @param data cookie for the underlying implementation
+ * @param domainID domain ID to request
+ * @param deviceID PCI device ID
+ * @param path Path to where to put this cap
+ *
+ */
+ seL4_CPtr simple_get_iospace(simple_t *simple, uint16_t domainID, uint16_t deviceID, cspacepath_t *path)
 {
     return seL4_CNode_Mint(path->root, path->capPtr, path->capDepth, seL4_CapInitThreadCNode, seL4_CapIOSpace,
                            32, seL4_AllRights, (seL4_CapData_t){.words = {((uint32_t)domainID << 16) | (uint32_t)deviceID}});
@@ -393,7 +500,10 @@ seL4_CPtr simple_get_iospace(simple_t *simple, uint16_t domainID, uint16_t devic
 #endif
 
 
-
+/**
+ *
+ * Get simple to print all the information it has about its environment
+ */
 void simple_print(simple_t *simple) {
     assert(simple);
 
@@ -481,7 +591,14 @@ static seL4_Error get_frame_cap(void *data, void *paddr, int size_bits, cspacepa
 #endif /* CONFIG_ARCH_ARM */
 
 #ifdef CONFIG_ARCH_IA32
-static seL4_CPtr get_IOPort_cap(void *data, uint16_t start_port, uint16_t end_port)
+/**
+ * Request a cap to the IOPorts on IA32
+ *.
+ * @param data cookie for the underlying implementation
+ * @param start port number that a cap is needed to
+ * @param end port number that a cap is needed to
+ */
+ static seL4_CPtr get_IOPort_cap(void *data, uint16_t start_port, uint16_t end_port)
 {
     test_init_data_t *init = (test_init_data_t *) data;
     //assert(start_port >= PIT_IO_PORT_MIN);
@@ -509,7 +626,5 @@ void simple_init_bootinfo(simple_t *simple, seL4_BootInfo *bi)
     assert(bi);
 
     bi->ComputeEnvType = 1;
-
-printf("=============== bi->numDeviceRegions: %d\n", bi->numDeviceRegions);
     simple->data = bi;
 }

@@ -12,12 +12,9 @@
 
 #include <autoconf.h>
 #include <sel4/bootinfo.h>
-
- #include <sel4/sel4.h>
-
+#include <sel4/sel4.h>
 #include <vka/vka.h>
 #include <vka/object.h>
-#include <sel4utils/elf.h>
 #include <simple/simple.h>
 #include <vspace/vspace.h>
 
@@ -27,6 +24,18 @@
 /* Increase if the sel4test-tests binary
  * has new loadable sections added */
 #define MAX_REGIONS 4
+
+typedef struct sel4utils_elf_region {
+    seL4_CapRights rights;
+    /* These two vstarts may differ if the elf was not mapped 1to1. Such an elf is not
+     * runnable, but allows it to be loaded into a vspace where it is not intended to be run */
+    void *elf_vstart;
+    void *reservation_vstart;
+    uint32_t size;
+    reservation_t reservation;
+    int cacheable;
+} sel4utils_elf_region_t;
+
 
 /* data shared between sel4test-driver and the sel4test-tests app.
  * all caps are in the sel4test-tests process' cspace */

@@ -156,6 +156,7 @@ static seL4_Error
 get_frame_cap(void *data, void *paddr, int size_bits, cspacepath_t *path)
 {
     test_init_data_t *init = (test_init_data_t *) data;
+
     assert(paddr == (void*) DEFAULT_TIMER_PADDR);
     assert(size_bits == seL4_PageBits);
 
@@ -195,12 +196,14 @@ void init_timer(env_t env, test_init_data_t *init_data)
 {
     /* minimal simple implementation to get the platform
      * default timer off the ground */
+/*
 #ifdef CONFIG_ARCH_ARM
     env->simple.frame_cap = get_frame_cap;
 #elif CONFIG_ARCH_IA32
     env->simple.IOPort_cap = get_IOPort_cap;
 #endif
     env->simple.irq = get_irq;
+*/
     env->simple.data = (void *) init_data;
 
     UNUSED int error;
@@ -286,5 +289,4 @@ main(int argc, char **argv)
     assert(!"unreachable");
     return 0;
 }
-
 
