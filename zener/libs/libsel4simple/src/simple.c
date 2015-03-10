@@ -8,19 +8,21 @@
  */
 
 #include <autoconf.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-
 #include <sel4/sel4.h>
 #include <simple/simple.h>
 #include <simple/simple_helpers.h>
 #include <simple/ElastosComputeEnv.h>
 
 static void *simple_default_get_frame_info(void *data, void *paddr, int size_bits, seL4_CPtr *frame_cap, seL4_Word *offset);
+#ifdef CONFIG_ARCH_ARM
 static seL4_Error get_frame_cap(void *data, void *paddr, int size_bits, cspacepath_t *path);
+#endif
+#ifdef CONFIG_ARCH_IA32
 static seL4_CPtr get_IOPort_cap(void *data, uint16_t start_port, uint16_t end_port);
+#endif
 static seL4_Error get_irq(void *data, int irq, seL4_CNode root, seL4_Word index, uint8_t depth);
 
 #if defined(CONFIG_ARCH_ARM)
@@ -32,12 +34,13 @@ static seL4_Error get_irq(void *data, int irq, seL4_CNode root, seL4_Word index,
 int simple_is_untyped_cap(simple_t *simple, seL4_CPtr pos)
 {
     int i;
+    uint32_t paddr;
+    uint32_t size_bits;
+    seL4_CPtr ut_pos;
 
-    for(i = 0; i < simple_get_untyped_count(simple); i++) {
-        uint32_t paddr;
-        uint32_t size_bits;
-        seL4_CPtr ut_pos = simple_get_nth_untyped(simple, i, &size_bits, &paddr);
-        if(ut_pos == pos) {
+    for (i = 0; i < simple_get_untyped_count(simple); i++) {
+        ut_pos = simple_get_nth_untyped(simple, i, &size_bits, &paddr);
+        if (ut_pos == pos) {
             return 1;
         }
     }
@@ -49,21 +52,24 @@ seL4_Error simple_copy_caps(simple_t *simple, seL4_CNode cspace, int copy_untype
 {
     int i;
     seL4_Error error = seL4_NoError;
+    seL4_CPtr pos;
 
-    for(i = 0; i < simple_get_cap_count(simple); i++) {
-        seL4_CPtr pos = simple_get_nth_cap(simple, i);
+    for (i = 0; i < simple_get_cap_count(simple); i++) {
+        pos = simple_get_nth_cap(simple, i);
         /* Don't copy this, put the cap to the new cspace */
-        if(pos == seL4_CapInitThreadCNode) continue;
+        if (pos == seL4_CapInitThreadCNode)
+            continue;
 
         /* If we don't want to copy untypeds and it is one move on */
-        if(!copy_untypeds && simple_is_untyped_cap(simple, pos)) continue;
+        if (!copy_untypeds && simple_is_untyped_cap(simple, pos))
+            continue;
 
         error = seL4_CNode_Copy(
                     cspace, pos, seL4_WordBits,
                     seL4_CapInitThreadCNode, pos, seL4_WordBits,
                     seL4_AllRights);
         /* Don't error on the low cap numbers, we might have tried to copy a control cap */
-        if(error && i > 10) {
+        if (error && i > 10) {
             return error;
         }
     }
@@ -128,10 +134,12 @@ seL4_CPtr simple_last_valid_cap(simple_t *simple)
 {
     seL4_CPtr largest = 0;
     int i;
+    seL4_CPtr cap;
 
     for (i = 0; i < simple_get_cap_count(simple); i++) {
-        seL4_CPtr cap = simple_get_nth_cap(simple, i);
-        if (cap > largest) largest = cap;
+        cap = simple_get_nth_cap(simple, i);
+        if (cap > largest)
+            largest = cap;
     }
     return largest;
 }
@@ -139,12 +147,15 @@ seL4_CPtr simple_last_valid_cap(simple_t *simple)
 /**
  * Request data to a region of physical memory.
  *
- * Note: This function will only return the mapped virtual address that it knows about. It does not do any mapping its self nor can it guess where mapping functions are going to map.
+ * Note: This function will only return the mapped virtual address that it knows about. It does not
+ *       do any mapping its self nor can it guess where mapping functions are going to map.
  *
  * @param data cookie for the underlying implementation
  * @param page aligned physical address for the frame
  * @param size of the region in bits
- * @param cap to the frame gets set. Will return the untyped cap unless the underlying implementation has access to the frame cap. Check with implementation but it should be a frame cap if and only if a vaddr is returned.
+ * @param cap to the frame gets set. Will return the untyped cap unless the underlying implementation
+ *            has access to the frame cap. Check with implementation but it should be a frame cap if
+ *            and only if a vaddr is returned.
  * @param (potentially) the offset within the untyped cap that was returned
  * Returns the vritual address to which this physical address is mapped or NULL if frame is unmapped
  */
@@ -177,23 +188,26 @@ seL4_Error simple_get_frame_cap(simple_t *simple, void *paddr, int size_bits, cs
     seL4_Word offset;
 
     /* Lookup ComputeEnvType */
-    switch ( *(int *)data ) {
+    switch ( *(uint32_t *)data ) {
         case 1:
             simple_default_get_frame_info(data, paddr, size_bits, &frame_cap, &offset);
             if (frame_cap == seL4_CapNull) {
                 return seL4_FailedLookup;
             }
-            return seL4_CNode_Copy(path->root, path->capPtr, path->capDepth, seL4_CapInitThreadCNode, frame_cap, seL4_WordBits, seL4_AllRights);
+            return seL4_CNode_Copy(path->root, path->capPtr, path->capDepth, seL4_CapInitThreadCNode,
+                                   frame_cap, seL4_WordBits, seL4_AllRights);
         case 2:
             return get_frame_cap(data, paddr, size_bits, path);
     }
 
+    return seL4_InvalidArgument;
 }
 
 /**
  * Request mapped address to a region of physical memory.
  *
- * Note: This function will only return the mapped virtual address that it knows about. It does not do any mapping its self nor can it guess where mapping functions are going to map.
+ * Note: This function will only return the mapped virtual address that it knows about. It does not
+ *       do any mapping its self nor can it guess where mapping functions are going to map.
  *
  * @param data cookie for the underlying implementation
  * @param page aligned physical address
@@ -221,12 +235,13 @@ seL4_Error simple_get_IRQ_control(simple_t *simple, int irq, cspacepath_t path)
     assert(data);
 
     /* Lookup ComputeEnvType */
-    switch ( *(int *)data ) {
+    switch ( *(uint32_t *)data ) {
         case 1:
             return seL4_IRQControl_Get(seL4_CapIRQControl, irq, path.root, path.capPtr, path.capDepth);
         case 2:
             return get_irq(data, irq, path.root, path.capPtr, path.capDepth);
     }
+
     return seL4_InvalidArgument;
 }
 
@@ -282,11 +297,11 @@ int simple_get_cap_count(simple_t *simple)
     void *data = simple->data;
     assert(data);
 
-    seL4_BootInfo * bi = (seL4_BootInfo *) data;
-
+    seL4_BootInfo *bi = (seL4_BootInfo *)data;
     int device_caps = 0;
     int i;
-    for(i = 0; i < bi->numDeviceRegions; i++) {
+
+    for (i = 0; i < bi->numDeviceRegions; i++) {
         device_caps += bi->deviceRegions[i].frames.end - bi->deviceRegions[i].frames.start;
     }
 
@@ -311,21 +326,21 @@ seL4_CPtr simple_get_nth_cap(simple_t *simple, int n)
     void *data = simple->data;
     assert(data);
 
-    seL4_BootInfo * bi = (seL4_BootInfo *) data;
-
+    seL4_BootInfo *bi = (seL4_BootInfo *) data;
     int i;
     int device_caps = 0;
     seL4_CPtr true_return = seL4_CapNull;
+    int current_count;
 
-    for(i = 0; i < bi->numDeviceRegions; i++) {
+    for (i = 0; i < bi->numDeviceRegions; i++) {
         device_caps += bi->deviceRegions[i].frames.end - bi->deviceRegions[i].frames.start;
     }
-    if(n < INIT_CAP_BASE_RANGE) {
+    if (n < INIT_CAP_BASE_RANGE) {
         true_return = (seL4_CPtr) n+1;
-    } else if(n == INIT_CAP_TOP_RANGE - 1) {
+    } else if (n == INIT_CAP_TOP_RANGE - 1) {
         //seL4_CapDomain
         true_return = (seL4_CPtr)seL4_CapDomain;
-    } else if(n < INIT_CAP_TOP_RANGE) {
+    } else if (n < INIT_CAP_TOP_RANGE) {
         true_return = (seL4_CPtr) n+1;
         #if defined(CONFIG_ARCH_ARM)
             true_return++;
@@ -335,18 +350,18 @@ seL4_CPtr simple_get_nth_cap(simple_t *simple, int n)
                 true_return++;
             }
         #endif
-    } else if(n < SHARED_FRAME_RANGE) {
+    } else if (n < SHARED_FRAME_RANGE) {
         return bi->sharedFrames.start + (n - INIT_CAP_TOP_RANGE);
-    } else if(n < USER_IMAGE_FRAMES_RANGE) {
+    } else if (n < USER_IMAGE_FRAMES_RANGE) {
         return bi->userImageFrames.start + (n - SHARED_FRAME_RANGE);
-    } else if(n < USER_IMAGE_PTS_RANGE) {
+    } else if (n < USER_IMAGE_PTS_RANGE) {
         return bi->userImagePTs.start + (n - USER_IMAGE_FRAMES_RANGE);
-    } else if(n < UNTYPED_RANGE) {
+    } else if (n < UNTYPED_RANGE) {
         return bi->untyped.start + (n - USER_IMAGE_PTS_RANGE);
-    } else if(n < DEVICE_RANGE) {
+    } else if (n < DEVICE_RANGE) {
         i = 0;
-        int current_count = 0;
-        while((bi->deviceRegions[i].frames.end - bi->deviceRegions[i].frames.start) + current_count < (n - UNTYPED_RANGE)) {
+        current_count = 0;
+        while ((bi->deviceRegions[i].frames.end - bi->deviceRegions[i].frames.start) + current_count < (n - UNTYPED_RANGE)) {
             current_count += bi->deviceRegions[i].frames.end - bi->deviceRegions[i].frames.start;
             i++;
         }
@@ -547,23 +562,22 @@ void simple_print(simple_t *simple) {
 
 static void *simple_default_get_frame_info(void *data, void *paddr, int size_bits, seL4_CPtr *frame_cap, seL4_Word *offset)
 {
-    assert(data && paddr && frame_cap);
-
     int i;
     seL4_BootInfo *bi = (seL4_BootInfo *)data;
     seL4_DeviceRegion *region;
+    seL4_Word region_start, n_caps, region_end;
 
     *offset = 0;
     *frame_cap = seL4_CapNull;
     region = bi->deviceRegions;
     for (i = 0; i < bi->numDeviceRegions; i++, region++) {
 
-        seL4_Word region_start = region->basePaddr;
-        seL4_Word n_caps = region->frames.end - region->frames.start;
-        seL4_Word region_end = region_start + (n_caps << region->frameSizeBits);
+        region_start = region->basePaddr;
+        n_caps = region->frames.end - region->frames.start;
+        region_end = region_start + (n_caps << region->frameSizeBits);
 
-        if (region_start <= (seL4_Word) paddr && (seL4_Word) paddr < region_end && region->frameSizeBits == size_bits) {
-            *frame_cap =  region->frames.start + (((seL4_Word) paddr - region->basePaddr) >> region->frameSizeBits);
+        if ((region_start <= (seL4_Word)paddr) && ((seL4_Word)paddr < region_end) && (region->frameSizeBits == size_bits)) {
+            *frame_cap =  region->frames.start + (((seL4_Word)paddr - region->basePaddr) >> region->frameSizeBits);
             i = bi->numDeviceRegions;
         }
     }
@@ -609,7 +623,7 @@ static seL4_CPtr get_IOPort_cap(void *data, uint16_t start_port, uint16_t end_po
 
 static seL4_Error get_irq(void *data, int irq, seL4_CNode root, seL4_Word index, uint8_t depth)
 {
-    compute_env_data_t *init = (compute_env_data_t *) data;
+    compute_env_data_t *init = (compute_env_data_t *)data;
     //assert(irq == DEFAULT_TIMER_INTERRUPT);
 
     int error = seL4_CNode_Copy(root, index, depth, init->root_cnode,
