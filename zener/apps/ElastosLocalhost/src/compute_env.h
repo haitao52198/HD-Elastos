@@ -1,15 +1,14 @@
 /*
- * Copyright 2014, NICTA
+ * Copyright 2015, Tongji Operating System Group & elastos.org
  *
  * This software may be distributed and modified according to the terms of
  * the BSD 2-Clause license. Note that NO WARRANTY is provided.
  * See "LICENSE_BSD2.txt" for details.
  *
- * @TAG(NICTA_BSD)
  */
-/* this file is shared between sel4test-driver an sel4test-tests */
-#ifndef __TEST_H
-#define __TEST_H
+
+#ifndef __COMPUTE_ENV_H__
+#define __COMPUTE_ENV_H__
 
 #include <autoconf.h>
 #include <sel4/bootinfo.h>
@@ -31,7 +30,13 @@
 
 /* data shared between sel4test-driver and the sel4test-tests app.
  * all caps are in the sel4test-tests process' cspace */
-typedef struct {
+typedef struct tag_compute_env_data_t {
+    /*
+     * The compute environment struct type
+     * This must be the first field of this kind of sturct.
+     */
+    uint32_t  ComputeEnvType;
+
     /* page directory of the test process */
     seL4_CPtr page_directory;
     /* root cnode of the test process */
@@ -99,4 +104,4 @@ static inline void _test_abort()
 
 #define test_assert_fatal(e) if (!(e)) _test_abort()
 
-#endif /* __TEST_H */
+#endif /* __COMPUTE_ENV_H__ */

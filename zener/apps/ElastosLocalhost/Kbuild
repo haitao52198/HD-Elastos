@@ -1,27 +1,19 @@
 #
-# Copyright 2014, NICTA
+#  Copyright 2015, Tongji Operating System Group & elastos.org
 #
-# This software may be distributed and modified according to the terms of
-# the BSD 2-Clause license. Note that NO WARRANTY is provided.
-# See "LICENSE_BSD2.txt" for details.
-#
-# @TAG(NICTA_BSD)
+#  This software may be distributed and modified according to the terms of
+#  the BSD 2-Clause license. Note that NO WARRANTY is provided.
+#  See "LICENSE_BSD2.txt" for details.
 #
 
-apps-$(CONFIG_APP_ELAST_LOCALHOST)        += ElastosLocalhost
+
+apps-$(CONFIG_APP_ELASTOS_LOCALHOST) += ElastosLocalhost
 
 # list of libraries the app needs to build
-ElastosLocalhost-y                          = common libsel4 libmuslc libsel4vka libcpio libelf \
-                                      libsel4allocman \
-                                      libsel4platsupport libsel4platsupport libsel4muslcsys \
-                                      libsel4simple libsel4vspace libsel4utils libutils
-
-# set up correct simple lib for our kernel
-#ifdef CONFIG_KERNEL_STABLE
-#ElastosLocalhost-$(CONFIG_LIB_SEL4_SIMPLE_STABLE) += libsel4simple-stable
-#else
-#ElastosLocalhost-$(CONFIG_LIB_SEL4_SIMPLE_DEFAULT) += libsel4simple-default
-#endif
+ElastosLocalhost-y = common libsel4 libmuslc libsel4vka libcpio libelf \
+                     libsel4allocman \
+                     libsel4platsupport libsel4platsupport libsel4muslcsys \
+                     libsel4simple libsel4vspace libsel4utils libutils
 
 # add the tests app  as a component so that we can elf load it
 ElastosLocalhost-components-y += sel4test-hi

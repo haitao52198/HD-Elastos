@@ -1,12 +1,16 @@
 /*
- * Copyright 2014, Tongji Operating System Group & elastos.org
+ * Copyright 2015, Tongji Operating System Group & elastos.org
  *
  * This software may be distributed and modified according to the terms of
  * the BSD 2-Clause license. Note that NO WARRANTY is provided.
  * See "LICENSE_BSD2.txt" for details.
  *
- * @TAG(NICTA_BSD)
  */
+
+/*
+ * HD-Elastos No. 1 process, the core process, the first process, the initial process
+ */
+
 
 /* Include Kconfig variables. */
 #include <autoconf.h>
@@ -30,14 +34,6 @@
 
 #include <simple/simple.h>
 
-/*
-#ifdef CONFIG_KERNEL_STABLE
-#include <simple-stable/simple-stable.h>
-#else
-#include <simple-default/simple-default.h>
-#endif
-*/
-
 #include <utils/util.h>
 
 #include <vka/object.h>
@@ -45,7 +41,7 @@
 
 #include <vspace/vspace.h>
 
-#include "test.h"
+#include "compute_env.h"
 
 /* Contains information about the test environment.
  * Define struct env in your application. */
@@ -111,8 +107,7 @@ static vka_object_t untypeds[CONFIG_MAX_NUM_BOOTINFO_UNTYPED_CAPS];
 static uint8_t untyped_size_bits_list[CONFIG_MAX_NUM_BOOTINFO_UNTYPED_CAPS];
 
 /* initialise our runtime environment */
-static void
-init_env(env_t env)
+static void init_env(env_t env)
 {
     allocman_t *allocman;
     UNUSED reservation_t virtual_reservation;
@@ -141,8 +136,7 @@ init_env(env_t env)
 }
 
 /* copy a cap to a process, returning the cptr in the process' cspace */
-static seL4_CPtr
-copy_cap_to_process(sel4utils_process_t *process, seL4_CPtr cap)
+static seL4_CPtr copy_cap_to_process(sel4utils_process_t *process, seL4_CPtr cap)
 {
     seL4_CPtr copied_cap;
     cspacepath_t path;
@@ -155,8 +149,7 @@ copy_cap_to_process(sel4utils_process_t *process, seL4_CPtr cap)
 }
 
 /* Free a list of objects */
-static void
-free_objects(vka_object_t *objects, unsigned int num)
+static void free_objects(vka_object_t *objects, unsigned int num)
 {
     for (unsigned int i = 0; i < num; i++) {
         vka_free_object(&env.vka, &objects[i]);
@@ -165,8 +158,7 @@ free_objects(vka_object_t *objects, unsigned int num)
 
 /* Allocate untypeds till either a certain number of bytes is allocated
  * or a certain number of untyped objects */
-static unsigned int
-allocate_untypeds(vka_object_t *untypeds, size_t bytes, unsigned int max_untypeds)
+static unsigned int allocate_untypeds(vka_object_t *untypeds, size_t bytes, unsigned int max_untypeds)
 {
     unsigned int num_untypeds = 0;
     size_t allocated = 0;
@@ -186,8 +178,7 @@ allocate_untypeds(vka_object_t *untypeds, size_t bytes, unsigned int max_untyped
 }
 
 /* extract a large number of untypeds from the allocator */
-static unsigned int
-populate_untypeds(vka_object_t *untypeds)
+static unsigned int populate_untypeds(vka_object_t *untypeds)
 {
     /* First reserve some memory for the driver */
     vka_object_t reserve[DRIVER_NUM_UNTYPEDS];
@@ -209,8 +200,7 @@ populate_untypeds(vka_object_t *untypeds)
 }
 
 /* copy untyped caps into a processes cspace, return the cap range they can be found in */
-static seL4_SlotRegion
-copy_untypeds_to_process(sel4utils_process_t *process, vka_object_t *untypeds, int num_untypeds)
+static seL4_SlotRegion copy_untypeds_to_process(sel4utils_process_t *process, vka_object_t *untypeds, int num_untypeds)
 {
     seL4_SlotRegion range = {0};
 
@@ -228,8 +218,7 @@ copy_untypeds_to_process(sel4utils_process_t *process, vka_object_t *untypeds, i
 }
 
 /* map the init data into the process, and send the address via ipc */
-static void *
-send_init_data(env_t env, seL4_CPtr endpoint, sel4utils_process_t *process)
+static void *send_init_data(env_t env, seL4_CPtr endpoint, sel4utils_process_t *process)
 {
     /* map the cap into remote vspace */
     void *remote_vaddr = vspace_map_pages(&process->vspace, &env->init_frame_cap_copy, NULL, seL4_AllRights, 1, PAGE_BITS_4K, 1);
@@ -244,8 +233,7 @@ send_init_data(env_t env, seL4_CPtr endpoint, sel4utils_process_t *process)
 }
 
 /* copy the caps required to set up the sel4platsupport default timer */
-static void
-copy_timer_caps(compute_env_data_t *init, env_t env, sel4utils_process_t *test_process)
+static void copy_timer_caps(compute_env_data_t *init, env_t env, sel4utils_process_t *test_process)
 {
 #ifdef CONFIG_ARCH_ARM
     /* Timer frame cap (only for arm). Here we assume the sel4platsupport
@@ -265,8 +253,7 @@ copy_timer_caps(compute_env_data_t *init, env_t env, sel4utils_process_t *test_p
 #endif
 }
 
-static void
-init_timer_caps(env_t env)
+static void init_timer_caps(env_t env)
 {
     /* get the timer irq cap */
     seL4_CPtr cap;
@@ -295,8 +282,7 @@ init_timer_caps(env_t env)
 
 /* Call application sel4test-hi.
  * This is just a simple demo. */
-int
-run_hi(void)
+int run_hi(void)
 {
     UNUSED int error;
     sel4utils_process_t hi_process;
