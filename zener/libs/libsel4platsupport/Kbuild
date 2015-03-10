@@ -10,10 +10,5 @@
 
 
 
-#ifdef CONFIG_KERNEL_STABLE
-#libsel4platsupport-y: libsel4simple-stable
-#else
-#libsel4platsupport-y: libsel4simple-default
-#endif
 libsel4platsupport: libutils libsel4utils libsel4 libsel4vspace libsel4simple libplatsupport $(libc) common
 libs-$(CONFIG_LIB_SEL4_PLAT_SUPPORT) += libsel4platsupport
