@@ -387,8 +387,10 @@ void *main_continued(void *arg UNUSED)
 
     /* create a frame that will act as the init data, we can then map that
      * in to target processes */
-    env.init = (compute_env_data_t *) vspace_new_pages(&env.vspace, seL4_AllRights, 1, PAGE_BITS_4K);
+    env.init = (compute_env_data_t *)vspace_new_pages(&env.vspace, seL4_AllRights, 1, PAGE_BITS_4K);
     assert(env.init != NULL);
+
+    env.init->ComputeEnvType = LocalhostCOMPUTE_ENV;
 
     /* copy the cap to map into the remote process */
     cspacepath_t src, dest;

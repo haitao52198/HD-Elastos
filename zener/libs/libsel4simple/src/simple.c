@@ -304,7 +304,7 @@ int simple_get_cap_count(simple_t *simple)
  * @param data cookie for the underlying implementation
  * @param the nth starting at 0
  */
- seL4_CPtr simple_get_nth_cap(simple_t *simple, int n)
+seL4_CPtr simple_get_nth_cap(simple_t *simple, int n)
 {
     assert(simple);
 
@@ -358,7 +358,7 @@ int simple_get_cap_count(simple_t *simple)
 
 seL4_CPtr simple_get_cnode(simple_t *simple)
 {
-    return (seL4_CPtr) seL4_CapInitThreadCNode;
+    return (seL4_CPtr)seL4_CapInitThreadCNode;
 }
 
 /**
@@ -432,11 +432,11 @@ seL4_CPtr simple_get_nth_untyped(simple_t *simple, int n, uint32_t *size_bits, u
 
     seL4_BootInfo *bi = (seL4_BootInfo *)data;
 
-    if(n < (bi->untyped.end - bi->untyped.start)) {
-        if(paddr != NULL) {
+    if (n < (bi->untyped.end - bi->untyped.start)) {
+        if (paddr != NULL) {
             *paddr = bi->untypedPaddrList[n];
         }
-        if(size_bits != NULL) {
+        if (size_bits != NULL) {
             *size_bits = bi->untypedSizeBitsList[n];
         }
         return bi->untyped.start + (n);
@@ -451,7 +451,7 @@ seL4_CPtr simple_get_nth_untyped(simple_t *simple, int n, uint32_t *size_bits, u
  * @param data for the underlying implementation
  *
  */
- int simple_get_userimage_count(simple_t *simple)
+int simple_get_userimage_count(simple_t *simple)
 {
     assert(simple);
 
@@ -468,7 +468,7 @@ seL4_CPtr simple_get_nth_untyped(simple_t *simple, int n, uint32_t *size_bits, u
  * @param the nth starting at 0
  *
  */
- seL4_CPtr simple_get_nth_userimage(simple_t *simple, int n)
+seL4_CPtr simple_get_nth_userimage(simple_t *simple, int n)
 {
     assert(simple);
 
@@ -477,7 +477,7 @@ seL4_CPtr simple_get_nth_untyped(simple_t *simple, int n, uint32_t *size_bits, u
 
     seL4_BootInfo *bi = (seL4_BootInfo *)data;
 
-    if(n < (bi->userImageFrames.end - bi->userImageFrames.start)) {
+    if (n < (bi->userImageFrames.end - bi->userImageFrames.start)) {
         return bi->userImageFrames.start + (n);
     }
 
@@ -494,7 +494,7 @@ seL4_CPtr simple_get_nth_untyped(simple_t *simple, int n, uint32_t *size_bits, u
  * @param path Path to where to put this cap
  *
  */
- seL4_CPtr simple_get_iospace(simple_t *simple, uint16_t domainID, uint16_t deviceID, cspacepath_t *path)
+seL4_CPtr simple_get_iospace(simple_t *simple, uint16_t domainID, uint16_t deviceID, cspacepath_t *path)
 {
     return seL4_CNode_Mint(path->root, path->capPtr, path->capDepth, seL4_CapInitThreadCNode, seL4_CapIOSpace,
                            32, seL4_AllRights, (seL4_CapData_t){.words = {((uint32_t)domainID << 16) | (uint32_t)deviceID}});
@@ -549,22 +549,20 @@ static void *simple_default_get_frame_info(void *data, void *paddr, int size_bit
 {
     assert(data && paddr && frame_cap);
 
-    seL4_BootInfo *bi = (seL4_BootInfo *)data;
-
     int i;
-    seL4_DeviceRegion* region;
+    seL4_BootInfo *bi = (seL4_BootInfo *)data;
+    seL4_DeviceRegion *region;
 
     *offset = 0;
     *frame_cap = seL4_CapNull;
     region = bi->deviceRegions;
-    for(i = 0; i < bi->numDeviceRegions; i++, region++){
+    for (i = 0; i < bi->numDeviceRegions; i++, region++) {
+
         seL4_Word region_start = region->basePaddr;
         seL4_Word n_caps = region->frames.end - region->frames.start;
         seL4_Word region_end = region_start + (n_caps << region->frameSizeBits);
-        if(region_start <= (seL4_Word) paddr &&
-           (seL4_Word) paddr < region_end &&
-           region->frameSizeBits == size_bits) {
 
+        if (region_start <= (seL4_Word) paddr && (seL4_Word) paddr < region_end && region->frameSizeBits == size_bits) {
             *frame_cap =  region->frames.start + (((seL4_Word) paddr - region->basePaddr) >> region->frameSizeBits);
             i = bi->numDeviceRegions;
         }
@@ -599,7 +597,7 @@ static seL4_Error get_frame_cap(void *data, void *paddr, int size_bits, cspacepa
  * @param start port number that a cap is needed to
  * @param end port number that a cap is needed to
  */
- static seL4_CPtr get_IOPort_cap(void *data, uint16_t start_port, uint16_t end_port)
+static seL4_CPtr get_IOPort_cap(void *data, uint16_t start_port, uint16_t end_port)
 {
     compute_env_data_t *init = (compute_env_data_t *) data;
     //assert(start_port >= PIT_IO_PORT_MIN);
@@ -626,6 +624,6 @@ void simple_init_bootinfo(simple_t *simple, seL4_BootInfo *bi)
     assert(simple);
     assert(bi);
 
-    bi->ComputeEnvType = 1;
+    bi->ComputeEnvType = kernelBOOTINFO;
     simple->data = bi;
 }

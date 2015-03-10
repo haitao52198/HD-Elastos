@@ -16,6 +16,11 @@
 #include <sel4/sel4.h>
 #include <vka/cspacepath_t.h>
 
+//value of uint32_t ComputeEnvType
+enum COMPUTE_ENV_TYPE {
+    kernelBOOTINFO = 1,
+    LocalhostCOMPUTE_ENV = 2
+};
 
 typedef struct simple_t {
     void *data;

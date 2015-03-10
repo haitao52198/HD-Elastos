@@ -396,7 +396,7 @@ void *main_continued(void *arg UNUSED)
     env.init = (compute_env_data_t *) vspace_new_pages(&env.vspace, seL4_AllRights, 1, PAGE_BITS_4K);
     assert(env.init != NULL);
 
-    env.init->ComputeEnvType = 2;
+    env.init->ComputeEnvType = LocalhostCOMPUTE_ENV;
     /* copy the cap to map into the remote process */
     cspacepath_t src, dest;
     vka_cspace_make_path(&env.vka, vspace_get_cap(&env.vspace, env.init), &src);
