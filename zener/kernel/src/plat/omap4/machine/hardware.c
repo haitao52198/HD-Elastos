@@ -177,18 +177,18 @@ map_kernel_devices(void)
 		ARM_MP_PADDR,
 		ARM_MP_PPTR1,
 		VMKernelOnly,
-		vm_attributes_new(
-            false, /* armExecuteNever */
+        vm_attributes_new(
+            true,  /* armExecuteNever */
             false, /* armParityEnabled */
             false  /* armPageCacheable */
-		)
+        )
 	);
     map_kernel_frame(
 		ARM_MP_PADDR + BIT(PAGE_BITS),
 		ARM_MP_PPTR2,
         VMKernelOnly,
         vm_attributes_new(
-            false, /* armExecuteNever */
+            true,  /* armExecuteNever */
             false, /* armParityEnabled */
             false  /* armPageCacheable */
         )
@@ -200,7 +200,7 @@ map_kernel_devices(void)
         L2CC_L2C310_PPTR,
         VMKernelOnly,
         vm_attributes_new(
-            false, /* armExecuteNever */
+            true,  /* armExecuteNever */
             false, /* armParityEnabled */
             false  /* armPageCacheable */
         )
@@ -224,7 +224,7 @@ map_kernel_devices(void)
         UART3_PPTR,
         VMKernelOnly,
         vm_attributes_new(
-            false, /* armExecuteNever */
+            true,  /* armExecuteNever */
             false, /* armParityEnabled */
             false  /* armPageCacheable */
         )

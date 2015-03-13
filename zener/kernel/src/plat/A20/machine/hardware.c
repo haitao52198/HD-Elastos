@@ -186,9 +186,9 @@ map_kernel_devices(void)
 		ARM_MP_PPTR1,
 		VMKernelOnly,
         vm_attributes_new(
+            true,  /* armExecuteNever */
             false, /* armParityEnabled */
-            false, /* armPageCacheable */
-            false  /* armExecuteNever */
+            false  /* armPageCacheable */
         )
 	);
     map_kernel_frame(
@@ -196,9 +196,9 @@ map_kernel_devices(void)
 		ARM_MP_PPTR2,
         VMKernelOnly,
         vm_attributes_new(
+            true,  /* armExecuteNever */
             false, /* armParityEnabled */
-            false, /* armPageCacheable */
-            false  /* armExecuteNever */
+            false  /* armPageCacheable */
         )
     );
     map_kernel_frame(
@@ -206,9 +206,9 @@ map_kernel_devices(void)
         ARM_MP_PPTR3,
         VMKernelOnly,
         vm_attributes_new(
+            true,  /* armExecuteNever */
             false, /* armParityEnabled */
-            false, /* armPageCacheable */
-            false  /* armExecuteNever */
+            false  /* armPageCacheable */
         )
     );
 
@@ -218,9 +218,9 @@ map_kernel_devices(void)
         L2CC_L2C310_PPTR,
         VMKernelOnly,
         vm_attributes_new(
+            true,  /* armExecuteNever */
             false, /* armParityEnabled */
-            false, /* armPageCacheable */
-            false  /* armExecuteNever */
+            false  /* armPageCacheable */
         )
     );
 
@@ -242,9 +242,9 @@ map_kernel_devices(void)
         UART0_PPTR,
         VMKernelOnly,
         vm_attributes_new(
+            true,  /* armExecuteNever */
             false, /* armParityEnabled */
-            false, /* armPageCacheable */
-            false  /* armExecuteNever */
+            false  /* armPageCacheable */
         )
     );
 #endif
