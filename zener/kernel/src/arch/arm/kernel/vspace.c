@@ -108,7 +108,7 @@ map_it_pt_cap(cap_t pd_cap, cap_t pt_cap)
 }
 
 BOOT_CODE void
-map_it_frame_cap(cap_t pd_cap, cap_t frame_cap)
+map_it_frame_cap(cap_t pd_cap, cap_t frame_cap, bool_t executable)
 {
     pte_t* pt;
     pte_t* targetSlot;
@@ -131,7 +131,7 @@ map_it_frame_cap(cap_t pd_cap, cap_t frame_cap)
                       APFromVMRights(VMReadWrite),
                       1, /* cacheable */
                       1, /* write-back caching */
-                      0  /* executable */
+                      !executable
                   );
 }
 
@@ -291,7 +291,7 @@ map_kernel_window(void)
         PPTR_KERNEL_STACK,
         VMKernelOnly,
         vm_attributes_new(
-            true, /* armExecuteNever */
+            true,  /* armExecuteNever */
             true,  /* armParityEnabled */
             true   /* armPageCacheable */
         )
@@ -573,7 +573,8 @@ unmapPageTable(asid_t asid, vptr_t vaddr, pte_t* pt)
     }
 }
 
-static pte_t pte_pte_invalid_new(void) {
+static pte_t pte_pte_invalid_new(void)
+{
     /* Invalid as every PTE must have bit 0 set (large PTE) or bit 1 set (small
      * PTE). 0 == 'translation fault' in ARM parlance.
      */
@@ -1311,7 +1312,7 @@ createSafeMappingEntries_PDE
 
     switch (frameSize) {
 
-    /* PDE mappings */
+        /* PDE mappings */
     case ARMSection:
         ret.pde_entries.base = lookupPDSlot(pd, vaddr);
         ret.pde_entries.length = 1;

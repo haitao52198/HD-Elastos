@@ -169,10 +169,10 @@ create_unmapped_it_frame_cap(pptr_t pptr, bool_t use_large)
 }
 
 BOOT_CODE cap_t
-create_mapped_it_frame_cap(cap_t pd_cap, pptr_t pptr, vptr_t vptr, asid_t asid, bool_t use_large)
+create_mapped_it_frame_cap(cap_t pd_cap, pptr_t pptr, vptr_t vptr, asid_t asid, bool_t use_large, bool_t executable)
 {
     cap_t cap = create_it_frame_cap(pptr, vptr, asid, use_large);
-    map_it_frame_cap(pd_cap, cap);
+    map_it_frame_cap(pd_cap, cap, executable);
     return cap;
 }
 
@@ -462,9 +462,9 @@ try_init_kernel(
     /* convert the remaining free memory into UT objects and provide the caps */
     if (!create_untypeds(
                 root_cnode_cap,
-                (region_t) {
-                    kernelBase, (pptr_t)ki_boot_end
-                } /* reusable boot code/data */
+    (region_t) {
+    kernelBase, (pptr_t)ki_boot_end
+    } /* reusable boot code/data */
             )) {
         return false;
     }
