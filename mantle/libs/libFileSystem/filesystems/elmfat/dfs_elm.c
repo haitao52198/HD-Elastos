@@ -33,6 +33,7 @@
 #include "ff.h"
 #include <string.h>
 #include <time.h>
+#include <sys/timeb.h>
 
 /* ELM FatFs provide a DIR struct */
 #define HAVE_DIR_STRUCTURE
@@ -906,7 +907,7 @@ DRESULT disk_ioctl(BYTE drv, BYTE ctrl, void *buff)
     return RES_OK;
 }
 
-rt_time_t get_fattime(void)
+time_t get_fattime(void)
 {
     return 0;
 }

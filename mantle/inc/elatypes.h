@@ -422,7 +422,10 @@ EXTERN_C void __asm(char*, ...);
 #define ASM_VOLATILE    __asm
 #define ASM             ASM_VOLATILE
 #else
-#error unknown compiler
+#define __asm           __asm__
+#define _asm            __asm
+#define ASM_VOLATILE    __asm__ __volatile__
+#define ASM             ASM_VOLATILE
 #endif
 
 #define interface           struct
@@ -451,10 +454,6 @@ EXTERN_C void __asm(char*, ...);
 #define ELFUNCCALLTYPE          CDECL
 #define ELFUNC                  _ELASTOS ECode ELFUNCCALLTYPE
 #define ELFUNC_(type)           type ELFUNCCALLTYPE
-
-typedef _ELASTOS ECode (ELFUNCCALLTYPE *PThreadMain)(_ELASTOS PVoid);
-typedef _ELASTOS Void (ELFUNCCALLTYPE *PThreadQuitRoutine)(_ELASTOS PVoid);
-typedef _ELASTOS Void (ELFUNCCALLTYPE *PProcessExitRoutine)(_ELASTOS PVoid);
 
 #ifdef __cplusplus
 }

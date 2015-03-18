@@ -28,6 +28,7 @@
 #define __DFS_DEF_H__
 
 #include <hdElastosMantle.h>
+#include <sys/timeb.h>
 
 #ifndef __D_FS__
 #define __D_FS__
@@ -260,7 +261,7 @@ struct stat
     rt_device_t st_dev;
     UInt16 st_mode;
     UInt32 st_size;
-    rt_time_t   st_mtime;
+    time_t   st_mtime;
     UInt32 st_blksize;
 };
 

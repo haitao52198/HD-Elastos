@@ -1,6 +1,6 @@
 /*
  * File      : dfs_fs.h
- * 
+ *
  * COPYRIGHT (C) 2004-2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,11 +21,12 @@
  * Date           Author       Notes
  * 2005-02-22     Bernard      The first version.
  */
- 
+
 #ifndef __DFS_FS_H__
 #define __DFS_FS_H__
 
 #include <dfs_def.h>
+#include <sys/timeb.h>
 
 #define DFS_FS_FLAG_DEFAULT     0x00    /* default flag */
 #define DFS_FS_FLAG_FULLPATH    0x01    /* set full path to underlaying file system */
@@ -79,7 +80,7 @@ struct dfs_partition
     UInt8 type;        /* file system type */
     Int32  offset;       /* partition start offset */
     UInt32 size;         /* partition size */
-    rt_sem_t lock;  
+    rt_sem_t lock;
 };
 
 /* mount table */
