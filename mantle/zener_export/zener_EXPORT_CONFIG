@@ -1,0 +1,10 @@
+#
+# this file will be overwritten by zener2mantle
+#
+
+config ZENER_EXPORT_CONFIG
+    string "zener export config"
+    default ""
+    help
+        HD-Elastos Zener build result and export to mantle
+
