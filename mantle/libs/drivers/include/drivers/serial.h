@@ -1,6 +1,6 @@
 /*
  * File      : serial.h
- * 
+ *
  * COPYRIGHT (C) 2006 - 2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,7 @@
 #ifndef __SERIAL_H__
 #define __SERIAL_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #define BAUD_RATE_2400                  2400
 #define BAUD_RATE_4800                  4800
@@ -116,7 +116,7 @@ struct serial_configure
 };
 
 /*
- * Serial FIFO mode 
+ * Serial FIFO mode
  */
 struct rt_serial_rx_fifo
 {
@@ -131,7 +131,7 @@ struct rt_serial_tx_fifo
 	struct rt_completion completion;
 };
 
-/* 
+/*
  * Serial DMA mode
  */
 struct rt_serial_rx_dma

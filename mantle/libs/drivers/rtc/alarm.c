@@ -1,6 +1,6 @@
 /*
  * File      : alarm.c
- * 
+ *
  * COPYRIGHT (C) 2006 - 2013, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
  * 2013-05-17     aozima            initial alarm event & mutex in system init.
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <rtdevice.h>
 
 #define RT_RTC_YEARS_MAX         137

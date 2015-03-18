@@ -1,4 +1,4 @@
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include "skeleton.h"
 #include <netif/ethernetif.h>
 
@@ -155,7 +155,7 @@ struct pbuf *rt_skeleton_rx(rt_device_t dev)
 
                 while (len > 0)
                 {
-                    *data = 0; /* read data from hardware */ 
+                    *data = 0; /* read data from hardware */
                     data ++;
                     len -= 2;
                 }

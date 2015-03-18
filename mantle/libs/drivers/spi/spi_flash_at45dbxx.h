@@ -1,7 +1,7 @@
 #ifndef SPI_FLASH_AT45DBXX_H_INCLUDED
 #define SPI_FLASH_AT45DBXX_H_INCLUDED
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <drivers/spi.h>
 
 struct spi_flash_at45dbxx

@@ -1,6 +1,6 @@
 /*
  * File      : dfs_romfs.h
- * 
+ *
  * COPYRIGHT (C) 2004-2011, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 #ifndef __DFS_ROMFS_H__
 #define __DFS_ROMFS_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #define ROMFS_DIRENT_FILE	0x00
 #define ROMFS_DIRENT_DIR	0x01

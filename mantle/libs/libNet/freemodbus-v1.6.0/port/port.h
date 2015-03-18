@@ -25,7 +25,7 @@
 #include <stm32f10x_conf.h>
 #include "mbconfig.h"
 #include <rthw.h>
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #include <assert.h>
 #include <inttypes.h>

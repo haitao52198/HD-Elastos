@@ -1,4 +1,4 @@
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <lwip/netdb.h>
 #include <lwip/sockets.h>
 
@@ -13,21 +13,21 @@ void tcpclient6(void)
 	int sockfd, bytes_received;
 	struct sockaddr_in6 server_addr6;
 	int status = 0;
-	
+
 	recv_data = malloc(BUF_SIZE);
 	if(recv_data == NULL)
 	{
 		printf("No memory\n");
 		return ;
 	}
-	
+
 	if((sockfd = socket(PF_INET6, SOCK_STREAM, 0)) == -1)
 	{
 		printf("Socket error\n");
 		rt_free(recv_data);
 		return ;
 	}
-	
+
 	memset(&server_addr6, 0, sizeof(server_addr6));
 	server_addr6.sin6_family = AF_INET6;
 	server_addr6.sin6_port = htons(SERV_PORT);
@@ -37,7 +37,7 @@ void tcpclient6(void)
 		rt_free(recv_data);
 		return ;
 	}
-	
+
 	status = connect(sockfd, (struct sockaddr *)&server_addr6, sizeof(server_addr6));
 	if(status < 0)
 	{
@@ -45,7 +45,7 @@ void tcpclient6(void)
 		rt_free(recv_data);
 		return ;
 	}
-	
+
 	while(1)
 	{
 		bytes_received = recv(sockfd, recv_data, BUF_SIZE -1, 0);
@@ -69,7 +69,7 @@ void tcpclient6(void)
 		send(sockfd, send_data, strlen(send_data), 0);
 	}
 
-	return;		
+	return;
 }
 
 #ifdef RT_USING_FINSH

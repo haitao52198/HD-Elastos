@@ -6,7 +6,7 @@ index 0000000..4b056ae
 @@ -0,0 +1,405 @@
 +/*
 + * File      : rtthread.h
-+ * 
++ *
 + * COPYRIGHT (C) 2006-2011, RT-Thread Development Team
 + *
 + * The license and distribution terms for this file may be
@@ -18,7 +18,7 @@ index 0000000..4b056ae
 + * 2011-10-22     prife        the first version
 + * 2012-04-14     prife        use mtd device interface
 +*/
-+#include <hdElastos.h>
++#include <hdElastosMantle.h>
 +#include <rtdevice.h>
 +
 +#include "yaffsfs.h"
@@ -41,7 +41,7 @@ index 0000000..4b056ae
 +extern void yaffs_config(ynandif_Geometry * g, struct rt_mtd_nand_device * dev);
 +
 +static int dfs_yaffs_mount(struct dfs_filesystem* fs,
-+                    unsigned long rwflag, 
++                    unsigned long rwflag,
 +				    const void* data)
 +{
 +	unsigned index;
@@ -63,7 +63,7 @@ index 0000000..4b056ae
 +	/*3. start up yaffs2 */
 +	yaffs_start(fs->path, &nand_part[index].g);
 +	if (yaffs_mount(fs->path) < 0)
-+	{	
++	{
 +		return yaffsfs_GetLastError();
 +	}
 +	return 0;
@@ -90,7 +90,7 @@ index 0000000..4b056ae
 +static int dfs_yaffs_mkfs(const char* device_name)
 +{
 +	/* just erase all blocks on this nand partition */
-+	return -DFS_STATUS_ENOSYS; 
++	return -DFS_STATUS_ENOSYS;
 +}
 +
 +static int dfs_yaffs_statfs(struct dfs_filesystem* fs,
@@ -113,13 +113,13 @@ index 0000000..4b056ae
 +	int fd;
 +	int oflag;
 +	int result;
-+		
++
 +	oflag = file->flags;
 +	if (oflag & DFS_O_DIRECTORY) /* operations about dir */
 +	{
 +		yaffs_DIR * dir;
 +		if (oflag & DFS_O_CREAT) /* create a dir*/
-+		{	
++		{
 +			result = yaffs_mkdir(file->path, 0x777); /* the second args not supported by rtt */
 +			if (result < 0)
 +				return yaffsfs_GetLastError();
@@ -127,41 +127,41 @@ index 0000000..4b056ae
 +		/* open dir */
 +		dir = yaffs_opendir(file->path);
 +		if (dir == NULL)
-+			return yaffsfs_GetLastError();			
++			return yaffsfs_GetLastError();
 +		/* save this pointer,will used by dfs_yaffs_getdents*/
 +		file->data = dir;
 +		return 0;
-+	} 
++	}
 +	/* regular file operations */
-+	fd = yaffs_open(file->path, oflag, S_IREAD | S_IWRITE); 	
++	fd = yaffs_open(file->path, oflag, S_IREAD | S_IWRITE);
 +	if (fd < 0)
 +		return yaffsfs_GetLastError();
 +
-+	 /* save this pointer, it will be used when calling read()£¬write(), 
++	 /* save this pointer, it will be used when calling read()£¬write(),
 +	 flush(), lessk(), and will be free when calling close()*/
 +	file->data = (void *)fd;
-+	file->pos  = yaffs_lseek(fd,0,SEEK_CUR); 
++	file->pos  = yaffs_lseek(fd,0,SEEK_CUR);
 +	file->size = yaffs_lseek(fd,0,SEEK_END);
 +	yaffs_lseek(fd, file->pos, SEEK_SET);
 +
 +	if (oflag & DFS_O_APPEND)
 +	{
-+		file->pos = file->size;	
++		file->pos = file->size;
 +		file->size = yaffs_lseek(fd,0,SEEK_END);
 +	}
-+	return 0; 
++	return 0;
 +}
 +
 +static int dfs_yaffs_close(struct dfs_fd* file)
 +{
 +	int oflag;
 +	int fd;
-+	
++
 +	oflag = file->flags;
 +	if (oflag & DFS_O_DIRECTORY) /* operations about dir */
 +	{
 +		if (yaffs_closedir((yaffs_DIR *)(file->data)) < 0)
-+			return yaffsfs_GetLastError();	
++			return yaffsfs_GetLastError();
 +		return 0;
 +	}
 +	/* regular file operations */
@@ -183,30 +183,30 @@ index 0000000..4b056ae
 +{
 +	int fd;
 +	int char_read;
-+	
++
 +	fd = (int)(file->data);
 +	char_read = yaffs_read(fd, buf, len);
-+	if (char_read < 0) 
++	if (char_read < 0)
 +		return yaffsfs_GetLastError();
-+	
++
 +	/* update position */
 +	file->pos = yaffs_lseek(fd, 0, SEEK_CUR);
 +	return char_read;
 +}
 +
 +static int dfs_yaffs_write(struct dfs_fd* file,
-+                    const void* buf, 
++                    const void* buf,
 +					UInt32 len)
 +{
 +	int fd;
 +	int char_write;
-+	
++
 +	fd = (int)(file->data);
-+	
++
 +	char_write = yaffs_write(fd, buf, len);
-+	if (char_write < 0) 
++	if (char_write < 0)
 +		return yaffsfs_GetLastError();
-+	
++
 +	/* update position */
 +	file->pos = yaffs_lseek(fd, 0, SEEK_CUR);
 +	return char_write;
@@ -216,7 +216,7 @@ index 0000000..4b056ae
 +{
 +	int fd;
 +	int result;
-+	
++
 +	fd = (int)(file->data);
 +
 +	result = yaffs_flush(fd);
@@ -230,7 +230,7 @@ index 0000000..4b056ae
 +{
 +	int fd;
 +	int result;
-+	
++
 +	fd = (int)(file->data);
 +
 +	/* set offset as current offset */
@@ -242,15 +242,15 @@ index 0000000..4b056ae
 +
 +/* return the size of  struct dirent*/
 +static int dfs_yaffs_getdents(struct dfs_fd* file,
-+                       struct dirent* dirp, 
++                       struct dirent* dirp,
 +					   UInt32 count)
 +{
 +	UInt32 index;
-+	char * file_path;	
++	char * file_path;
 +	struct dirent* d;
 +	yaffs_DIR* dir;
-+	struct yaffs_dirent * yaffs_d;	
-+		
++	struct yaffs_dirent * yaffs_d;
++
 +	dir = (yaffs_DIR*)(file->data);
 +	assert(dir != NULL);
 +
@@ -262,13 +262,13 @@ index 0000000..4b056ae
 +	file_path = malloc(YAFFS_FILE_PATH_MAX);
 +	if (file_path == NULL)
 +		return -DFS_STATUS_ENOMEM;
-+	
++
 +	index = 0;
 +	/* usually, the while loop should only be looped only once! */
 +	while (1)
 +	{
-+		struct yaffs_stat s; 
-+		
++		struct yaffs_stat s;
++
 +		d = dirp + index;
 +
 +		yaffs_d = yaffs_readdir(dir);
@@ -280,25 +280,25 @@ index 0000000..4b056ae
 +			rt_free(file_path);
 +			return -1; /* a general error */
 +		}
-+		
++
 +		rt_snprintf(file_path, YAFFS_FILE_PATH_MAX, "%s/%s", file->path, yaffs_d->d_name);
 +
-+		yaffs_lstat(file_path, &s); 	 
-+		switch(s.st_mode & S_IFMT) 
-+		{ 
-+		case S_IFREG: d->d_type = DFS_DT_REG; break; 
-+		
-+		case S_IFDIR: d->d_type = DFS_DT_DIR; break; 
-+		
++		yaffs_lstat(file_path, &s);
++		switch(s.st_mode & S_IFMT)
++		{
++		case S_IFREG: d->d_type = DFS_DT_REG; break;
++
++		case S_IFDIR: d->d_type = DFS_DT_DIR; break;
++
 +		case S_IFLNK:
-+		default: d->d_type = DFS_DT_UNKNOWN; break; 
-+		} 	
++		default: d->d_type = DFS_DT_UNKNOWN; break;
++		}
 +
 +		/* write the rest feilds of struct dirent* dirp  */
 +		d->d_namlen = rt_strlen(yaffs_d->d_name);
 +		d->d_reclen = (UInt16)sizeof(struct dirent);
 +		rt_strncpy(d->d_name, yaffs_d->d_name, rt_strlen(yaffs_d->d_name) + 1);
-+		
++
 +		index ++;
 +		if (index * sizeof(struct dirent) >= count)
 +			break;
@@ -306,7 +306,7 @@ index 0000000..4b056ae
 +
 +	/* free file name buf */
 +	rt_free(file_path);
-+	
++
 +	if (index == 0)
 +		return yaffsfs_GetLastError();
 +
@@ -319,26 +319,26 @@ index 0000000..4b056ae
 +	struct yaffs_stat s;
 +
 +	/* judge file type, dir is to be delete by yaffs_rmdir, others by yaffs_unlink */
-+	if (yaffs_lstat(path, &s) < 0) 
++	if (yaffs_lstat(path, &s) < 0)
 +	{
 +		return yaffsfs_GetLastError();
 +	}
-+	
-+	switch(s.st_mode & S_IFMT) 
-+	{ 
-+	case S_IFREG: 
-+		result = yaffs_unlink(path); 
-+		break; 	
-+	case S_IFDIR: 
-+		result = yaffs_rmdir(path);		
++
++	switch(s.st_mode & S_IFMT)
++	{
++	case S_IFREG:
++		result = yaffs_unlink(path);
 +		break;
-+	default: 
++	case S_IFDIR:
++		result = yaffs_rmdir(path);
++		break;
++	default:
 +		/* unknown file type */
 +		return -1;
-+	} 
-+	if (result < 0) 
++	}
++	if (result < 0)
 +		return yaffsfs_GetLastError();
-+	return 0;			
++	return 0;
 +}
 +
 +static int dfs_yaffs_rename(struct dfs_filesystem* fs,
@@ -359,10 +359,10 @@ index 0000000..4b056ae
 +	int result;
 +	struct yaffs_stat s;
 +	struct rt_mtd_nand_device * mtd;
-+	
++
 +	result = yaffs_stat(path, &s);
 +	if (result < 0)
-+		return yaffsfs_GetLastError(); 
++		return yaffsfs_GetLastError();
 +
 +	/* convert to dfs stat structure */
 +	st->st_dev  = 0;
@@ -376,7 +376,7 @@ index 0000000..4b056ae
 +	return 0;
 +}
 +
-+static const struct dfs_filesystem_operation dfs_yaffs_ops = 
++static const struct dfs_filesystem_operation dfs_yaffs_ops =
 +{
 +	"yaffs2", /* file system type: yaffs2 */
 +#if RTTHREAD_VERSION >= 10100
@@ -414,14 +414,14 @@ index f1c5254..17044f5 100644
 --- a/yaffs/direct/yaffs_list.h
 +++ b/yaffs/direct/yaffs_list.h
 @@ -39,7 +39,7 @@ struct list_head {
- 
+
  /* Initialise a static list */
  #define LIST_HEAD(name) \
 -struct list_head name = { &(name), &(name)}
 +static struct list_head name = { &(name), &(name)}
- 
- 
- 
+
+
+
 diff --git a/yaffs/direct/yaffs_nandif.c b/yaffs/direct/yaffs_nandif.c
 index b93b55a..3fae80e 100644
 --- a/yaffs/direct/yaffs_nandif.c
@@ -429,9 +429,9 @@ index b93b55a..3fae80e 100644
 @@ -18,7 +18,6 @@
  #include "yaffs_nandif.h"
  #include "yaffs_packedtags2.h"
- 
+
 -#include "yramsim.h"
- 
+
  #include "yaffs_trace.h"
  #include "yaffsfs.h"
 @@ -216,8 +215,8 @@ struct yaffs_dev *
@@ -442,27 +442,27 @@ index b93b55a..3fae80e 100644
 -	struct yaffs_dev *dev = malloc(sizeof(struct yaffs_dev));
 +	YCHAR *clonedName = kmalloc(sizeof(YCHAR) * (strnlen(name,YAFFS_MAX_NAME_LENGTH)+1), GFP_NOFS);
 +	struct yaffs_dev *dev = kmalloc(sizeof(struct yaffs_dev), GFP_NOFS);
- 
+
  	if(dev && clonedName){
  		memset(dev,0,sizeof(struct yaffs_dev));
 @@ -242,16 +241,17 @@ struct yaffs_dev *
  		dev->param.n_reserved_blocks	  = 5;
  		dev->driver_context		  = (void *)geometry;
- 
+
 +		/* save rt_mtd_nand_device * dev*/
 +		dev->os_context		  = (void *)(geometry->privateData);
  		yaffs_add_device(dev);
- 
+
  		return dev;
  	}
- 
+
  	if(dev)
 -		free(dev);
 +		kfree(dev);
  	if(clonedName)
 -		free(clonedName);
 +		kfree(clonedName);
- 
+
  	return NULL;
  }
 -
@@ -471,29 +471,29 @@ index 7860b84..5add3ec 100644
 --- a/yaffs/direct/ydirectenv.h
 +++ b/yaffs/direct/ydirectenv.h
 @@ -22,16 +22,13 @@
- 
+
  // Direct interface
- 
+
 -#include "stdlib.h"
 -#include "stdio.h"
-+#include <hdElastos.h>
++#include <hdElastosMantle.h>
  #include "string.h"
 +
  #include "yaffs_osglue.h"
  #include "yaffs_hweight.h"
- 
+
 -#include "assert.h"
 -#define BUG() assert(0)
 -//#define BUG() do { *((int *)0) =1;} while(0)
 -
 +#define BUG() assert(0)
- 
+
  #define YCHAR char
  #define YUCHAR unsigned char
 @@ -47,30 +44,24 @@ void yaffs_qsort(void *aa, size_t n, size_t es,
-         
+
  #define YAFFS_PATH_DIVIDERS  "/"
- 
+
 -#ifdef NO_inline
 -#define inline
 -#else
@@ -508,33 +508,33 @@ index 7860b84..5add3ec 100644
 -#define vfree(x) yaffsfs_free(x)
 +#define vfree(x)   yaffsfs_free(x)
 +#define printf     printf
- 
+
  #define cond_resched()  do {} while(0)
- 
+
  #define yaffs_trace(msk, fmt, ...) do { \
  	if(yaffs_trace_mask & (msk)) \
 -		printf("yaffs: " fmt "\n", ##__VA_ARGS__); \
 +		printf("yaffs: " fmt "\n", ##__VA_ARGS__); \
  } while(0)
- 
- 
+
+
  #define YAFFS_LOSTNFOUND_NAME		"lost+found"
  #define YAFFS_LOSTNFOUND_PREFIX		"obj"
- 
+
 -#include "yaffscfg.h"
 -
  #define Y_CURRENT_TIME yaffsfs_CurrentTime()
  #define Y_TIME_CONVERT(x) x
- 
+
 @@ -79,8 +70,6 @@ void yaffs_qsort(void *aa, size_t n, size_t es,
- 
+
  #include "yaffs_list.h"
- 
+
 -#include "yaffsfs.h"
 -
  #endif
- 
- 
+
+
 diff --git a/yaffs/direct/yportenv.h b/yaffs/direct/yportenv.h
 index 939cd3a..f693c16 100644
 --- a/yaffs/direct/yportenv.h
@@ -542,7 +542,7 @@ index 939cd3a..f693c16 100644
 @@ -17,36 +17,146 @@
  #ifndef __YPORTENV_H__
  #define __YPORTENV_H__
- 
+
 +#include <dfs_posix.h>
 +
 +#define CONFIG_YAFFS_DIRECT
@@ -552,12 +552,12 @@ index 939cd3a..f693c16 100644
 +#ifdef NO_inline
 +	#define inline
 +#else
-+	#ifdef __CC_ARM  
++	#ifdef __CC_ARM
 +	    #define inline   __inline
 +	#elif defined (__GNUC__)        		/* GNU GCC Compiler */
 +	    #define inline   __inline
 +	#else
-+		#error "Please set a macro inline with a valid args" 	
++		#error "Please set a macro inline with a valid args"
 +	#endif
 +#endif
 +
@@ -565,19 +565,19 @@ index 939cd3a..f693c16 100644
 +	#ifdef RT_USING_NEWLIB
 +		#error "error: when use armcc, please Don't USE NEWLIB!!!"
 +	#endif
-+	
++
 +	#ifndef off_t
 +	typedef long off_t;
 +	#endif
-+	
++
 +	#ifndef loff_t
 +	typedef unsigned long loff_t;
 +	#endif
-+	
++
 +	#ifndef dev_t
 +	typedef long dev_t;
 +	#endif
-+	
++
 +	#ifndef mode_t
 +	typedef int mode_t;
 +	#endif
@@ -599,7 +599,7 @@ index 939cd3a..f693c16 100644
 +	typedef long dev_t;
 +	#endif
 +#endif
- 
+
  /* Definition of types */
  typedef unsigned char u8;
  typedef unsigned short u16;
@@ -610,7 +610,7 @@ index 939cd3a..f693c16 100644
 -#include <sys/stat.h>
 -#endif
 -
-+ 
++
 +#ifndef S_ISDIR
 +	#ifndef _DEV_T_DEFINED
 +	typedef unsigned int _dev_t;            /* device code */
@@ -618,7 +618,7 @@ index 939cd3a..f693c16 100644
 +	/* Non-ANSI name for compatibility */
 +	typedef unsigned int dev_t;
 +	#endif
-+	 
++
 +	#define _DEV_T_DEFINED
 +	#endif
 +
@@ -631,7 +631,7 @@ index 939cd3a..f693c16 100644
 +	#define __S_IFIFO 0010000 /* FIFO.  */
 +	#define __S_IFLNK 0120000 /* Symbolic link.  */
 +	#define __S_IFSOCK 0140000 /* Socket.  */
-+	 
++
 +	/* Protection bits.  */
 +	#define __S_ISUID 04000 /* Set user ID on execution.  */
 +	#define __S_ISGID 02000 /* Set group ID on execution.  */
@@ -647,25 +647,25 @@ index 939cd3a..f693c16 100644
 +	#define S_ISREG(mode)  __S_ISTYPE((mode), __S_IFREG)
 +	#define S_ISSOCK(mode) __S_ISTYPE((mode), __S_IFSOCK)
 +	#define S_ISFIFO(mode) __S_ISTYPE((mode), __S_IFSOCK)
-+	#define S_IRUSR __S_IREAD // Read by owner.  
-+	#define S_IWUSR __S_IWRITE // Write by owner. 
-+	#define S_IXUSR __S_IEXEC // Execute by owner. 
++	#define S_IRUSR __S_IREAD // Read by owner.
++	#define S_IWUSR __S_IWRITE // Write by owner.
++	#define S_IXUSR __S_IEXEC // Execute by owner.
 +	#define S_IREAD S_IRUSR
 +	#define S_IWRITE S_IWUSR
 +	#define S_IEXEC S_IXUSR
 +	#define S_IFDIR __S_IFDIR
-+#endif 
- 
++#endif
+
  #ifdef CONFIG_YAFFS_PROVIDE_DEFS
  /* File types */
- 
+
 +#ifndef DT_UNKNOWN
 +	#define DT_UNKNOWN	0
 +#endif
 +#ifndef	DT_FIFO
 +	#define DT_FIFO		1
 +#endif
- 
+
 -#define DT_UNKNOWN	0
 -#define DT_FIFO		1
 -#define DT_CHR		2
@@ -679,7 +679,7 @@ index 939cd3a..f693c16 100644
 +#ifndef	DT_CHR
 +	#define DT_CHR		2
 +#endif
- 
+
 -#ifndef WIN32
 -#include <sys/stat.h>
 +#ifndef	DT_DIR
@@ -701,20 +701,20 @@ index 939cd3a..f693c16 100644
 +	#define DT_WHT		14
 +#endif
 +
- 
+
  /*
   * Attribute flags.
 @@ -75,7 +185,6 @@ struct iattr {
  #endif
- 
- 
+
+
 -
  #if defined CONFIG_YAFFS_WINCE
- 
+
  #include "ywinceenv.h"
 @@ -267,9 +376,17 @@ struct iattr {
  #endif
- 
+
  #else
 -#include <errno.h>
 -#include <sys/stat.h>
@@ -731,7 +731,7 @@ index 939cd3a..f693c16 100644
 +#endif
 +
  #endif
- 
+
  #endif
 diff --git a/yaffs_nandcfg.c b/yaffs_nandcfg.c
 new file mode 100644
@@ -739,7 +739,7 @@ index 0000000..099fa38
 --- /dev/null
 +++ b/yaffs_nandcfg.c
 @@ -0,0 +1,149 @@
-+#include <hdElastos.h>
++#include <hdElastosMantle.h>
 +#include <rtdevice.h>
 +#include <dfs_fs.h>
 +#include <dfs_def.h>
@@ -912,7 +912,7 @@ index 0000000..2c34f99
 +#include "yaffs_guts.h"
 +#include "yaffsfs.h"
 +#include "yaffs_trace.h"
-+#include <hdElastos.h>
++#include <hdElastosMantle.h>
 +
 +//#include <errno.h>
 +

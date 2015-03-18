@@ -1,6 +1,6 @@
 /*
  * File      : sd.h
- * 
+ *
  * COPYRIGHT (C) 2006, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef __SD_H__
 #define __SD_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <drivers/mmcsd_host.h>
 
 #ifdef __cplusplus

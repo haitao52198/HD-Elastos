@@ -3,7 +3,7 @@
 
 //#include "lwip/netif.h"
 #include "uip_netif.h"
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #define NIOCTL_GADDR		0x01
 #define ETHERNET_MTU		1500

@@ -1,6 +1,6 @@
 /*
  * File      : dfs_ramfs.h
- * 
+ *
  * COPYRIGHT (C) 2004-2013, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 #ifndef __DFS_ROMFS_H__
 #define __DFS_ROMFS_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <rtservice.h>
 
 #define RAMFS_NAME_MAX  32

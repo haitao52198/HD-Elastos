@@ -1,4 +1,4 @@
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #include "lwip/debug.h"
 #include "lwip/mem.h"
@@ -19,7 +19,7 @@ static err_t netif_device_init(struct netif *netif)
 	if (ethif != NULL)
 	{
 		rt_device_t device;
-		
+
 		/* get device object */
 		device = (rt_device_t) ethif;
 		if (rt_device_init(device) != RT_EOK)
@@ -65,7 +65,7 @@ static void tcpip_init_done_callback(void *arg)
 			/* leave critical */
 			rt_exit_critical();
 
-			netif_add(ethif->netif, &ipaddr, &netmask, &gw, 
+			netif_add(ethif->netif, &ipaddr, &netmask, &gw,
 				ethif, netif_device_init, tcpip_input);
 
 			if (netif_default == NULL)
@@ -99,9 +99,9 @@ void lwip_system_init(void)
 {
 	Int32 rc;
 	struct rt_semaphore done_sem;
-	
+
 	rc = rt_sem_init(&done_sem, "done", 0, RT_IPC_FLAG_FIFO);
-	
+
 	if(rc != RT_EOK)
 	{
     	LWIP_ASSERT("Failed to create semaphore", 0);

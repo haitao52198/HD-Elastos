@@ -1,6 +1,6 @@
 /*
  * File      : rtdevice.h
- * 
+ *
  * COPYRIGHT (C) 2006 - 2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 #ifndef __RT_DEVICE_H__
 #define __RT_DEVICE_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #define RT_DEVICE(device)            ((rt_device_t)device)
 
@@ -299,7 +299,7 @@ Int32 rt_workqueue_destroy(struct rt_workqueue* queue);
 Int32 rt_workqueue_dowork(struct rt_workqueue* queue, struct rt_work* work);
 Int32 rt_workqueue_cancel_work(struct rt_workqueue* queue, struct rt_work* work);
 
-rt_inline void rt_work_init(struct rt_work* work, void (*work_func)(struct rt_work* work, void* work_data), 
+rt_inline void rt_work_init(struct rt_work* work, void (*work_func)(struct rt_work* work, void* work_data),
     void* work_data)
 {
     rt_list_init(&(work->list));

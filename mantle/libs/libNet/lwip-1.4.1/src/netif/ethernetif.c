@@ -1,6 +1,6 @@
 /*
  * File      : ethernetif.c
- * 
+ *
  * COPYRIGHT (C) 2006 - 2010, RT-Thread Development Team
  *
  * The license and distribution terms for this file may be
@@ -49,7 +49,7 @@
  *
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #include "lwip/opt.h"
 #include "lwip/debug.h"

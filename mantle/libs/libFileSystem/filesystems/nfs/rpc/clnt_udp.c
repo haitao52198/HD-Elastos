@@ -39,7 +39,7 @@ static char sccsid[] = "@(#)clnt_udp.c 1.39 87/08/11 Copyr 1984 Sun Micro";
 
 #include <stdio.h>
 #include <rpc/rpc.h>
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 /*
  * UDP bases client side rpc operations
@@ -104,11 +104,11 @@ struct cu_data
  * sendsz and recvsz are the maximum allowable packet sizes that can be
  * sent and received.
  */
-CLIENT *clntudp_bufcreate(struct sockaddr_in *raddr, 
-	unsigned long program, 
+CLIENT *clntudp_bufcreate(struct sockaddr_in *raddr,
+	unsigned long program,
 	unsigned long version,
-	struct timeval wait, 
-	int *sockp, 
+	struct timeval wait,
+	int *sockp,
 	unsigned int sendsz,
 	unsigned int recvsz)
 {
@@ -135,9 +135,9 @@ CLIENT *clntudp_bufcreate(struct sockaddr_in *raddr,
 
 	if (raddr->sin_port == 0) {
 		unsigned short port;
-		extern unsigned short pmap_getport(struct sockaddr_in *address, 
-			unsigned long program, 
-			unsigned long version, 
+		extern unsigned short pmap_getport(struct sockaddr_in *address,
+			unsigned long program,
+			unsigned long version,
 			unsigned int protocol);
 
 		if ((port =
@@ -192,19 +192,19 @@ fooy:
 	return ((CLIENT *) NULL);
 }
 
-CLIENT *clntudp_create(struct sockaddr_in *raddr, 
-	unsigned long program, 
-	unsigned long version, 
-	struct timeval wait, 
+CLIENT *clntudp_create(struct sockaddr_in *raddr,
+	unsigned long program,
+	unsigned long version,
+	struct timeval wait,
 	int *sockp)
 {
 	return (clntudp_bufcreate(raddr, program, version, wait, sockp,
 							  UDPMSGSIZE, UDPMSGSIZE));
 }
 
-static enum clnt_stat clntudp_call(CLIENT *cl, unsigned long proc, 
-	xdrproc_t xargs, char* argsp, 
-	xdrproc_t xresults, char* resultsp, 
+static enum clnt_stat clntudp_call(CLIENT *cl, unsigned long proc,
+	xdrproc_t xargs, char* argsp,
+	xdrproc_t xresults, char* resultsp,
 	struct timeval utimeout)
 {
 	register struct cu_data *cu = (struct cu_data *) cl->cl_private;
@@ -244,7 +244,7 @@ send_again:
 	{
 		cu->cu_error.re_errno = errno;
         cu->cu_error.re_status = RPC_CANTSEND;
-        
+
 		return RPC_CANTSEND;
 	}
 
@@ -272,7 +272,7 @@ send_again:
 		printf("recv error, len %d\n", inlen);
 		cu->cu_error.re_errno = errno;
 		cu->cu_error.re_status = RPC_CANTRECV;
-		
+
 		return RPC_CANTRECV;
 	}
 
@@ -302,7 +302,7 @@ send_again:
 			if (reply_msg.acpted_rply.ar_verf.oa_base != NULL)
 			{
 				extern bool_t xdr_opaque_auth(XDR *xdrs, struct opaque_auth *ap);
-				
+
 				xdrs->x_op = XDR_FREE;
 				(void) xdr_opaque_auth(xdrs, &(reply_msg.acpted_rply.ar_verf));
 			}
@@ -359,7 +359,7 @@ static bool_t clntudp_control(CLIENT *cl, int request, char *info)
 		mtimeout = ((cu->cu_total.tv_sec * 1000) + ((cu->cu_total.tv_usec + 500)/1000));
 
 		/* set socket option, note: lwip only support msecond timeout */
-		setsockopt(cu->cu_sock, SOL_SOCKET, SO_RCVTIMEO, 
+		setsockopt(cu->cu_sock, SOL_SOCKET, SO_RCVTIMEO,
 			&mtimeout, sizeof(mtimeout));
 		}
 		break;

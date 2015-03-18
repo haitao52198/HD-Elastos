@@ -1,6 +1,6 @@
 /*
  * File      : dfs.h
- * 
+ *
  * COPYRIGHT (C) 2004-2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef __DFS_H__
 #define __DFS_H__
 
-#include <string.h>
+//#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {

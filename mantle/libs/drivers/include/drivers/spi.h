@@ -1,6 +1,6 @@
 /*
  * File      : spi.h
- * 
+ *
  * COPYRIGHT (C) 2006 - 2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 #define __SPI_H__
 
 #include <stdlib.h>
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #ifdef __cplusplus
 extern "C"{

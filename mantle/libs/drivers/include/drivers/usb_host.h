@@ -1,6 +1,6 @@
 /*
  * File      : usb_host.h
- * 
+ *
  * COPYRIGHT (C) 2011, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@
 extern "C" {
 #endif
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include "usb_common.h"
 
 #define USB_MAX_DEVICE                  0x20
@@ -54,10 +54,10 @@ struct uclass_driver
     rt_list_t list;
     int class_code;
     int subclass_code;
-    
+
     Int32 (*enable)(void* arg);
     Int32 (*disable)(void* arg);
-    
+
     void* user_data;
 };
 typedef struct uclass_driver* ucd_t;
@@ -66,9 +66,9 @@ struct uprotocal
 {
     rt_list_t list;
     int pro_id;
-    
+
     Int32 (*init)(void* arg);
-    Int32 (*callback)(void* arg);    
+    Int32 (*callback)(void* arg);
 };
 typedef struct uprotocal* uprotocal_t;
 
@@ -81,13 +81,13 @@ struct uinstance
     UInt8 status;
     UInt8 type;
     UInt8 index;
-    UInt8 address;    
+    UInt8 address;
     UInt8 speed;
-    UInt8 max_packet_size;    
+    UInt8 max_packet_size;
     UInt8 port;
 
     struct uhub* parent;
-    struct uintf* intf[USB_MAX_INTERFACE];        
+    struct uintf* intf[USB_MAX_INTERFACE];
 };
 typedef struct uinstance* uinst_t;
 
@@ -115,35 +115,35 @@ struct uhub
     struct uhub_descriptor hub_desc;
     UInt8 num_ports;
     UInt32 port_status[USB_HUB_PORT_NUM];
-    struct uinstance* child[USB_HUB_PORT_NUM];        
+    struct uinstance* child[USB_HUB_PORT_NUM];
 
     rt_bool_t is_roothub;
     upipe_t pipe_in;
-    UInt8 buffer[8];    
+    UInt8 buffer[8];
     struct uinstance* self;
     struct uhcd *hcd;
-};    
+};
 typedef struct uhub* uhub_t;
 
 struct uhcd_ops
 {
-    int (*ctl_xfer)(struct uinstance* inst, ureq_t setup, void* buffer, int nbytes, 
+    int (*ctl_xfer)(struct uinstance* inst, ureq_t setup, void* buffer, int nbytes,
         int timeout);
     int (*bulk_xfer)(upipe_t pipe, void* buffer, int nbytes, int timeout);
     int (*int_xfer)(upipe_t pipe, void* buffer, int nbytes, int timeout);
     int (*iso_xfer)(upipe_t pipe, void* buffer, int nbytes, int timeout);
-    
-    Int32 (*alloc_pipe)(struct upipe** pipe, struct uintf* intf, uep_desc_t ep, 
+
+    Int32 (*alloc_pipe)(struct upipe** pipe, struct uintf* intf, uep_desc_t ep,
         func_callback callback);
-    Int32 (*free_pipe)(upipe_t pipe);    
-    Int32 (*hub_ctrl)(UInt16 port, UInt8 cmd, void *args);    
+    Int32 (*free_pipe)(upipe_t pipe);
+    Int32 (*hub_ctrl)(UInt16 port, UInt8 cmd, void *args);
 };
 
 struct uhcd
 {
     struct rt_device parent;
     struct uhcd_ops* ops;
-    struct uhub* roothub; 
+    struct uhub* roothub;
 };
 typedef struct uhcd* uhcd_t;
 
@@ -156,11 +156,11 @@ typedef enum uhost_msg_type uhost_msg_type;
 
 struct uhost_msg
 {
-    uhost_msg_type type; 
+    uhost_msg_type type;
     union
     {
         struct uhub* hub;
-        struct 
+        struct
         {
             func_callback function;
             void *context;
@@ -177,15 +177,15 @@ void rt_usbh_hub_init(void);
 struct uinstance* rt_usbh_alloc_instance(void);
 Int32 rt_usbh_attatch_instance(struct uinstance* device);
 Int32 rt_usbh_detach_instance(struct uinstance* device);
-Int32 rt_usbh_get_descriptor(struct uinstance* device, UInt8 type, void* buffer, 
+Int32 rt_usbh_get_descriptor(struct uinstance* device, UInt8 type, void* buffer,
     int nbytes);
 Int32 rt_usbh_set_configure(struct uinstance* device, int config);
 Int32 rt_usbh_set_address(struct uinstance* device);
 Int32 rt_usbh_set_interface(struct uinstance* device, int intf);
 Int32 rt_usbh_clear_feature(struct uinstance* device, int endpoint, int feature);
-Int32 rt_usbh_get_interface_descriptor(ucfg_desc_t cfg_desc, int num, 
+Int32 rt_usbh_get_interface_descriptor(ucfg_desc_t cfg_desc, int num,
     uintf_desc_t* intf_desc);
-Int32 rt_usbh_get_endpoint_descriptor(uintf_desc_t intf_desc, int num, 
+Int32 rt_usbh_get_endpoint_descriptor(uintf_desc_t intf_desc, int num,
     uep_desc_t* ep_desc);
 
 /* usb class driver interface */
@@ -208,24 +208,24 @@ uprotocal_t rt_usbh_hid_protocal_mouse(void);
 
 /* usb adk class driver interface */
 Int32 rt_usbh_adk_set_string(const char* manufacturer, const char* model,
-    const char* description, const char* version, const char* uri, 
+    const char* description, const char* version, const char* uri,
     const char* serial);
 
 /* usb hub interface */
-Int32 rt_usbh_hub_get_descriptor(struct uinstance* device, UInt8 *buffer, 
+Int32 rt_usbh_hub_get_descriptor(struct uinstance* device, UInt8 *buffer,
     UInt32 size);
 Int32 rt_usbh_hub_get_status(struct uinstance* device, UInt8* buffer);
-Int32 rt_usbh_hub_get_port_status(uhub_t uhub, UInt16 port, 
+Int32 rt_usbh_hub_get_port_status(uhub_t uhub, UInt16 port,
     UInt8* buffer);
-Int32 rt_usbh_hub_clear_port_feature(uhub_t uhub, UInt16 port, 
+Int32 rt_usbh_hub_clear_port_feature(uhub_t uhub, UInt16 port,
     UInt16 feature);
-Int32 rt_usbh_hub_set_port_feature(uhub_t uhub, UInt16 port, 
+Int32 rt_usbh_hub_set_port_feature(uhub_t uhub, UInt16 port,
     UInt16 feature);
 Int32 rt_usbh_hub_reset_port(uhub_t uhub, UInt16 port);
 Int32 rt_usbh_event_signal(struct uhost_msg* msg);
 
 /* usb host controller driver interface */
-rt_inline Int32 rt_usb_hcd_alloc_pipe(uhcd_t hcd, upipe_t* pipe, 
+rt_inline Int32 rt_usb_hcd_alloc_pipe(uhcd_t hcd, upipe_t* pipe,
     struct uintf* intf, uep_desc_t ep, func_callback callback)
 {
     if(intf == NULL) return -RT_EIO;
@@ -236,23 +236,23 @@ rt_inline Int32 rt_usb_hcd_alloc_pipe(uhcd_t hcd, upipe_t* pipe,
 rt_inline Int32 rt_usb_hcd_free_pipe(uhcd_t hcd, upipe_t pipe)
 {
     assert(pipe != NULL);
-    
+
     return hcd->ops->free_pipe(pipe);
 }
 
-rt_inline int rt_usb_hcd_bulk_xfer(uhcd_t hcd, upipe_t pipe, void* buffer, 
+rt_inline int rt_usb_hcd_bulk_xfer(uhcd_t hcd, upipe_t pipe, void* buffer,
     int nbytes, int timeout)
 {
     if(pipe == NULL) return -1;
     if(pipe->intf == NULL) return -1;
-    if(pipe->intf->device == NULL) return -1;    
-    if(pipe->intf->device->status == DEV_STATUS_IDLE) 
+    if(pipe->intf->device == NULL) return -1;
+    if(pipe->intf->device->status == DEV_STATUS_IDLE)
         return -1;
 
     return hcd->ops->bulk_xfer(pipe, buffer, nbytes, timeout);
 }
 
-rt_inline int rt_usb_hcd_control_xfer(uhcd_t hcd, struct uinstance* device, ureq_t setup, 
+rt_inline int rt_usb_hcd_control_xfer(uhcd_t hcd, struct uinstance* device, ureq_t setup,
     void* buffer, int nbytes, int timeout)
 {
     if(device->status == DEV_STATUS_IDLE) return -1;
@@ -260,21 +260,21 @@ rt_inline int rt_usb_hcd_control_xfer(uhcd_t hcd, struct uinstance* device, ureq
     return hcd->ops->ctl_xfer(device, setup, buffer, nbytes, timeout);
 }
 
-rt_inline int rt_usb_hcd_int_xfer(uhcd_t hcd, upipe_t pipe, void* buffer, 
+rt_inline int rt_usb_hcd_int_xfer(uhcd_t hcd, upipe_t pipe, void* buffer,
     int nbytes, int timeout)
-{    
+{
     if(pipe == NULL) return -1;
     if(pipe->intf == NULL) return -1;
-    if(pipe->intf->device == NULL) return -1;    
-    if(pipe->intf->device->status == DEV_STATUS_IDLE) 
+    if(pipe->intf->device == NULL) return -1;
+    if(pipe->intf->device->status == DEV_STATUS_IDLE)
         return -1;
 
     return hcd->ops->int_xfer(pipe, buffer, nbytes, timeout);
 }
 
-rt_inline Int32 rt_usb_hcd_hub_control(uhcd_t hcd, UInt16 port, 
+rt_inline Int32 rt_usb_hcd_hub_control(uhcd_t hcd, UInt16 port,
     UInt8 cmd, void *args)
-{    
+{
     return hcd->ops->hub_ctrl(port, cmd, args);
 }
 

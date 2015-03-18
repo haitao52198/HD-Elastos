@@ -1,4 +1,4 @@
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <lwip/sockets.h>
 
 #define SERV_PORT 10012
@@ -28,11 +28,11 @@ void udpserver6(void)
 		rt_free(recv_data);
 		return ;
 	}
-	
+
 	server_addr6.sin6_family = AF_INET6;
 	server_addr6.sin6_port = htons(SERV_PORT);
 	memcpy(server_addr6.sin6_addr.s6_addr, IP6_ADDR_ANY, 16);
-	
+
 	if(bind(sockfd, (struct sockaddr *)&server_addr6, sizeof(struct sockaddr)) == -1)
 	{
 		printf("Bind error\n");
@@ -41,7 +41,7 @@ void udpserver6(void)
 	}
 	rt_sprintf(recv_data, "%4d", SERV_PORT);
 	printf("UDPServer Waiting for client on port %s...\n", recv_data);
-	
+
 	addr_len = sizeof(struct sockaddr);
 	while(1)
 	{
@@ -49,7 +49,7 @@ void udpserver6(void)
 		recv_data[bytes_read] = '\0';
 		printf("\n(%s, %d) said:", inet6_ntoa(client_addr6.sin6_addr), ntohs(client_addr6.sin6_port));
 		printf("%s", recv_data);
-		
+
 		if(strcmp(recv_data, "exit") == 0)
 		{
 			closesocket(sockfd);

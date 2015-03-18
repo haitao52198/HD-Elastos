@@ -1,6 +1,6 @@
 /*
  * File      : sdio.h
- * 
+ *
  * COPYRIGHT (C) 2006, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef __SDIO_H__
 #define __SDIO_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <drivers/mmcsd_host.h>
 #include <drivers/mmcsd_card.h>
 #include <drivers/sdio_func_ids.h>
@@ -181,10 +181,10 @@ Int32 sdio_io_rw_extended(struct rt_mmcsd_card *card,
                                UInt8           *buf,
                                UInt32           blocks,
                                UInt32           blksize);
-UInt8 sdio_io_readb(struct rt_sdio_function *func, 
+UInt8 sdio_io_readb(struct rt_sdio_function *func,
                          UInt32              reg,
                          Int32              *err);
-Int32 sdio_io_writeb(struct rt_sdio_function *func, 
+Int32 sdio_io_writeb(struct rt_sdio_function *func,
                           UInt32              reg,
                           UInt8               data);
 UInt16 sdio_io_readw(struct rt_sdio_function *func,
@@ -199,19 +199,19 @@ UInt32 sdio_io_readl(struct rt_sdio_function *func,
 Int32 sdio_io_writel(struct rt_sdio_function *func,
                           UInt32              data,
                           UInt32              addr);
-Int32 sdio_io_read_multi_fifo_b(struct rt_sdio_function *func, 
+Int32 sdio_io_read_multi_fifo_b(struct rt_sdio_function *func,
                                      UInt32              addr,
                                      UInt8              *buf,
                                      UInt32              len);
-Int32 sdio_io_write_multi_fifo_b(struct rt_sdio_function *func, 
+Int32 sdio_io_write_multi_fifo_b(struct rt_sdio_function *func,
                                       UInt32              addr,
                                       UInt8              *buf,
                                       UInt32              len);
-Int32 sdio_io_read_multi_incr_b(struct rt_sdio_function *func, 
+Int32 sdio_io_read_multi_incr_b(struct rt_sdio_function *func,
                                      UInt32              addr,
                                      UInt8              *buf,
                                      UInt32              len);
-Int32 sdio_io_write_multi_incr_b(struct rt_sdio_function *func, 
+Int32 sdio_io_write_multi_incr_b(struct rt_sdio_function *func,
                                       UInt32              addr,
                                       UInt8              *buf,
                                       UInt32              len);

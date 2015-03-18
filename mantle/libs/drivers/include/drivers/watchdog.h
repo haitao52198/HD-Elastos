@@ -1,6 +1,6 @@
 /*
  * File      : watchdog.h
- * 
+ *
  * COPYRIGHT (C) 2012-2014, Shanghai Real-Thread Electronic Technology Co.,Ltd
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef  __WATCHDOG_H__
 #define  __WATCHDOG_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #define RT_DEVICE_CTRL_WDT_GET_TIMEOUT    (1) /* get timeout(in seconds) */
 #define RT_DEVICE_CTRL_WDT_SET_TIMEOUT    (2) /* set timeout(in seconds) */

@@ -2,7 +2,7 @@
  * RT-Thread Device Interface for uffs
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <rtdevice.h>
 #include "dfs_uffs.h"
 

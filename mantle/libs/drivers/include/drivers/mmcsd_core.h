@@ -1,6 +1,6 @@
 /*
  * File      : mmcsd_core.h
- * 
+ *
  * COPYRIGHT (C) 2006, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef __CORE_H__
 #define __CORE_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <drivers/mmcsd_host.h>
 #include <drivers/mmcsd_card.h>
 #include <drivers/mmcsd_cmd.h>
@@ -64,7 +64,7 @@ struct rt_mmcsd_cmd {
 	UInt32  arg;
 	UInt32  resp[4];
 	UInt32  flags;
-/*rsponse types 
+/*rsponse types
  *bits:0~3
  */
 #define RESP_MASK	(0xF)
@@ -77,7 +77,7 @@ struct rt_mmcsd_cmd {
 #define RESP_R6		(6 << 0)
 #define RESP_R7		(7 << 0)
 #define RESP_R5		(8 << 0)	/*SDIO command response type*/
-/*command types 
+/*command types
  *bits:4~5
  */
 #define CMD_MASK	(3 << 4)		/* command type */
@@ -88,7 +88,7 @@ struct rt_mmcsd_cmd {
 
 #define resp_type(cmd)	((cmd)->flags & RESP_MASK)
 
-/*spi rsponse types 
+/*spi rsponse types
  *bits:6~8
  */
 #define RESP_SPI_MASK	(0x7 << 6)
@@ -105,7 +105,7 @@ struct rt_mmcsd_cmd {
  * These are the command types.
  */
 #define cmd_type(cmd)	((cmd)->flags & CMD_MASK)
-	
+
 	Int32  retries;	/* max number of retries */
 	Int32  err;
 
@@ -191,27 +191,27 @@ rt_inline UInt32 fls(UInt32 val)
 
 	if (!val)
 		return 0;
-	if (!(val & 0xffff0000u)) 
+	if (!(val & 0xffff0000u))
 	{
 		val <<= 16;
 		bit -= 16;
 	}
-	if (!(val & 0xff000000u)) 
+	if (!(val & 0xff000000u))
 	{
 		val <<= 8;
 		bit -= 8;
 	}
-	if (!(val & 0xf0000000u)) 
+	if (!(val & 0xf0000000u))
 	{
 		val <<= 4;
 		bit -= 4;
 	}
-	if (!(val & 0xc0000000u)) 
+	if (!(val & 0xc0000000u))
 	{
 		val <<= 2;
 		bit -= 2;
 	}
-	if (!(val & 0x80000000u)) 
+	if (!(val & 0x80000000u))
 	{
 		val <<= 1;
 		bit -= 1;

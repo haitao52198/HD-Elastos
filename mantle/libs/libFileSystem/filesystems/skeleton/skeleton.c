@@ -1,6 +1,6 @@
 /*
  * File      : skeleton.c
- * 
+ *
  * COPYRIGHT (C) 2004-2011, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  * Date           Author       Notes
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <dfs.h>
 #include <dfs_fs.h>
 
@@ -72,7 +72,7 @@ int dfs_skt_getdents(struct dfs_fd* file, struct dirent* dirp, UInt32 count)
     return count * sizeof(struct dirent);
 }
 
-static const struct dfs_filesystem_operation _skt_fs = 
+static const struct dfs_filesystem_operation _skt_fs =
 {
     "skt",
     DFS_FS_FLAG_DEFAULT,

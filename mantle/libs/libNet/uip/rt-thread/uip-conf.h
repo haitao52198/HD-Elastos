@@ -144,7 +144,7 @@ typedef unsigned short uip_stats_t;
 /* Here we include the header file for the application(s) we use in
    our project. */
 /* #include "smtp.h" */
-#include "hello-world.h" 
+#include "hello-world.h"
 //#include "telnetd.h"
 /* #include "webserver.h" */
 /* #include "dhcpc.h" */
@@ -159,7 +159,7 @@ typedef unsigned short uip_stats_t;
 #define  UIP_ETHADDR3  0x55
 #define  UIP_ETHADDR4  0x66
 #define  UIP_ETHADDR5  0x77
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #endif /* __UIP_CONF_H__ */
 

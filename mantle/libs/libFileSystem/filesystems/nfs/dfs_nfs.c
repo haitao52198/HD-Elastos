@@ -1,6 +1,6 @@
 /*
  * File      : dfs_nfs.c
- * 
+ *
  * COPYRIGHT (C) 2004-2011, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -20,9 +20,9 @@
  * Change Logs:
  * Date           Author       Notes
  */
- 
+
 #include <stdio.h>
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <dfs_fs.h>
 #include <dfs_def.h>
 
@@ -73,9 +73,9 @@ typedef struct nfs_file nfs_file;
 typedef struct nfs_dir nfs_dir;
 nfs_dir *nfs_opendir(struct nfs_filesystem *nfs, const char *path);
 
-static int nfs_parse_host_export(const char *host_export, 
+static int nfs_parse_host_export(const char *host_export,
                                  char       *host,
-                                 size_t      host_len, 
+                                 size_t      host_len,
                                  char       *export,
                                  size_t      export_len)
 {
@@ -107,7 +107,7 @@ static int nfs_parse_host_export(const char *host_export,
     /* copy export path */
     for (index = host_len; index < host_len + export_len; index ++)
     {
-        if (host_export[index] == 0) 
+        if (host_export[index] == 0)
         {
             export[index - host_len] = '\0';
 
@@ -293,7 +293,7 @@ static size_t nfs_get_filesize(struct nfs_filesystem *nfs, nfs_fh3 *handle)
     info = &res.GETATTR3res_u.resok.obj_attributes;
     size = info->size;
     xdr_free((xdrproc_t)xdr_GETATTR3res, (char *)&res);
-    
+
     return size;
 }
 
@@ -335,7 +335,7 @@ rt_bool_t nfs_is_directory(struct nfs_filesystem *nfs, const char *name)
     xdr_free((xdrproc_t)xdr_GETATTR3res, (char *)&res);
     xdr_free((xdrproc_t)xdr_nfs_fh3, (char *)handle);
     rt_free(handle);
-    
+
     return result;
 }
 
@@ -435,7 +435,7 @@ int nfs_mkdir(struct nfs_filesystem *nfs, const char *name, mode_t mode)
     xdr_free((xdrproc_t)xdr_MKDIR3res, (char *)&res);
     xdr_free((xdrproc_t)xdr_nfs_fh3, (char *)handle);
     rt_free(handle);
-    
+
     return ret;
 }
 
@@ -516,7 +516,7 @@ int nfs_unmount(struct dfs_filesystem *fs)
     assert(fs->data != NULL);
     nfs = (struct nfs_filesystem *)fs->data;
 
-    if (nfs->mount_client != NULL && 
+    if (nfs->mount_client != NULL &&
         mountproc3_umnt_3((char *)nfs->export, NULL, nfs->mount_client) != RPC_SUCCESS)
     {
         printf("umount failed\n");
@@ -746,7 +746,7 @@ int nfs_open(struct dfs_fd *file)
     if (file->flags & DFS_O_DIRECTORY)
     {
         nfs_dir *dir;
-    
+
         if (file->flags & DFS_O_CREAT)
         {
             if (nfs_mkdir(nfs, file->path, 0755) < 0)
@@ -1014,7 +1014,7 @@ int nfs_unlink(struct dfs_filesystem *fs, const char *path)
 
         xdr_free((xdrproc_t)xdr_RMDIR3res, (char *)&res);
         xdr_free((xdrproc_t)xdr_nfs_fh3, (char *)handle);
-        rt_free(handle);    
+        rt_free(handle);
     }
 
     return ret;
@@ -1116,10 +1116,10 @@ int nfs_getdents(struct dfs_fd *file, struct dirent *dirp, UInt32 count)
     return index * sizeof(struct dirent);
 }
 
-static const struct dfs_filesystem_operation _nfs = 
+static const struct dfs_filesystem_operation _nfs =
 {
     "nfs",
-    DFS_FS_FLAG_DEFAULT,    
+    DFS_FS_FLAG_DEFAULT,
     nfs_mount,
     nfs_unmount,
     NULL, /* mkfs */
@@ -1132,7 +1132,7 @@ static const struct dfs_filesystem_operation _nfs =
     NULL, /* flush */
     nfs_lseek,
     nfs_getdents,
-    nfs_unlink, 
+    nfs_unlink,
     nfs_stat,
     nfs_rename,
 };

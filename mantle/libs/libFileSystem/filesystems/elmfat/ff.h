@@ -21,7 +21,7 @@
 extern "C" {
 #endif
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include "integer.h"	/* Basic integer types */
 #include "ffconf.h"		/* FatFs configuration options */
 

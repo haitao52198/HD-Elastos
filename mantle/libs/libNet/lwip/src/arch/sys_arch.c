@@ -1,6 +1,6 @@
 /*
  * File      : sys_arch.c
- * 
+ *
  * COPYRIGHT (C) 2012, RT-Thread Development Team
  *
  * The license and distribution terms for this file may be
@@ -10,10 +10,10 @@
  * Change Logs:
  * Date           Author       Notes
  * 2012-12-8      Bernard      add file header
- *                             export bsd socket symbol for RT-Thread Application Module 
+ *                             export bsd socket symbol for RT-Thread Application Module
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #include "lwip/sys.h"
 #include "lwip/opt.h"
@@ -471,7 +471,7 @@ u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg)
         return SYS_ARCH_TIMEOUT;
     else
     {
-        if (ret == RT_EOK) 
+        if (ret == RT_EOK)
             ret = 1;
     }
 

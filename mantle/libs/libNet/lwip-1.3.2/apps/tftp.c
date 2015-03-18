@@ -1,4 +1,4 @@
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <dfs_posix.h>
 #include <lwip/sockets.h>
 
@@ -37,7 +37,7 @@ void tftp_get(const char* host, const char* dir, const char* filename)
     inet_aton(host, (struct in_addr*)&(tftp_addr.sin_addr));
     tftp_addr.sin_family = AF_INET;
     tftp_addr.sin_port = htons(TFTP_PORT);
-    
+
     sock_fd = socket(AF_INET,SOCK_DGRAM,IPPROTO_UDP);
     if (sock_fd < 0)
 	{
@@ -45,7 +45,7 @@ void tftp_get(const char* host, const char* dir, const char* filename)
 	    printf("can't create a socket\n");
 	    return ;
 	}
-	
+
 	/* set socket option */
 	sock_opt = 5000; /* 5 seconds */
 	lwip_setsockopt(sock_fd, SOL_SOCKET, SO_RCVTIMEO, &sock_opt, sizeof(sock_opt));
@@ -59,25 +59,25 @@ void tftp_get(const char* host, const char* dir, const char* filename)
 	tftp_buffer[length] = 0; length ++;
 
 	fromlen = sizeof(struct sockaddr_in);
-	
-	/* send request */	
-	lwip_sendto(sock_fd, tftp_buffer, length, 0, 
+
+	/* send request */
+	lwip_sendto(sock_fd, tftp_buffer, length, 0,
 		(struct sockaddr *)&tftp_addr, fromlen);
-	
+
 	do
 	{
-		length = lwip_recvfrom(sock_fd, tftp_buffer, sizeof(tftp_buffer), 0, 
+		length = lwip_recvfrom(sock_fd, tftp_buffer, sizeof(tftp_buffer), 0,
 			(struct sockaddr *)&from_addr, &fromlen);
-		
+
 		if (length > 0)
 		{
 			write(fd, (char*)&tftp_buffer[4], length - 4);
 			printf("#");
 
-			/* make ACK */			
+			/* make ACK */
 			tftp_buffer[0] = 0; tftp_buffer[1] = TFTP_ACK; /* opcode */
 			/* send ACK */
-			lwip_sendto(sock_fd, tftp_buffer, 4, 0, 
+			lwip_sendto(sock_fd, tftp_buffer, 4, 0,
 				(struct sockaddr *)&from_addr, fromlen);
 		}
 	} while (length == 516);
@@ -135,13 +135,13 @@ void tftp_put(const char* host, const char* dir, const char* filename)
 	tftp_buffer[length] = 0; length ++;
 
 	fromlen = sizeof(struct sockaddr_in);
-	
-	/* send request */	
-	lwip_sendto(sock_fd, tftp_buffer, length, 0, 
+
+	/* send request */
+	lwip_sendto(sock_fd, tftp_buffer, length, 0,
 		(struct sockaddr *)&tftp_addr, fromlen);
 
-	/* wait ACK 0 */	
-	length = lwip_recvfrom(sock_fd, tftp_buffer, sizeof(tftp_buffer), 0, 
+	/* wait ACK 0 */
+	length = lwip_recvfrom(sock_fd, tftp_buffer, sizeof(tftp_buffer), 0,
 		(struct sockaddr *)&from_addr, &fromlen);
 	if (!(tftp_buffer[0] == 0 &&
 		tftp_buffer[1] == TFTP_ACK &&
@@ -154,7 +154,7 @@ void tftp_put(const char* host, const char* dir, const char* filename)
 	}
 
 	block_number = 1;
-	
+
 	while (1)
 	{
 		length = read(fd, (char*)&tftp_buffer[4], 512);
@@ -165,7 +165,7 @@ void tftp_put(const char* host, const char* dir, const char* filename)
 			tftp_buffer[2] = (block_number >> 8) & 0xff;
 			tftp_buffer[3] = block_number & 0xff;
 
-			lwip_sendto(sock_fd, tftp_buffer, length + 4, 0, 
+			lwip_sendto(sock_fd, tftp_buffer, length + 4, 0,
 				(struct sockaddr *)&from_addr, fromlen);
 		}
 		else
@@ -175,7 +175,7 @@ void tftp_put(const char* host, const char* dir, const char* filename)
 		}
 
 		/* receive ack */
-		length = lwip_recvfrom(sock_fd, tftp_buffer, sizeof(tftp_buffer), 0, 
+		length = lwip_recvfrom(sock_fd, tftp_buffer, sizeof(tftp_buffer), 0,
 			(struct sockaddr *)&from_addr, &fromlen);
 		if (length > 0)
 		{
@@ -187,7 +187,7 @@ void tftp_put(const char* host, const char* dir, const char* filename)
 				block_number ++;
 				printf("#");
 			}
-			else 
+			else
 			{
 				printf("server respondes with an error\n");
 				break;

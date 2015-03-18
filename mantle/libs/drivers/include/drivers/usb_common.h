@@ -1,6 +1,6 @@
 /*
  * File      : usb_common.h
- * 
+ *
  * COPYRIGHT (C) 2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #define RT_DEBUG_USB                    0x00
 #define USB_DYNAMIC                     0x00

@@ -36,7 +36,7 @@
 #define __ARCH_CC_H__
 
 #include <rthw.h>
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 typedef UInt8	u8_t;
 typedef rt_int8_t	s8_t;

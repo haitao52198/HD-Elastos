@@ -525,7 +525,7 @@ void mem_cpy (void* dst, const void* src, UINT cnt) {
 			*d++ = *s++;
 		return;
 	}
-    
+
 	while (cnt >= sizeof(int)) {
 		*(int*)d = *(int*)s;
 		d += sizeof(int); s += sizeof(int);
@@ -3047,7 +3047,7 @@ FRESULT f_seekdir(
 		if(dir_read(dj) != FR_OK || dir_next(dj, 0) != FR_OK)
 			return FR_INT_ERR;
 		i++;
-	} 
+	}
 	return FR_OK;
 }
 
@@ -4002,7 +4002,7 @@ int f_printf (
 #endif /* !_FS_READONLY */
 #endif /* _USE_STRFUNC */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #if _VOLUMES > 1
 int elm_get_vol(FATFS *fat)
 {

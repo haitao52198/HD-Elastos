@@ -11,7 +11,7 @@
 // #ifdef __ECOS__
 #undef __ECOS__
 #define __ECOS__
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #define malloc malloc
 #define free  rt_free
 #define printf printf

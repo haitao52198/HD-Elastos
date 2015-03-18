@@ -1,4 +1,4 @@
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <lwip/sockets.h>
 
 #define SERV_PORT 10001
@@ -22,14 +22,14 @@ void tcpserver6(void)
 		printf("No memory\n");
 		return ;
 	}
-	
+
 	if((sockfd = socket(PF_INET6, SOCK_STREAM, 0)) == -1)
 	{
 		printf("Socket error\n");
 		rt_free(recv_data);
 		return ;
 	}
-	
+
 	server_addr6.sin6_family = AF_INET6;
 	memcpy(server_addr6.sin6_addr.s6_addr, IP6_ADDR_ANY, 16);
 	server_addr6.sin6_port = htons(SERV_PORT);
@@ -49,9 +49,9 @@ void tcpserver6(void)
 
 	rt_sprintf(recv_data, "%4d", SERV_PORT);
 	printf("\nTCPServer Waiting for client on port %s...\n", recv_data);
-	
+
 	while(stop != RT_TRUE)
-	{ 
+	{
 		sin_size = sizeof(struct sockaddr_in6);
 		clientfd = accept(sockfd, (struct sockaddr *)&client_addr6, &sin_size);
 		printf("I got a connection from (IP:%s, PORT:%d\n)", inet6_ntoa(client_addr6.sin6_addr), ntohs(client_addr6.sin6_port));
@@ -83,10 +83,10 @@ void tcpserver6(void)
 			}
 		}
 	}
-	
+
 	closesocket(sockfd);
 	rt_free(recv_data);
-	
+
 	return ;
 }
 #ifdef RT_USING_FINSH

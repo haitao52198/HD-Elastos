@@ -1,6 +1,6 @@
 /*
  * File      : spi_wifi_rw009.c
- * 
+ *
  * Copyright by Shanghai Real-Thread Electronic Technology Co.,Ltd
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,7 @@
  * 2014-09-18     aozima       update command & response.
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <drivers/spi.h>
 
 #include <netif/ethernetif.h>

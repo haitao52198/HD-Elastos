@@ -63,9 +63,10 @@ SEL4_BINDIR     ?= $(STAGE_DIR)/bin
 SEL4_KERNEL     ?= $(STAGE_DIR)/kernel/kernel.elf
 
 ZENER_EXPORT_INCLUDEDIR ?= $(STAGE_DIR)../zener_export/include
+Elastos_EXPORT_INCLUDEDIR ?= $(STAGE_DIR)../inc
 
 # Compile configuration
-INCLUDE_PATH := $(SEL4_INCLUDEDIR) $(INCLUDE_DIRS) $(ZENER_EXPORT_INCLUDEDIR)
+INCLUDE_PATH := $(SEL4_INCLUDEDIR) $(INCLUDE_DIRS) $(ZENER_EXPORT_INCLUDEDIR) $(Elastos_EXPORT_INCLUDEDIR)
 WARNINGS     := all
 
 # the NK_BUILD is used in the Makefile.flags file to distinguish

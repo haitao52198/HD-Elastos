@@ -1,6 +1,6 @@
 /*
  * File      : dfs_ramfs.c
- * 
+ *
  * COPYRIGHT (C) 2004-2013, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
  * 2013-05-22     Bernard      fix the no entry issue.
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <dfs.h>
 #include <dfs_fs.h>
 #include "dfs_ramfs.h"
@@ -266,7 +266,7 @@ int dfs_ramfs_open(struct dfs_fd *file)
     file->size = dirent->size;
 	if (file->flags & DFS_O_APPEND)
 		file->pos = file->size;
-	else 
+	else
 		file->pos = 0;
 
     return DFS_STATUS_OK;

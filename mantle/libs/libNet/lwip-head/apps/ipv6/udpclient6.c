@@ -1,4 +1,4 @@
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <lwip/netdb.h>
 #include <lwip/sockets.h>
 
@@ -13,21 +13,21 @@ void udpclient6(void)
 	int sockfd;
 	struct sockaddr_in6 server_addr6, client_addr6;
 	socklen_t clientlen;
-	
+
 	recv_data = malloc(BUF_SIZE);
 	if(recv_data == NULL)
 	{
 		printf("No memory\n");
 		return ;
 	}
-	
+
 	if((sockfd = socket(PF_INET6, SOCK_DGRAM, 0)) == -1)
 	{
 		printf("Socket error\n");
 		rt_free(recv_data);
 		return ;
 	}
-	
+
 	memset(&server_addr6, 0, sizeof(server_addr6));
 	server_addr6.sin6_family = AF_INET6;
 	server_addr6.sin6_port = htons(SERV_PORT);
@@ -37,16 +37,16 @@ void udpclient6(void)
 		rt_free(recv_data);
 		return ;
 	}
-	
+
 	if(sendto(sockfd, send_data, sizeof(recv_data), 0, (struct sockaddr *)&server_addr6, sizeof(server_addr6)) < 0)
 	{
 		printf("Sendto error\n");
 		rt_free(recv_data);
 		return ;
 	}
-	
+
 	printf("Waiting for a reply...\n");
-	
+
 	clientlen = sizeof(client_addr6);
 	if(recvfrom(sockfd, recv_data, BUF_SIZE, 0, (struct sockaddr *)&client_addr6, &clientlen) < 0)
 	{

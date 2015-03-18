@@ -33,7 +33,7 @@
 #ifndef _RPC_TYPES_H
 #define _RPC_TYPES_H 1
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <lwip/netdb.h>
 #include <lwip/sockets.h>
 

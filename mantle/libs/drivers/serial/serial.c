@@ -1,6 +1,6 @@
 /*
  * File      : serial.c
- * 
+ *
  * COPYRIGHT (C) 2006 - 2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -29,24 +29,24 @@
  */
 
 #include <rthw.h>
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <rtdevice.h>
 
 /*
- * Serial poll routines 
+ * Serial poll routines
  */
 rt_inline int _serial_poll_rx(struct rt_serial_device *serial, UInt8 *data, int length)
 {
     int ch;
     int size;
-    
+
     assert(serial != NULL);
     size = length;
 
     while (length)
     {
         ch = serial->ops->getc(serial);
-        *data = ch; 
+        *data = ch;
         data ++; length --;
 
         if (ch == '\n') break;
@@ -71,9 +71,9 @@ rt_inline int _serial_poll_tx(struct rt_serial_device *serial, const UInt8 *data
         {
             serial->ops->putc(serial, '\r');
         }
-    
+
         serial->ops->putc(serial, *data);
-    
+
         ++ data;
         -- length;
     }
@@ -90,8 +90,8 @@ rt_inline int _serial_int_rx(struct rt_serial_device *serial, UInt8 *data, int l
     struct rt_serial_rx_fifo* rx_fifo;
 
     assert(serial != NULL);
-    size = length; 
-    
+    size = length;
+
     rx_fifo = (struct rt_serial_rx_fifo*) serial->serial_rx;
     assert(rx_fifo != NULL);
 
@@ -130,7 +130,7 @@ rt_inline int _serial_int_tx(struct rt_serial_device *serial, const UInt8 *data,
 {
     int size;
     struct rt_serial_tx_fifo *tx;
-    
+
     assert(serial != NULL);
 
     size = length;
@@ -186,8 +186,8 @@ rt_inline int _serial_dma_tx(struct rt_serial_device *serial, const UInt8 *data,
     struct rt_serial_tx_dma *tx_dma;
 
     tx_dma = (struct rt_serial_tx_dma*)(serial->serial_tx);
-    
-    result = rt_data_queue_push(&(tx_dma->data_queue), data, length, RT_WAITING_FOREVER); 
+
+    result = rt_data_queue_push(&(tx_dma->data_queue), data, length, RT_WAITING_FOREVER);
     if (result == RT_EOK)
     {
         level = rt_hw_interrupt_disable();
@@ -244,7 +244,7 @@ static Int32 rt_serial_open(struct rt_device *dev, UInt16 oflag)
     serial = (struct rt_serial_device *)dev;
 
     /* check device flag with the open flag */
-    if ((oflag & RT_DEVICE_FLAG_DMA_RX) && !(dev->flag & RT_DEVICE_FLAG_DMA_RX)) 
+    if ((oflag & RT_DEVICE_FLAG_DMA_RX) && !(dev->flag & RT_DEVICE_FLAG_DMA_RX))
         return -RT_EIO;
     if ((oflag & RT_DEVICE_FLAG_DMA_TX) && !(dev->flag & RT_DEVICE_FLAG_DMA_TX))
         return -RT_EIO;
@@ -255,7 +255,7 @@ static Int32 rt_serial_open(struct rt_device *dev, UInt16 oflag)
 
     /* get open flags */
     dev->open_flag = oflag & 0xff;
-    
+
     /* initialize the Rx/Tx structure according to open flag */
     if (serial->serial_rx == NULL)
     {
@@ -274,7 +274,7 @@ static Int32 rt_serial_open(struct rt_device *dev, UInt16 oflag)
         {
             struct rt_serial_rx_fifo* rx_fifo;
 
-            rx_fifo = (struct rt_serial_rx_fifo*) malloc (sizeof(struct rt_serial_rx_fifo) + 
+            rx_fifo = (struct rt_serial_rx_fifo*) malloc (sizeof(struct rt_serial_rx_fifo) +
                 serial->config.bufsz);
             assert(rx_fifo != NULL);
             rx_fifo->buffer = (UInt8*) (rx_fifo + 1);
@@ -301,7 +301,7 @@ static Int32 rt_serial_open(struct rt_device *dev, UInt16 oflag)
 
             tx_dma = (struct rt_serial_tx_dma*) malloc (sizeof(struct rt_serial_tx_dma));
             assert(tx_dma != NULL);
-            
+
             rt_data_queue_init(&(tx_dma->data_queue), 8, 4, NULL);
             serial->serial_tx = tx_dma;
 
@@ -339,7 +339,7 @@ static Int32 rt_serial_close(struct rt_device *dev)
 
     /* this device has more reference count */
     if (dev->ref_count > 1) return RT_EOK;
-    
+
     if (dev->open_flag & RT_DEVICE_FLAG_INT_RX)
     {
         struct rt_serial_rx_fifo* rx_fifo;
@@ -520,39 +520,39 @@ void rt_hw_serial_isr(struct rt_serial_device *serial, int event)
 
             rx_fifo = (struct rt_serial_rx_fifo*)serial->serial_rx;
             assert(rx_fifo != NULL);
-            
+
             /* interrupt mode receive */
             assert(serial->parent.open_flag & RT_DEVICE_FLAG_INT_RX);
-            
+
             while (1)
             {
                 ch = serial->ops->getc(serial);
                 if (ch == -1) break;
 
-                
+
                 /* disable interrupt */
                 level = rt_hw_interrupt_disable();
-                
+
                 rx_fifo->buffer[rx_fifo->put_index] = ch;
                 rx_fifo->put_index += 1;
                 if (rx_fifo->put_index >= serial->config.bufsz) rx_fifo->put_index = 0;
-                
+
                 /* if the next position is read index, discard this 'read char' */
                 if (rx_fifo->put_index == rx_fifo->get_index)
                 {
                     rx_fifo->get_index += 1;
                     if (rx_fifo->get_index >= serial->config.bufsz) rx_fifo->get_index = 0;
                 }
-                
+
                 /* enable interrupt */
                 rt_hw_interrupt_enable(level);
             }
-            
+
             /* invoke callback */
             if (serial->parent.rx_indicate != NULL)
             {
                 UInt32 rx_length;
-            
+
                 /* get rx length */
                 level = rt_hw_interrupt_disable();
                 rx_length = (rx_fifo->put_index >= rx_fifo->get_index)? (rx_fifo->put_index - rx_fifo->get_index):
@@ -579,7 +579,7 @@ void rt_hw_serial_isr(struct rt_serial_device *serial, int event)
             struct rt_serial_tx_dma* tx_dma;
 
             tx_dma = (struct rt_serial_tx_dma*) serial->serial_tx;
-            
+
             rt_data_queue_pop(&(tx_dma->data_queue), &last_data_ptr, &data_size, 0);
             if (rt_data_queue_peak(&(tx_dma->data_queue), &data_ptr, &data_size) == RT_EOK)
             {
@@ -591,7 +591,7 @@ void rt_hw_serial_isr(struct rt_serial_device *serial, int event)
             {
                 tx_dma->activated = RT_FALSE;
             }
-            
+
             /* invoke callback */
             if (serial->parent.tx_complete != NULL)
             {

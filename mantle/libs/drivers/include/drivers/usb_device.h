@@ -1,6 +1,6 @@
 /*
  * File      : usb_device.h
- * 
+ *
  * COPYRIGHT (C) 2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -27,7 +27,7 @@
 #ifndef  __USB_DEVICE_H__
 #define  __USB_DEVICE_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include "usb_common.h"
 
 /* Vendor ID */
@@ -71,12 +71,12 @@ struct ufunction;
 struct udevice;
 struct uendpoint;
 
-typedef enum 
+typedef enum
 {
     /* request to read full count */
     UIO_REQUEST_READ_FULL,
     /* request to read any count */
-    UIO_REQUEST_READ_MOST,  
+    UIO_REQUEST_READ_MOST,
     /* request to write full count */
     UIO_REQUEST_WRITE,
 }UIO_REQUEST_TYPE;
@@ -94,7 +94,7 @@ struct udcd_ops
     UInt32 (*ep_write)(UInt8 address, void *buffer, UInt32 size);
     Int32 (*ep0_send_status)(void);
     Int32 (*suspend)(void);
-    Int32 (*wakeup)(void);    
+    Int32 (*wakeup)(void);
 };
 
 struct ep_id
@@ -214,10 +214,10 @@ enum udev_msg_type
     USB_MSG_SETUP_NOTIFY,
     USB_MSG_DATA_NOTIFY,
     USB_MSG_EP0_OUT,
-    USB_MSG_EP_CLEAR_FEATURE,        
+    USB_MSG_EP_CLEAR_FEATURE,
     USB_MSG_SOF,
     USB_MSG_RESET,
-    USB_MSG_PLUG_IN,    
+    USB_MSG_PLUG_IN,
     /* we don't need to add a "PLUG_IN" event because after the cable is
      * plugged in(before any SETUP) the classed have nothing to do. If the host
      * is ready, it will send RESET and we will have USB_MSG_RESET. So, a RESET
@@ -274,7 +274,7 @@ uintf_t rt_usbd_find_interface(udevice_t device, UInt8 value, ufunction_t *pfunc
 uep_t rt_usbd_find_endpoint(udevice_t device, ufunction_t* pfunc, UInt8 ep_addr);
 UInt32 rt_usbd_io_request(udevice_t device, uep_t ep, uio_request_t req);
 UInt32 rt_usbd_ep0_write(udevice_t device, void *buffer, UInt32 size);
-UInt32 rt_usbd_ep0_read(udevice_t device, void *buffer, UInt32 size, 
+UInt32 rt_usbd_ep0_read(udevice_t device, void *buffer, UInt32 size,
     Int32 (*rx_ind)(udevice_t device, UInt32 size));
 
 ufunction_t rt_usbd_function_mstorage_create(udevice_t device);
@@ -389,7 +389,7 @@ rt_inline Int32 dcd_ep0_send_status(udcd_t dcd)
 }
 
 rt_inline Int32 dcd_ep_set_stall(udcd_t dcd, UInt8 address)
-{    
+{
     assert(dcd != NULL);
     assert(dcd->ops != NULL);
     assert(dcd->ops->ep_set_stall != NULL);

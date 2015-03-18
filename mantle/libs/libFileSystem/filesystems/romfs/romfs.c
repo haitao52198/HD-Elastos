@@ -1,6 +1,6 @@
 /*
  * File      : romfs.c
- * 
+ *
  * COPYRIGHT (C) 2004-2011, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  * Date           Author       Notes
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <dfs_romfs.h>
 
 const static unsigned char _dummy_dummy_txt[] =

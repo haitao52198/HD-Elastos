@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <drivers/spi.h>
 #include <netif/ethernetif.h>
 

@@ -1,6 +1,6 @@
 /*
  * File      : core.c
- * 
+ *
  * COPYRIGHT (C) 2011, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
  * 2011-12-12     Yi Qiu      first version
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <drivers/usb_host.h>
 
 static struct uinstance dev[USB_MAX_DEVICE];
@@ -41,27 +41,27 @@ uinst_t rt_usbh_alloc_instance(void)
 
     /* lock scheduler */
     rt_enter_critical();
-    
+
     for(i=0; i<USB_MAX_DEVICE; i++)
     {
         /* to find an idle instance handle */
         if(dev[i].status != DEV_STATUS_IDLE) continue;
-        
+
         /* initialize the usb device instance */
         memset(&dev[i], 0, sizeof(struct uinstance));
-        
+
         dev[i].status = DEV_STATUS_BUSY;
         dev[i].index = i + 1;
         dev[i].address = 0;
         dev[i].max_packet_size = 0x8;
 
-        /* unlock scheduler */        
+        /* unlock scheduler */
         rt_exit_critical();
         return &dev[i];
     }
 
-    /* unlock scheduler */            
-    rt_exit_critical();     
+    /* unlock scheduler */
+    rt_exit_critical();
 
     return NULL;
 }
@@ -72,7 +72,7 @@ uinst_t rt_usbh_alloc_instance(void)
  *
  * @param hcd the host controller driver.
  * @param device the usb device instance.
- * 
+ *
  * @return the error code, RT_EOK on successfully.
  */
 Int32 rt_usbh_attatch_instance(uinst_t device)
@@ -85,12 +85,12 @@ Int32 rt_usbh_attatch_instance(uinst_t device)
     ucd_t drv;
 
     assert(device != NULL);
-    
+
     memset(&cfg_desc, 0, sizeof(struct uconfig_descriptor));
     dev_desc = &device->dev_desc;
 
     RT_DEBUG_LOG(RT_DEBUG_USB, ("start enumnation\n"));
-    
+
     /* get device descriptor head */
     ret = rt_usbh_get_descriptor(device, USB_DESC_TYPE_DEVICE, (void*)dev_desc, 8);
     if(ret != RT_EOK)
@@ -98,7 +98,7 @@ Int32 rt_usbh_attatch_instance(uinst_t device)
         printf("get device descriptor head failed\n");
         return ret;
     }
-    
+
     /* set device address */
     ret = rt_usbh_set_address(device);
     if(ret != RT_EOK)
@@ -112,7 +112,7 @@ Int32 rt_usbh_attatch_instance(uinst_t device)
 
     RT_DEBUG_LOG(RT_DEBUG_USB, ("get device descriptor length %d\n",
                                 dev_desc->bLength));
-    
+
     /* get full device descriptor again */
     ret = rt_usbh_get_descriptor
         (device, USB_DESC_TYPE_DEVICE, (void*)dev_desc, dev_desc->bLength);
@@ -138,7 +138,7 @@ Int32 rt_usbh_attatch_instance(uinst_t device)
     memset(device->cfg_desc, 0, cfg_desc.wTotalLength);
 
     /* get full configuration descriptor */
-    ret = rt_usbh_get_descriptor(device, USB_DESC_TYPE_CONFIGURATION, 
+    ret = rt_usbh_get_descriptor(device, USB_DESC_TYPE_CONFIGURATION,
         device->cfg_desc, cfg_desc.wTotalLength);
     if(ret != RT_EOK)
     {
@@ -151,7 +151,7 @@ Int32 rt_usbh_attatch_instance(uinst_t device)
     if(ret != RT_EOK) return ret;
 
     for(i=0; i<device->cfg_desc->bNumInterfaces; i++)
-    {        
+    {
         /* get interface descriptor through configuration descriptor */
         ret = rt_usbh_get_interface_descriptor(device->cfg_desc, i, &intf_desc);
         if(ret != RT_EOK)
@@ -160,18 +160,18 @@ Int32 rt_usbh_attatch_instance(uinst_t device)
             return -RT_ERROR;
         }
 
-        RT_DEBUG_LOG(RT_DEBUG_USB, ("interface class 0x%x, subclass 0x%x\n", 
+        RT_DEBUG_LOG(RT_DEBUG_USB, ("interface class 0x%x, subclass 0x%x\n",
                                     intf_desc->bInterfaceClass,
                                     intf_desc->bInterfaceSubClass));
 
         /* find driver by class code found in interface descriptor */
-        drv = rt_usbh_class_driver_find(intf_desc->bInterfaceClass, 
+        drv = rt_usbh_class_driver_find(intf_desc->bInterfaceClass,
             intf_desc->bInterfaceSubClass);
-        
+
         if(drv != NULL)
         {
             /* allocate memory for interface device */
-            device->intf[i] = 
+            device->intf[i] =
                 (struct uintf*)malloc(sizeof(struct uintf));
 
             device->intf[i]->drv = drv;
@@ -192,7 +192,7 @@ Int32 rt_usbh_attatch_instance(uinst_t device)
             continue;
         }
     }
-    
+
     return RT_EOK;
 }
 
@@ -201,22 +201,22 @@ Int32 rt_usbh_attatch_instance(uinst_t device)
  * and release all resource.
  *
  * @param device the usb device instance.
- * 
+ *
  * @return the error code, RT_EOK on successfully.
  */
 Int32 rt_usbh_detach_instance(uinst_t device)
 {
     int i = 0;
 
-    if(device == NULL) 
+    if(device == NULL)
     {
         printf("no usb instance to detach\n");
         return -RT_ERROR;
     }
-    
+
     /* free configration descriptor */
     if(device->cfg_desc) rt_free(device->cfg_desc);
-    
+
     for(i=0; i<device->cfg_desc->bNumInterfaces; i++)
     {
         if(device->intf[i] == NULL) continue;
@@ -227,38 +227,38 @@ Int32 rt_usbh_detach_instance(uinst_t device)
         RT_DEBUG_LOG(RT_DEBUG_USB, ("free interface instance %d\n", i));
         rt_usbh_class_driver_disable(device->intf[i]->drv, (void*)device->intf[i]);
     }
-    
+
     memset(device, 0, sizeof(struct uinstance));
-    
+
     return RT_EOK;
 }
 
 /**
  * This function will do USB_REQ_GET_DESCRIPTO' request for the usb device instance,
  *
- * @param device the usb device instance. 
+ * @param device the usb device instance.
  * @param type the type of descriptor request.
  * @param buffer the data buffer to save requested data
  * @param nbytes the size of buffer
- * 
+ *
  * @return the error code, RT_EOK on successfully.
  */
-Int32 rt_usbh_get_descriptor(uinst_t device, UInt8 type, void* buffer, 
+Int32 rt_usbh_get_descriptor(uinst_t device, UInt8 type, void* buffer,
     int nbytes)
 {
     struct ureqest setup;
     int timeout = 100;
-    
+
     assert(device != NULL);
 
-    setup.request_type = USB_REQ_TYPE_DIR_IN | USB_REQ_TYPE_STANDARD | 
+    setup.request_type = USB_REQ_TYPE_DIR_IN | USB_REQ_TYPE_STANDARD |
         USB_REQ_TYPE_DEVICE;
     setup.request = USB_REQ_GET_DESCRIPTOR;
     setup.index = 0;
     setup.length = nbytes;
     setup.value = type << 8;
 
-    if(rt_usb_hcd_control_xfer(device->hcd, device, &setup, buffer, nbytes, 
+    if(rt_usb_hcd_control_xfer(device->hcd, device, &setup, buffer, nbytes,
         timeout) != nbytes) return -RT_EIO;
     else return RT_EOK;
 }
@@ -267,32 +267,32 @@ Int32 rt_usbh_get_descriptor(uinst_t device, UInt8 type, void* buffer,
  * This function will set an address to the usb device.
  *
  * @param device the usb device instance.
- * 
+ *
  * @return the error code, RT_EOK on successfully.
  */
 Int32 rt_usbh_set_address(uinst_t device)
 {
     struct ureqest setup;
     int timeout = 100;
-    
+
     assert(device != NULL);
 
     RT_DEBUG_LOG(RT_DEBUG_USB, ("rt_usb_set_address\n"));
 
-    setup.request_type = USB_REQ_TYPE_DIR_OUT | USB_REQ_TYPE_STANDARD | 
+    setup.request_type = USB_REQ_TYPE_DIR_OUT | USB_REQ_TYPE_STANDARD |
         USB_REQ_TYPE_DEVICE;
     setup.request = USB_REQ_SET_ADDRESS;
     setup.index = 0;
     setup.length = 0;
     setup.value = device->index;
 
-    if(rt_usb_hcd_control_xfer(device->hcd, device, &setup, NULL, 0, 
+    if(rt_usb_hcd_control_xfer(device->hcd, device, &setup, NULL, 0,
         timeout) != 0) return -RT_EIO;
 
     rt_thread_delay(50);
 
     device->address = device->index;
-    
+
     return RT_EOK;
 }
 
@@ -301,7 +301,7 @@ Int32 rt_usbh_set_address(uinst_t device)
  *
  * @param device the usb device instance.
  * @param config the configuration number.
-  * 
+  *
  * @return the error code, RT_EOK on successfully.
  */
 Int32 rt_usbh_set_configure(uinst_t device, int config)
@@ -312,17 +312,17 @@ Int32 rt_usbh_set_configure(uinst_t device, int config)
     /* check parameter */
     assert(device != NULL);
 
-    setup.request_type = USB_REQ_TYPE_DIR_OUT | USB_REQ_TYPE_STANDARD | 
+    setup.request_type = USB_REQ_TYPE_DIR_OUT | USB_REQ_TYPE_STANDARD |
         USB_REQ_TYPE_DEVICE;
     setup.request = USB_REQ_SET_CONFIGURATION;
     setup.index = 0;
     setup.length = 0;
     setup.value = config;
 
-    if(rt_usb_hcd_control_xfer(device->hcd, device, &setup, NULL, 0, 
+    if(rt_usb_hcd_control_xfer(device->hcd, device, &setup, NULL, 0,
         timeout) != 0) return -RT_EIO;
-    
-    return RT_EOK;    
+
+    return RT_EOK;
 }
 
 /**
@@ -330,7 +330,7 @@ Int32 rt_usbh_set_configure(uinst_t device, int config)
  *
  * @param device the usb device instance.
  * @param intf the interface number.
- * 
+ *
  * @return the error code, RT_EOK on successfully.
  */
 Int32 rt_usbh_set_interface(uinst_t device, int intf)
@@ -341,17 +341,17 @@ Int32 rt_usbh_set_interface(uinst_t device, int intf)
     /* check parameter */
     assert(device != NULL);
 
-    setup.request_type = USB_REQ_TYPE_DIR_OUT | USB_REQ_TYPE_STANDARD | 
+    setup.request_type = USB_REQ_TYPE_DIR_OUT | USB_REQ_TYPE_STANDARD |
         USB_REQ_TYPE_INTERFACE;
     setup.request = USB_REQ_SET_INTERFACE;
     setup.index = 0;
     setup.length = 0;
     setup.value = intf;
 
-    if(rt_usb_hcd_control_xfer(device->hcd, device, &setup, NULL, 0, 
+    if(rt_usb_hcd_control_xfer(device->hcd, device, &setup, NULL, 0,
         timeout) != 0) return -RT_EIO;
-    
-    return RT_EOK;    
+
+    return RT_EOK;
 }
 
 /**
@@ -359,7 +359,7 @@ Int32 rt_usbh_set_interface(uinst_t device, int intf)
  *
  * @param device the usb device instance.
  * @param endpoint the endpoint number of the usb device.
- * 
+ *
  * @return the error code, RT_EOK on successfully.
  */
 Int32 rt_usbh_clear_feature(uinst_t device, int endpoint, int feature)
@@ -370,17 +370,17 @@ Int32 rt_usbh_clear_feature(uinst_t device, int endpoint, int feature)
     /* check parameter */
     assert(device != NULL);
 
-    setup.request_type = USB_REQ_TYPE_DIR_OUT | USB_REQ_TYPE_STANDARD | 
+    setup.request_type = USB_REQ_TYPE_DIR_OUT | USB_REQ_TYPE_STANDARD |
         USB_REQ_TYPE_ENDPOINT;
     setup.request = USB_REQ_CLEAR_FEATURE;
     setup.index = endpoint;
     setup.length = 0;
     setup.value = feature;
 
-    if(rt_usb_hcd_control_xfer(device->hcd, device, &setup, NULL, 0, 
+    if(rt_usb_hcd_control_xfer(device->hcd, device, &setup, NULL, 0,
         timeout) != 0) return -RT_EIO;
-    
-    return RT_EOK;    
+
+    return RT_EOK;
 }
 
 /**
@@ -389,10 +389,10 @@ Int32 rt_usbh_clear_feature(uinst_t device, int endpoint, int feature)
  * @param cfg_desc the point of configuration descriptor structure.
  * @param num the number of interface descriptor.
  * @intf_desc the point of interface descriptor point.
- * 
+ *
  * @return the error code, RT_EOK on successfully.
  */
-Int32 rt_usbh_get_interface_descriptor(ucfg_desc_t cfg_desc, int num, 
+Int32 rt_usbh_get_interface_descriptor(ucfg_desc_t cfg_desc, int num,
     uintf_desc_t* intf_desc)
 {
     UInt32 ptr, depth = 0;
@@ -404,9 +404,9 @@ Int32 rt_usbh_get_interface_descriptor(ucfg_desc_t cfg_desc, int num,
     ptr = (UInt32)cfg_desc + cfg_desc->bLength;
     while(ptr < (UInt32)cfg_desc + cfg_desc->wTotalLength)
     {
-        if(depth++ > 0x20) 
+        if(depth++ > 0x20)
         {
-            *intf_desc = NULL;        
+            *intf_desc = NULL;
             return -RT_EIO;
         }
         desc = (udesc_t)ptr;
@@ -417,10 +417,10 @@ Int32 rt_usbh_get_interface_descriptor(ucfg_desc_t cfg_desc, int num,
                 *intf_desc = (uintf_desc_t)desc;
 
                 RT_DEBUG_LOG(RT_DEBUG_USB,
-                             ("rt_usb_get_interface_descriptor: %d\n", num));                
+                             ("rt_usb_get_interface_descriptor: %d\n", num));
                 return RT_EOK;
             }
-        }    
+        }
         ptr = (UInt32)desc + desc->bLength;
     }
 
@@ -434,14 +434,14 @@ Int32 rt_usbh_get_interface_descriptor(ucfg_desc_t cfg_desc, int num,
  * @param intf_desc the point of interface descriptor structure.
  * @param num the number of endpoint descriptor.
  * @param ep_desc the point of endpoint descriptor point.
- * 
+ *
  * @return the error code, RT_EOK on successfully.
  */
-Int32 rt_usbh_get_endpoint_descriptor(uintf_desc_t intf_desc, int num, 
+Int32 rt_usbh_get_endpoint_descriptor(uintf_desc_t intf_desc, int num,
     uep_desc_t* ep_desc)
 {
     int count = 0, depth = 0;
-    UInt32 ptr;    
+    UInt32 ptr;
     udesc_t desc;
 
     /* check parameter */
@@ -451,15 +451,15 @@ Int32 rt_usbh_get_endpoint_descriptor(uintf_desc_t intf_desc, int num,
     ptr = (UInt32)intf_desc + intf_desc->bLength;
     while(count < intf_desc->bNumEndpoints)
     {
-        if(depth++ > 0x20) 
+        if(depth++ > 0x20)
         {
-            *ep_desc = NULL;            
+            *ep_desc = NULL;
             return -RT_EIO;
         }
-        desc = (udesc_t)ptr;        
+        desc = (udesc_t)ptr;
         if(desc->type == USB_DESC_TYPE_ENDPOINT)
         {
-            if(num == count) 
+            if(num == count)
             {
                 *ep_desc = (uep_desc_t)desc;
 

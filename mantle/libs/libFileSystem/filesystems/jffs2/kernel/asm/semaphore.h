@@ -20,7 +20,7 @@ struct semaphore {
 #define up(sem)
 
 #elif CONFIG_JFFS2_SEMAPHORE == 1
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 struct semaphore {
 	struct rt_mutex mutex;
@@ -72,7 +72,7 @@ rt_inline up(struct semaphore * sem)
 }
 #elif CONFIG_JFFS2_SEMAPHORE == 2
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 struct semaphore {
 	 rt_mutex_t mutex;
@@ -100,10 +100,10 @@ rt_inline int down_interruptible(struct semaphore* sem)
     return 0;
 }
 /*
-Attempt to lock the mutex pointed to by the mutex argument without waiting. 
-If the mutex is already locked by some other thread then this function 
-returns FALSE. If the function can lock the mutex without waiting, then 
-TRUE is returned. 
+Attempt to lock the mutex pointed to by the mutex argument without waiting.
+If the mutex is already locked by some other thread then this function
+returns FALSE. If the function can lock the mutex without waiting, then
+TRUE is returned.
 void cyg_drv_mutex_unlock( cyg_drv_mutex *mutex )
 */
 

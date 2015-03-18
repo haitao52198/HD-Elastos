@@ -1,6 +1,6 @@
 /*
  * File      : mmcsd_core.c
- * 
+ *
  * COPYRIGHT (C) 2006, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,7 @@
  * 2011-07-25     weety         first version
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <drivers/mmcsd_core.h>
 #include <drivers/sd.h>
 
@@ -63,7 +63,7 @@ void mmcsd_send_request(struct rt_mmcsd_host *host, struct rt_mmcsd_req *req)
     req->cmd->err = 0;
     req->cmd->mrq = req;
     if (req->data)
-    {   
+    {
         req->cmd->data = req->data;
         req->data->err = 0;
         req->data->mrq = req;
@@ -72,7 +72,7 @@ void mmcsd_send_request(struct rt_mmcsd_host *host, struct rt_mmcsd_req *req)
             req->data->stop = req->stop;
             req->stop->err = 0;
             req->stop->mrq = req;
-        }       
+        }
    }
     host->ops->request(host, req);
     rt_sem_take(&host->sem_ack, RT_WAITING_FOREVER);
@@ -116,7 +116,7 @@ Int32 mmcsd_go_idle(struct rt_mmcsd_host *host)
 
     mmcsd_delay_ms(1);
 
-    if (!controller_is_spi(host)) 
+    if (!controller_is_spi(host))
     {
         mmcsd_set_chip_select(host, MMCSD_CS_IGNORE);
         mmcsd_delay_ms(1);
@@ -173,7 +173,7 @@ Int32 mmcsd_get_cid(struct rt_mmcsd_host *host, UInt32 *cid)
     struct rt_mmcsd_data data;
     UInt32 *buf = NULL;
 
-    if (!controller_is_spi(host)) 
+    if (!controller_is_spi(host))
     {
         if (!host->card)
             return -RT_ERROR;
@@ -192,7 +192,7 @@ Int32 mmcsd_get_cid(struct rt_mmcsd_host *host, UInt32 *cid)
     }
 
     buf = (UInt32 *)malloc(16);
-    if (!buf) 
+    if (!buf)
     {
         printf("allocate memory failed\n");
 
@@ -268,7 +268,7 @@ Int32 mmcsd_get_csd(struct rt_mmcsd_card *card, UInt32 *csd)
     }
 
     buf = (UInt32*)malloc(16);
-    if (!buf) 
+    if (!buf)
     {
         printf("allocate memory failed\n");
 
@@ -330,12 +330,12 @@ static Int32 _mmcsd_select_card(struct rt_mmcsd_host *host,
 
     cmd.cmd_code = SELECT_CARD;
 
-    if (card) 
+    if (card)
     {
         cmd.arg = card->rca << 16;
         cmd.flags = RESP_R1 | CMD_AC;
-    } 
-    else 
+    }
+    else
     {
         cmd.arg = 0;
         cmd.flags = RESP_NONE | CMD_AC;
@@ -436,7 +436,7 @@ void mmcsd_set_data_timeout(struct rt_mmcsd_data       *data,
 {
     UInt32 mult;
 
-    if (card->card_type == CARD_TYPE_SDIO) 
+    if (card->card_type == CARD_TYPE_SDIO)
     {
         data->timeout_ns = 1000000000;  /* SDIO card 1s */
         data->timeout_clks = 0;
@@ -462,7 +462,7 @@ void mmcsd_set_data_timeout(struct rt_mmcsd_data       *data,
     /*
      * SD cards also have an upper limit on the timeout.
      */
-    if (card->card_type == CARD_TYPE_SD) 
+    if (card->card_type == CARD_TYPE_SD)
     {
         UInt32 timeout_us, limit_us;
 
@@ -482,21 +482,21 @@ void mmcsd_set_data_timeout(struct rt_mmcsd_data       *data,
         /*
          * SDHC cards always use these fixed values.
          */
-        if (timeout_us > limit_us || card->flags & CARD_FLAG_SDHC) 
+        if (timeout_us > limit_us || card->flags & CARD_FLAG_SDHC)
         {
             data->timeout_ns = limit_us * 1000; /* SDHC card fixed 250ms */
             data->timeout_clks = 0;
         }
     }
 
-    if (controller_is_spi(card->host)) 
+    if (controller_is_spi(card->host))
     {
-        if (data->flags & DATA_DIR_WRITE) 
+        if (data->flags & DATA_DIR_WRITE)
         {
             if (data->timeout_ns < 1000000000)
                 data->timeout_ns = 1000000000;  /* 1s */
-        } 
-        else 
+        }
+        else
         {
             if (data->timeout_ns < 100000000)
                 data->timeout_ns =  100000000;  /* 100ms */
@@ -515,7 +515,7 @@ UInt32 mmcsd_select_voltage(struct rt_mmcsd_host *host, UInt32 ocr)
     ocr &= host->valid_ocr;
 
     bit = __rt_ffs(ocr);
-    if (bit) 
+    if (bit)
     {
         bit -= 1;
 
@@ -523,8 +523,8 @@ UInt32 mmcsd_select_voltage(struct rt_mmcsd_host *host, UInt32 ocr)
 
         host->io_cfg.vdd = bit;
         mmcsd_set_iocfg(host);
-    } 
-    else 
+    }
+    else
     {
         printf("host doesn't support card's voltages\n");
         ocr = 0;
@@ -542,7 +542,7 @@ static void mmcsd_power_up(struct rt_mmcsd_host *host)
     {
         host->io_cfg.chip_select = MMCSD_CS_HIGH;
         host->io_cfg.bus_mode = MMCSD_BUSMODE_PUSHPULL;
-    } 
+    }
     else
     {
         host->io_cfg.chip_select = MMCSD_CS_IGNORE;
@@ -573,7 +573,7 @@ static void mmcsd_power_off(struct rt_mmcsd_host *host)
 {
     host->io_cfg.clock = 0;
     host->io_cfg.vdd = 0;
-    if (!controller_is_spi(host)) 
+    if (!controller_is_spi(host))
     {
         host->io_cfg.bus_mode = MMCSD_BUSMODE_OPENDRAIN;
         host->io_cfg.chip_select = MMCSD_CS_IGNORE;
@@ -594,7 +594,7 @@ void mmcsd_detect(void *param)
     UInt32  ocr;
     Int32  err;
 
-    while (1) 
+    while (1)
     {
         if (rt_mb_recv(&mmcsd_detect_mb, (UInt32*)&host, RT_WAITING_FOREVER) == RT_EOK)
         {
@@ -619,7 +619,7 @@ void mmcsd_detect(void *param)
                  * detect SD card
                  */
                 err = mmcsd_send_app_op_cond(host, 0, &ocr);
-                if (!err) 
+                if (!err)
                 {
                     if (init_sd(host, ocr))
                         mmcsd_power_off(host);
@@ -637,7 +637,7 @@ struct rt_mmcsd_host *mmcsd_alloc_host(void)
     struct rt_mmcsd_host *host;
 
     host = malloc(sizeof(struct rt_mmcsd_host));
-    if (!host) 
+    if (!host)
     {
         printf("alloc host failed\n");
 
@@ -675,9 +675,9 @@ void rt_mmcsd_core_init(void)
         RT_IPC_FLAG_FIFO);
     assert(ret == RT_EOK);
 
-    ret = rt_thread_init(&mmcsd_detect_thread, "mmcsd_detect", mmcsd_detect, NULL, 
+    ret = rt_thread_init(&mmcsd_detect_thread, "mmcsd_detect", mmcsd_detect, NULL,
                  &mmcsd_stack[0], RT_MMCSD_STACK_SIZE, RT_MMCSD_THREAD_PREORITY, 20);
-    if (ret == RT_EOK) 
+    if (ret == RT_EOK)
     {
         rt_thread_startup(&mmcsd_detect_thread);
     }

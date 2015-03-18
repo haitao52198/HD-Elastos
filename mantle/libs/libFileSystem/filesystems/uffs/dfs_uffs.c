@@ -1,6 +1,6 @@
 /*
  * File      : dfs_uffs.c
- * 
+ *
  * COPYRIGHT (C) 2004-2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
  * 2012-04-05     prife        update uffs with official repo and use uffs_UnMount/Mount
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #include <dfs_fs.h>
 #include <dfs_def.h>
@@ -50,7 +50,7 @@ struct _nand_dev
 	uffs_Device uffs_dev;
 	uffs_MountTable mount_table;
 	char mount_path[UFFS_MOUNT_PATH_MAX];
-	void * data;  /* when uffs use static buf, it will save ptr here */	
+	void * data;  /* when uffs use static buf, it will save ptr here */
 };
 /* make sure the following struct var had been initilased to 0! */
 static struct _nand_dev nand_part[UFFS_DEVICE_MAX] = {0};
@@ -160,7 +160,7 @@ static int dfs_uffs_mount(
 	rt_base_t index;
 	uffs_MountTable * mount_part;
 	struct rt_mtd_nand_device * dev;
-	
+
 	assert(rt_strlen(fs->path) < (UFFS_MOUNT_PATH_MAX-1));
 	dev = RT_MTD_NAND_DEVICE(fs->dev_id);
 
@@ -277,12 +277,12 @@ static int dfs_uffs_statfs(struct dfs_filesystem* fs,
 	}
 	if (index == UFFS_DEVICE_MAX)
 		return -DFS_STATUS_ENOENT;
-	
+
 	buf->f_bsize = mtd->page_size;
 	buf->f_blocks = mtd->pages_per_block*
 	                (mtd->block_end - mtd->block_start + 1);
 	buf->f_bfree = uffs_GetDeviceFree(&nand_part[index].uffs_dev) / mtd->page_size;
-	
+
 	return 0;
 }
 
@@ -305,7 +305,7 @@ static int dfs_uffs_open(struct dfs_fd* file)
 		/* open dir */
 		file_path = malloc(FILE_PATH_MAX);
 		if(file_path == NULL)
-			return -DFS_STATUS_ENOMEM;			
+			return -DFS_STATUS_ENOMEM;
 
 		if (file->path[0] == '/' && !(file->path[1] == 0))
 			rt_snprintf(file_path, FILE_PATH_MAX, "%s/", file->path);
@@ -319,7 +319,7 @@ static int dfs_uffs_open(struct dfs_fd* file)
 
 		if (dir == NULL)
 		{
-			rt_free(file_path);			
+			rt_free(file_path);
 			return uffs_result_to_dfs(uffs_get_error());
 		}
 		/* save this pointer,will used by  dfs_uffs_getdents*/
@@ -441,11 +441,11 @@ int uffs_seekdir(uffs_DIR *dir, long offset)
 	int i = 0;
 
 	while(i < offset)
-	{	
+	{
 		if (uffs_readdir(dir) == NULL)
 			return -1;
 		i++;
-	} 
+	}
 	return 0;
 }
 
@@ -462,14 +462,14 @@ static int dfs_uffs_seek(struct dfs_fd* file,
 		result = uffs_seekdir((uffs_DIR *)(file->data), offset/sizeof(struct dirent));
 		if (result >= 0)
 		{
-			file->pos = offset; 
+			file->pos = offset;
 			return offset;
 		}
 	}
 	else if (file->type == FT_REGULAR)
 	{
 		result = uffs_seek((int)(file->data), offset, USEEK_SET);
-		if (result >= 0)	
+		if (result >= 0)
 			return offset;
 	}
 
@@ -487,10 +487,10 @@ static int dfs_uffs_getdents(
 	struct dirent* d;
 	uffs_DIR* dir;
 	struct uffs_dirent * uffs_d;
-	
+
 	dir = (uffs_DIR*)(file->data);
 	assert(dir != NULL);
-	
+
 	/* round count, count is always 1 */
 	count = (count / sizeof(struct dirent)) * sizeof(struct dirent);
 	if (count == 0) return -DFS_STATUS_EINVAL;
@@ -499,13 +499,13 @@ static int dfs_uffs_getdents(
 	file_path = malloc(FILE_PATH_MAX);
 	if (file_path == NULL)
 		return -DFS_STATUS_ENOMEM;
-		
+
 	index = 0;
 	/* usually, the while loop should only be looped only once! */
 	while (1)
 	{
 		struct uffs_stat s;
-		
+
 		d = dirp + index;
 
 		uffs_d = uffs_readdir(dir);
@@ -520,7 +520,7 @@ static int dfs_uffs_getdents(
 		else
 			rt_strncpy(file_path, uffs_d->d_name, FILE_PATH_MAX);
 
-		uffs_stat(file_path, &s); 
+		uffs_stat(file_path, &s);
 		switch(s.st_mode & US_IFMT)   /* file type mark */
 		{
 		case US_IFREG: /* directory */
@@ -546,10 +546,10 @@ static int dfs_uffs_getdents(
 		if (index * sizeof(struct dirent) >= count)
 			break;
 	}
-	
+
 	/* free file name buf */
 	rt_free(file_path);
-	
+
 	if (index == 0)
 		return uffs_result_to_dfs(uffs_get_error());
 
@@ -593,7 +593,7 @@ static int dfs_uffs_rename(
     const char* newpath)
 {
 	int result;
-	
+
 	result = uffs_rename(oldpath, newpath);
 	if (result < 0)
 		return uffs_result_to_dfs(uffs_get_error());

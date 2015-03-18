@@ -1,6 +1,6 @@
 /*
  * File      : adk.h
- * 
+ *
  * COPYRIGHT (C) 2011, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef __HID_H__
 #define __HID_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 struct uadkinst
 {
@@ -33,7 +33,7 @@ struct uadkinst
     upipe_t pipe_out;
 
     struct rt_device device;
-};    
+};
 typedef struct uadkinst* uadk_t;
 
 #define USB_ACCESSORY_VENDOR_ID         0x18D1

@@ -1,6 +1,6 @@
 /*
  * File      : spi_dev.c
- * 
+ *
  * COPYRIGHT (C) 2006 - 2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  * Date           Author       Notes
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <drivers/spi.h>
 
 /* SPI bus device interface, compatible with RT-Thread 0.3.x/1.0.x */
@@ -62,7 +62,7 @@ static Int32 _spi_bus_device_control(rt_device_t dev,
     {
     case 0: /* set device */
         break;
-    case 1: 
+    case 1:
         break;
     }
 
@@ -127,7 +127,7 @@ static Int32 _spidev_device_control(rt_device_t dev,
     {
     case 0: /* set device */
         break;
-    case 1: 
+    case 1:
         break;
     }
 
@@ -149,7 +149,7 @@ Int32 rt_spidev_device_init(struct rt_spi_device *dev, const char *name)
     device->read    = _spidev_device_read;
     device->write   = _spidev_device_write;
     device->control = _spidev_device_control;
-    
+
     /* register to device manager */
     return rt_device_register(device, name, RT_DEVICE_FLAG_RDWR);
 }

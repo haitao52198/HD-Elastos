@@ -1,6 +1,6 @@
 /*
  * File      : dfs_elm.c
- * 
+ *
  * COPYRIGHT (C) 2008-2011, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -28,7 +28,7 @@
  * 2014-01-26     Bernard      Check the sector size before mount.
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include "ffconf.h"
 #include "ff.h"
 #include <string.h>
@@ -123,13 +123,13 @@ int dfs_elm_mount(struct dfs_filesystem *fs, unsigned long rwflag, const void *d
 	/* check sector size */
 	if (rt_device_control(fs->dev_id, RT_DEVICE_CTRL_BLK_GETGEOME, &geometry) == RT_EOK)
 	{
-		if (geometry.bytes_per_sector > _MAX_SS) 
+		if (geometry.bytes_per_sector > _MAX_SS)
 		{
 			printf("The sector size of device is greater than the sector size of FAT.\n");
 			return -DFS_STATUS_EINVAL;
 		}
 	}
-	
+
     fat = (FATFS *)malloc(sizeof(FATFS));
     if (fat == NULL)
     {

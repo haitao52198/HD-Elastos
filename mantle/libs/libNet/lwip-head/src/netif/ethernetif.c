@@ -1,6 +1,6 @@
 /*
  * File      : ethernetif.c
- * 
+ *
  * COPYRIGHT (C) 2006 - 2010, RT-Thread Development Team
  *
  * The license and distribution terms for this file may be
@@ -49,7 +49,7 @@
  *
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #include "lwip/opt.h"
 #include "lwip/debug.h"
@@ -442,13 +442,13 @@ void set_if6(char* netif_name, char* ip6_addr)
 {
 	struct netif* netif = netif_list;
 	struct ip6_addr ip6addr;
-	
+
 	if(strlen(netif_name) > sizeof(netif->name))
 	{
 		printf("network interface name too long!\r\n");
 		return;
 	}
-	
+
 	while(netif != NULL)
 	{
 		if(strncmp(netif_name, netif->name, sizeof(netif->name)) == 0)
@@ -459,13 +459,13 @@ void set_if6(char* netif_name, char* ip6_addr)
 		{
 			printf("network interface: %s not found!\r\n", netif_name);
 			return;
-		}		
+		}
 	}
 	if((ip6_addr != NULL) && ip6addr_aton(ip6_addr, &ip6addr))
 	{
 		ip6_addr_copy(netif->ip6_addr[1], ip6addr);
 		netif_ip6_addr_set_state(netif, 1, IP6_ADDR_TENTATIVE);
-	}	
+	}
 }
 FINSH_FUNCTION_EXPORT(set_if6, set ipv6 local address)
 #endif
@@ -516,7 +516,7 @@ void list_if(void)
         printf("ip address: %s\n", ipaddr_ntoa(&(netif->ip_addr)));
         printf("gw address: %s\n", ipaddr_ntoa(&(netif->gw)));
         printf("net mask  : %s\n", ipaddr_ntoa(&(netif->netmask)));
-#if LWIP_IPV6	
+#if LWIP_IPV6
         printf("link-local address: %s\n", ip6addr_ntoa(&(netif->ip6_addr[0])));
         printf("ipv6[1] address: %s\n", ip6addr_ntoa(&(netif->ip6_addr[1])));
         printf("\r\n");

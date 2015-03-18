@@ -1,4 +1,4 @@
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <finsh.h>
 #include <lwip/api.h>
 
@@ -7,11 +7,11 @@ void tcpecho6(void)
 {
 	struct netconn *conn, *newconn;
 	err_t err;
-	
+
 	conn = netconn_new(NETCONN_TCP_IPV6);
 	netconn_bind_ip6(conn, IP6_ADDR_ANY, TCP_ECHO_PORT);
 	netconn_listen(conn);
-	
+
 	while(1)
 	{
 		err = netconn_accept(conn, &newconn);
@@ -20,7 +20,7 @@ void tcpecho6(void)
 			struct netbuf *buf;
 			void *data;
 			u16_t len;
-			
+
 			while(netconn_recv(newconn, &buf) == ERR_OK)
 			{
 				do

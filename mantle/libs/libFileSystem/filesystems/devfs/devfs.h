@@ -1,6 +1,6 @@
 /*
  * File      : devfs.h
- * 
+ *
  * COPYRIGHT (C) 2004-2011, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 #ifndef __DEVICE_FS_H__
 #define __DEVICE_FS_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 int devfs_init(void);
 void rt_console_init(const char* device_name);

@@ -1,6 +1,6 @@
 /*
  * File      : dfs_def.h
- * 
+ *
  * COPYRIGHT (C) 2004-2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -23,11 +23,11 @@
  * 2004-10-14     Beranard     Clean up the code.
  * 2005-01-22     Beranard     Clean up the code, port to MinGW
  */
- 
+
 #ifndef __DFS_DEF_H__
 #define __DFS_DEF_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #ifndef __D_FS__
 #define __D_FS__
@@ -70,7 +70,7 @@
 #define dfs_log(level, x)
 #endif
 
-#if defined(RT_USING_NEWLIB) 
+#if defined(RT_USING_NEWLIB)
 #include <string.h>
 #include <sys/stat.h>            /* used for struct stat */
 #include <sys/statfs.h>          /* used for struct statfs */

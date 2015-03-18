@@ -1,6 +1,6 @@
 /*
  * File      : i2c.h
- * 
+ *
  * COPYRIGHT (C) 2006 - 2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef __I2C_H__
 #define __I2C_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #ifdef __cplusplus
 extern "C" {

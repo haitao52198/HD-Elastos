@@ -1,6 +1,6 @@
 /*
  * File      : devfs.c
- * 
+ *
  * COPYRIGHT (C) 2004-2011, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
  * Date           Author       Notes
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <dfs.h>
 #include <dfs_fs.h>
 
@@ -107,7 +107,7 @@ int dfs_device_fs_close(struct dfs_fd *file)
 
         root_dirent = (struct device_dirent *)file->data;
         assert(root_dirent != NULL);
-        
+
         /* release dirent */
         rt_free(root_dirent);
         return DFS_STATUS_OK;
@@ -145,7 +145,7 @@ int dfs_device_fs_open(struct dfs_fd *file)
         struct rt_object_information *information;
         struct device_dirent *root_dirent;
         UInt32 count = 0;
-        
+
         extern struct rt_object_information rt_object_container[];
 
         /* lock scheduler */
@@ -158,7 +158,7 @@ int dfs_device_fs_open(struct dfs_fd *file)
             count ++;
         }
 
-        root_dirent = (struct device_dirent *)malloc(sizeof(struct device_dirent) + 
+        root_dirent = (struct device_dirent *)malloc(sizeof(struct device_dirent) +
             count * sizeof(rt_device_t));
         if (root_dirent != NULL)
         {
@@ -178,7 +178,7 @@ int dfs_device_fs_open(struct dfs_fd *file)
 
         /* set data */
         file->data = root_dirent;
-        
+
         return DFS_STATUS_OK;
     }
 
@@ -187,7 +187,7 @@ int dfs_device_fs_open(struct dfs_fd *file)
         return -DFS_STATUS_ENODEV;
 
     file->data = device;
-    
+
     return DFS_STATUS_OK;
 }
 
@@ -206,7 +206,7 @@ int dfs_device_fs_stat(struct dfs_filesystem *fs, const char *path, struct stat 
         st->st_size  = 0;
         st->st_mtime = 0;
         st->st_blksize = 512;
-        
+
         return DFS_STATUS_OK;
     }
     else
@@ -231,7 +231,7 @@ int dfs_device_fs_stat(struct dfs_filesystem *fs, const char *path, struct stat 
             st->st_size  = 0;
             st->st_mtime = 0;
             st->st_blksize = 512;
-            
+
             return DFS_STATUS_OK;
         }
     }
@@ -254,7 +254,7 @@ int dfs_device_fs_getdents(struct dfs_fd *file, struct dirent *dirp, UInt32 coun
     if (count == 0)
         return -DFS_STATUS_EINVAL;
 
-    for (index = 0; index < count && index + root_dirent->read_index < root_dirent->device_count; 
+    for (index = 0; index < count && index + root_dirent->read_index < root_dirent->device_count;
         index ++)
     {
         object = (rt_object_t)root_dirent->devices[root_dirent->read_index + index];
@@ -271,7 +271,7 @@ int dfs_device_fs_getdents(struct dfs_fd *file, struct dirent *dirp, UInt32 coun
     return index * sizeof(struct dirent);
 }
 
-static const struct dfs_filesystem_operation _device_fs = 
+static const struct dfs_filesystem_operation _device_fs =
 {
     "devfs",
     DFS_FS_FLAG_DEFAULT,

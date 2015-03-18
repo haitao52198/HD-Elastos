@@ -1,6 +1,6 @@
 /*
  * File      : skeleton.h
- * 
+ *
  * COPYRIGHT (C) 2004-2011, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 #ifndef __SKELETON_H__
 #define __SKELETON_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 int dfs_skt_init(void);
 

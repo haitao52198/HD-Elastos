@@ -1,6 +1,6 @@
 /*
  * File      : ethernetif.c
- * 
+ *
  * COPYRIGHT (C) 2006 - 2010, RT-Thread Development Team
  *
  * The license and distribution terms for this file may be
@@ -15,9 +15,9 @@
 
 /*
  * Copyright (c) 2001-2004 Swedish Institute of Computer Science.
- * All rights reserved. 
- * 
- * Redistribution and use in source and binary forms, with or without modification, 
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice,
@@ -26,26 +26,26 @@
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
  * 3. The name of the author may not be used to endorse or promote products
- *    derived from this software without specific prior written permission. 
+ *    derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED 
- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 
- * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT 
- * SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT 
- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
- * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+ * SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  *
  * This file is part of the lwIP TCP/IP stack.
- * 
+ *
  * Author: Adam Dunkels <adam@sics.se>
  *
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #include "lwip/debug.h"
 #include "lwip/opt.h"
@@ -137,7 +137,7 @@ Int32 eth_device_init(struct eth_device* dev, const char* name)
 	netif->mtu			= ETHERNET_MTU;
 	/* broadcast capability */
 	netif->flags		= NETIF_FLAG_BROADCAST | NETIF_FLAG_ETHARP;
-	
+
 #if LWIP_IGMP
 	/* igmp support */
 	netif->flags |= NETIF_FLAG_IGMP;
@@ -245,7 +245,7 @@ Int32 eth_device_ready(struct eth_device* dev)
 Int32 eth_device_linkchange(struct eth_device* dev, rt_bool_t up)
 {
 	UInt32 level;
-	
+
 	assert(dev != NULL);
 
 	level = rt_hw_interrupt_disable();
@@ -351,7 +351,7 @@ FINSH_FUNCTION_EXPORT(set_if, set network interface address);
 void set_dns(char* dns_server)
 {
 	struct in_addr addr;
-	
+
 	if ((dns_server != NULL) && inet_aton(dns_server, &addr))
 	{
 		dns_setserver(0, (struct ip_addr *)&addr);
@@ -410,7 +410,7 @@ FINSH_FUNCTION_EXPORT(list_if, list network interface information);
 void list_tcps()
 {
   struct tcp_pcb *pcb;
-  extern struct tcp_pcb *tcp_active_pcbs;  
+  extern struct tcp_pcb *tcp_active_pcbs;
   extern union tcp_listen_pcbs_t tcp_listen_pcbs;
   extern struct tcp_pcb *tcp_tw_pcbs;
   extern const char *tcp_state_str[];
@@ -420,7 +420,7 @@ void list_tcps()
   for(pcb = tcp_active_pcbs; pcb != NULL; pcb = pcb->next)
   {
     printf("%s:%d <==> %s:%d snd_nxt %d rcv_nxt %d ",
-                       inet_ntoa(*((struct in_addr*)&(pcb->local_ip))), pcb->local_port, 
+                       inet_ntoa(*((struct in_addr*)&(pcb->local_ip))), pcb->local_port,
                        inet_ntoa(*((struct in_addr*)&(pcb->remote_ip))), pcb->remote_port,
                        pcb->snd_nxt, pcb->rcv_nxt);
     printf("state: %s\n", tcp_state_str[pcb->state]);
@@ -432,12 +432,12 @@ void list_tcps()
     printf("local port %d ", pcb->local_port);
     printf("state: %s\n", tcp_state_str[pcb->state]);
   }
-  
+
   printf("TIME-WAIT PCB states:\n");
   for(pcb = tcp_tw_pcbs; pcb != NULL; pcb = pcb->next)
   {
     printf("%s:%d <==> %s:%d snd_nxt %d rcv_nxt %d ",
-                       inet_ntoa(*((struct in_addr*)&(pcb->local_ip))), pcb->local_port, 
+                       inet_ntoa(*((struct in_addr*)&(pcb->local_ip))), pcb->local_port,
                        inet_ntoa(*((struct in_addr*)&(pcb->remote_ip))), pcb->remote_port,
                        pcb->snd_nxt, pcb->rcv_nxt);
     printf("state: %s\n", tcp_state_str[pcb->state]);

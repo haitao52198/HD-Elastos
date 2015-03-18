@@ -14,7 +14,7 @@
 #ifndef __JFFS2_OS_ECOS_H__
 #define __JFFS2_OS_ECOS_H__
 #include "jffs2_config.h"
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #define printf printf
 
 //#include <pkgconf/fs_jffs2.h>
@@ -31,7 +31,7 @@
 //#include <cyg/infra/cyg_trac.h>        // tracing macros
 //#include <cyg/infra/cyg_ass.h>         // assertion macros
 
-//#if defined (__GNUC__) 
+//#if defined (__GNUC__)
 //#include <unistd.h>
 //#elif defined (MSVC)
 //#else

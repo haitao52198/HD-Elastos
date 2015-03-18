@@ -1,6 +1,6 @@
 /*
  * File      : usbdevice.c
- * 
+ *
  * COPYRIGHT (C) 2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -16,13 +16,13 @@
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- * 
+ *
  * Change Logs:
  * Date           Author       Notes
  * 2012-10-02     Yi Qiu       first version
  */
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <rtdevice.h>
 #include <rtservice.h>
 

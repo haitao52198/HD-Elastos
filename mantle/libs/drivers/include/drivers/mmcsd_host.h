@@ -1,6 +1,6 @@
 /*
  * File      : mmcsd_host.h
- * 
+ *
  * COPYRIGHT (C) 2006, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,7 @@
 #ifndef __HOST_H__
 #define __HOST_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -123,11 +123,11 @@ struct rt_mmcsd_host {
 
 rt_inline void mmcsd_delay_ms(UInt32 ms)
 {
-	if (ms < 1000 / RT_TICK_PER_SECOND) 
+	if (ms < 1000 / RT_TICK_PER_SECOND)
 	{
 		rt_thread_delay(1);
-	} 
-	else 
+	}
+	else
 	{
 		rt_thread_delay(ms/(1000 / RT_TICK_PER_SECOND));
 	}

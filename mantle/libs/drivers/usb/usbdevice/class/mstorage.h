@@ -1,6 +1,6 @@
 /*
  * File      : mstorage.h
- * 
+ *
  * COPYRIGHT (C) 2012, RT-Thread Development Team
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -22,11 +22,11 @@
  * 2012-10-01     Yi Qiu       first version
  * 2012-12-12     heyuanjie87  add MASS endpoints collection
  */
- 
+
 #ifndef  __MSTORAGE_H__
 #define  __MSTORAGE_H__
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 
 #pragma pack(1)
 
@@ -34,7 +34,7 @@ struct umass_descriptor
 {
     struct uinterface_descriptor intf_desc;
     struct uendpoint_descriptor ep_out_desc;
-    struct uendpoint_descriptor ep_in_desc;    
+    struct uendpoint_descriptor ep_in_desc;
 };
 typedef struct umass_descriptor* umass_desc_t;
 

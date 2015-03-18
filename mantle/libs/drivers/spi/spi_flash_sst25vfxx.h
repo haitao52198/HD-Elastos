@@ -1,6 +1,6 @@
 /*
  * File      : rtdef.h
- * 
+ *
  * COPYRIGHT (C) 2006 - 2011, RT-Thread Development Team
  *
  * The license and distribution terms for this file may be
@@ -15,7 +15,7 @@
 #ifndef SPI_FLASH_SST25VFXX_H_INCLUDED
 #define SPI_FLASH_SST25VFXX_H_INCLUDED
 
-#include <hdElastos.h>
+#include <hdElastosMantle.h>
 #include <drivers/spi.h>
 
 struct spi_flash_sst25vfxx
