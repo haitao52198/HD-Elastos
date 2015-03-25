@@ -195,11 +195,12 @@ static int a20t_periodic(const pstimer_t *timer, uint64_t ns)
 {
     A20TIMER *a20t = (A20TIMER *)timer->data;
 
-    /* Set autoreload and start the timer. */
+/* Set autoreload and start the timer. */
+    configure_timeout(timer, ns);
     switch (a20t->id) {
         case 0:
-            rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF) | (a20t->prescaler << 4) | BIT(1) );
-            rawWriteUInt32(a20t->a20t_map + TMR0_INTV_VALUE_REG_OFF, TIMER_INTERVAL_TICKS(ns));
+            /*rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF) | (a20t->prescaler << 4) | BIT(1) );*/
+            /*rawWriteUInt32(a20t->a20t_map + TMR0_INTV_VALUE_REG_OFF, TIMER_INTERVAL_TICKS(ns));*/
             rawWriteUInt32(a20t->a20t_map + TMR_IRQ_EN_REG_OFF, BIT(0));
             rawWriteUInt32(a20t->a20t_map + TMR_IRQ_STA_REG_OFF, BIT(0));
             break;
@@ -223,8 +224,10 @@ static void a20t_handle_irq(const pstimer_t *timer, uint32_t irq)
 {
     A20TIMER *a20t = (A20TIMER *)timer->data;
 
-    rawWriteUInt32(a20t->a20t_map + TMR_IRQ_EN_REG_OFF, BIT(0));
-    rawWriteUInt32(a20t->a20t_map + TMR_IRQ_STA_REG_OFF, BIT(0));
+    /*rawWriteUInt32(a20t->a20t_map + TMR_IRQ_EN_REG_OFF, BIT(0));*/
+    if (rawReadUInt32(a20t->a20t_map + TMR_IRQ_STA_REG_OFF) & BIT(0)) {
+        rawWriteUInt32(a20t->a20t_map + TMR_IRQ_STA_REG_OFF, BIT(0));
+    }
 }
 
 static uint64_t a20t_get_time(const pstimer_t *timer)
@@ -236,11 +239,12 @@ static uint64_t a20t_get_time(const pstimer_t *timer)
     /* Set autoreload and start the timer. */
     switch (a20t->id) {
         case 0:
-            value = rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF);
+            value = rawReadUInt32(a20t->a20t_map + TMR0_CUR_VALUE_REG);
             break;
     }
 
-    ns = TIMER_INTERVAL_NS(value);
+    /*ns = TIMER_INTERVAL_NS(value);*/
+    ns = TIMER_CLK_INTERVAL_NS(CLK_OSC24M, value) * 1000 * 1000;
 
     return ns;
 }
