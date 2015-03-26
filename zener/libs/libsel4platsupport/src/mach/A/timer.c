@@ -137,9 +137,9 @@ static int a20t_timer_start(const pstimer_t *timer)
 
     switch (a20t->id) {
     	case 0:
-            rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF) | BIT(1) | BIT(0));
-            rawWriteUInt32(a20t->a20t_map + TMR_IRQ_EN_REG_OFF, BIT(0));
-            rawWriteUInt32(a20t->a20t_map + TMR_IRQ_STA_REG_OFF, BIT(0));
+            rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF) /*| BIT(1)*/ | BIT(0));
+            /*rawWriteUInt32(a20t->a20t_map + TMR_IRQ_EN_REG_OFF, BIT(0));*/
+            /*rawWriteUInt32(a20t->a20t_map + TMR_IRQ_STA_REG_OFF, BIT(0));*/
             break;
         case 1:
             rawWriteUInt32(a20t->a20t_map + TMR1_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR1_CTRL_REG_OFF) | BIT(1) | BIT(0));
@@ -158,7 +158,8 @@ static int a20t_timer_stop(const pstimer_t *timer)
 
     switch (a20t->id) {
     	case 0:
-            rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF) & (~(BIT(0))));
+            /*rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF) & (~(BIT(0))));*/
+            rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, BIT(0));
             break;
         case 1:
             rawWriteUInt32(a20t->a20t_map + TMR1_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR1_CTRL_REG_OFF) & (~(BIT(0))));
@@ -177,9 +178,11 @@ void configure_timeout(const pstimer_t *timer, uint64_t ns) {
             rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, BIT(0) );        /* Make timer_0 pause */
             while ( ! (rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF) & BIT(0)) );
             rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, BIT(7) | (a20t->prescaler << 4) | (0x1 << 2) );
-            rawWriteUInt32(a20t->a20t_map + TMR0_INTV_VALUE_REG_OFF, TIMER_CLK_INTERVAL_TICKS(CLK_OSC24M,ns)/a20t->prescaler);
             rawWriteUInt32(a20t->a20t_map + TMR_IRQ_EN_REG_OFF, BIT(0));
+            rawWriteUInt32(a20t->a20t_map + TMR0_INTV_VALUE_REG_OFF, TIMER_CLK_INTERVAL_TICKS(CLK_OSC24M,ns)/a20t->prescaler);
             rawWriteUInt32(a20t->a20t_map + TMR_IRQ_STA_REG_OFF, BIT(0));
+            /*rawWriteUInt32(a20t->a20t_map + TMR_IRQ_EN_REG_OFF, BIT(0));*/
+            /*rawWriteUInt32(a20t->a20t_map + TMR_IRQ_STA_REG_OFF, BIT(0));*/
             break;
     }
 }
@@ -201,8 +204,9 @@ static int a20t_periodic(const pstimer_t *timer, uint64_t ns)
         case 0:
             /*rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF) | (a20t->prescaler << 4) | BIT(1) );*/
             /*rawWriteUInt32(a20t->a20t_map + TMR0_INTV_VALUE_REG_OFF, TIMER_INTERVAL_TICKS(ns));*/
-            rawWriteUInt32(a20t->a20t_map + TMR_IRQ_EN_REG_OFF, BIT(0));
-            rawWriteUInt32(a20t->a20t_map + TMR_IRQ_STA_REG_OFF, BIT(0));
+            /*rawWriteUInt32(a20t->a20t_map + TMR_IRQ_EN_REG_OFF, BIT(0));*/
+            /*rawWriteUInt32(a20t->a20t_map + TMR_IRQ_STA_REG_OFF, BIT(0));*/
+            rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, BIT(1) | BIT(0));
             break;
     }
 
@@ -214,8 +218,10 @@ static int a20t_oneshot_relative(const pstimer_t *timer, uint64_t ns)
     A20TIMER *a20t = (A20TIMER *)timer->data;
 
     configure_timeout(timer, ns);
-
-    rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF) | BIT(1) | BIT(0));
+    switch (a20t->id) {
+        case 0:
+            rawWriteUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF, rawReadUInt32(a20t->a20t_map + TMR0_CTRL_REG_OFF) | BIT(1) | BIT(0));
+    }
 
     return 0;
 }
