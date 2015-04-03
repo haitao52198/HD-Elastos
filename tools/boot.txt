@@ -1,0 +1,2 @@
+fatload mmc 0 0x48000000 sel4test-driver-image-arm-omap4
+bootelf 0x48000000
