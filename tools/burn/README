@@ -1,0 +1,26 @@
+# Summary
+
+This directory contains the script to burn the image with a FAT format partition at the first partition and copy the kernel and u-boot boot script into the partition.  
+
+
+# Usage
+
+    sudo ./burn.sh device kernel
+
+    device
+        the device is usually /dev/sda, /dev/sdb or so. A device name refers to the entire disk.
+
+    kernel
+        the kernel you want to load
+
+## Example
+
+    sudo ./burn.sh /dev/sdb HD-Elastos
+
+
+# Directory Hierarchy
+
+boot.txt                   u-boot boot script
+burn.sh                    the script to burn the image into sd card
+kernel                     the kernel to load
+u-boot-sunxi-with-spl.bin  the u-boot spl image
