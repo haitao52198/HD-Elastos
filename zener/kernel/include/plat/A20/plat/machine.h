@@ -142,7 +142,7 @@ enum IRQConstants {
     maxIRQ = 122
 } platform_interrupt_t;
 
-#define KERNEL_TIMER_IRQ    29
+#define KERNEL_TIMER_IRQ    100
 
 enum irqNumbers {
     irqInvalid = 255
