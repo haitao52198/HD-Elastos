@@ -224,16 +224,17 @@ map_kernel_devices(void)
         )
     );
 
-    /* map kernel device: INTC */
-    // map_kernel_frame(
-    //     INTC_PADDR,
-    //     INTC_PPTR,
-    //     VMKernelOnly,
-    //     vm_attributes_new(
-    //         false, /* armParityEnabled */
-    //         false  /* armPageCacheable */
-    //     )
-    // );
+    /* map kernel device: TIMERS */
+    map_kernel_frame(
+        AW_TIMER_MAP_BASE,
+        ARM_MP_PPTR0,
+        VMKernelOnly,
+        vm_attributes_new(
+            true,  /* armExecuteNever */
+            false, /* armParityEnabled */
+            false  /* armPageCacheable */
+        )
+    );
 
 #ifdef DEBUG
     /* map kernel device: UART */
@@ -258,76 +259,6 @@ map_kernel_devices(void)
  * The struct below is used to discourage the compiler from generating literals
  * for every single address we might access.
  */
-// volatile struct INTC_map {
-//     uint32_t padding[4];
-//     uint32_t intcps_sysconfig;
-//     uint32_t intcps_sysstatus;
-//     uint32_t padding2[10];
-//     uint32_t intcps_sir_irq;
-//     uint32_t intcps_sir_fiq;
-//     uint32_t intcps_control;
-//     uint32_t intcps_protection;
-//     uint32_t intcps_idle;
-//     uint32_t padding3[3];
-//     uint32_t intcps_irq_priority;
-//     uint32_t intcps_fiq_priority;
-//     uint32_t intcps_threshold;
-//     uint32_t padding4[5];
-//     struct {
-//         uint32_t intcps_itr;
-//         uint32_t intcps_mir;
-//         uint32_t intcps_mir_clear;
-//         uint32_t intcps_mir_set;
-//         uint32_t intcps_isr_set;
-//         uint32_t intcps_isr_clear;
-//         uint32_t intcps_pending_irq;
-//         uint32_t intcps_pending_fiq;
-//     } intcps_n[3];
-//     uint32_t padding5[8];
-//     uint32_t intcps_ilr[96];
-// } *intc = (volatile void*)INTC_PPTR;
-
-/**
-   DONT_TRANSLATE
- */
-
-// interrupt_t
-// getActiveIRQ(void)
-// {
-//     uint32_t intcps_sir_irq = intc->intcps_sir_irq;
-//     interrupt_t irq = (interrupt_t)(intcps_sir_irq & 0x7f);
-//
-//     /* Ignore spurious interrupts. */
-//     if ((intcps_sir_irq & INTCPS_SIR_IRQ_SPURIOUSIRQFLAG) == 0) {
-//         assert(irq <= maxIRQ);
-//         if (intc->intcps_n[irq / 32].intcps_pending_irq & (1 << (irq & 31))) {
-//             return irq;
-//         }
-//     }
-//
-//     /* No interrupt. */
-//     return 0xff;
-// }
-
-/* Check for pending IRQ */
-// bool_t isIRQPending(void)
-// {
-//     return getActiveIRQ() != 0xff;
-// }
-
-/* Enable or disable irq according to the 'disable' flag. */
-/**
-   DONT_TRANSLATE
-*/
-// void
-// maskInterrupt(bool_t disable, interrupt_t irq)
-// {
-//     if (disable) {
-//         intc->intcps_n[irq / 32].intcps_mir_set = 1 << (irq & 31);
-//     } else {
-//         intc->intcps_n[irq / 32].intcps_mir_clear = 1 << (irq & 31);
-//     }
-// }
 
 /* Determine if the given IRQ should be reserved by the kernel. */
 bool_t
@@ -344,15 +275,6 @@ void handleReservedIRQ(irq_t irq)
 
     return;
 }
-
-// void
-// ackInterrupt(irq_t irq)
-// {
-//     intc->intcps_control = 1;
-//     /* Ensure the ack has hit the interrupt controller before potentially
-//      * re-enabling interrupts. */
-//     dsb();
-// }
 
 #define TIMER_INTERVAL_MS (CONFIG_TIMER_TICK_MS)
 
@@ -374,32 +296,42 @@ void handleReservedIRQ(irq_t irq)
 #define PRESCALE ((CLK_MHZ*1000 * TIMER_INTERVAL_MS) >> TIMER_COUNT_BITS)
 #define TMR_LOAD ((CLK_MHZ*1000 * TIMER_INTERVAL_MS) / (PRESCALE + 1))
 
-/* A9 MPCORE timer map */
-/* global timer */
-volatile struct glob_timer {
-   uint32_t lcnt;   /* Lower Counter Register 0x00 */
-   uint32_t ucnt;   /* Upper Counter Register 0x04 */
-   uint32_t ctrl;   /* Control Register 0x08 */
-   uint32_t ints;   /* Interrupt Status Register 0x0c */
-   uint32_t lcmp;   /* Lower Comparator Value Register 0x10 */
-   uint32_t ucmp;   /* Upper Comparator Value Register 0x14 */
-   uint32_t ainc;   /* Auto-increment Register 0x18 */
-} *glob_timer = (volatile void*)ARM_MP_GLOBAL_TIMER_PPTR;
-
-/* private timer */
-volatile struct priv_timer {
-    uint32_t load;
-    uint32_t count;
-    uint32_t ctrl;
-    uint32_t ints;
-} *priv_timer = (volatile void*)ARM_MP_PRIV_TIMER_PPTR;
-
+/* A7 MPCORE timer map */
+/* timer registers */
+volatile struct TIMER_map {
+    uint32_t tier;          /* Timer IRQ Enable Register: 0x00 */
+    uint32_t tisr;          /* Timer Status Register: 0x04 */
+    uint64_t padding0;      /* Padding: 0x08 */
+    uint32_t tcr0;          /* Timer0 Control Register: 0x10 */
+    uint32_t tivr0;         /* Timer0 Interval Value Register: 0x14 */
+    uint32_t tcvr0;         /* Timer0 Current Value Register: 0x18 */
+    uint32_t padding1;      /* Padding: 0x1c */
+    uint32_t tcr1;          /* Timer1 Control Register: 0x20 */
+    uint32_t tivr1;         /* Timer1 Interval Value Register: 0x24 */
+    uint32_t tcvr1;         /* Timer1 Current Value Register: 0x28 */
+    uint32_t padding2;      /* Padding: 0x2c */
+    uint32_t tcr2;          /* Timer2 Control Register: 0x30 */
+    uint32_t tivr2;         /* Timer2 Interval Value Register: 0x34 */
+    uint32_t tcvr2;         /* Timer2 Current Value Register: 0x38 */
+    uint32_t padding3;      /* Padding: 0x3c */
+    uint32_t tcr3;          /* Timer3 Control Register: 0x40 */
+    uint32_t tivr3;         /* Timer3 Interval Value Register: 0x44 */
+    uint32_t tcvr3;         /* Timer3 Current Value Register: 0x48 */
+    uint32_t padding4;      /* Padding: 0x4c */
+    uint32_t tcr4;          /* Timer4 Control Register: 0x50 */
+    uint32_t tivr4;         /* Timer4 Interval Value Register: 0x54 */
+    uint32_t tcvr4;         /* Timer4 Current Value Register: 0x58 */
+    uint32_t padding5;      /* Padding: 0x5c */
+    uint32_t tcr5;          /* Timer5 Control Register: 0x60 */
+    uint32_t tivr5;         /* Timer5 Interval Value Register: 0x64 */
+    uint32_t tcvr5;         /* Timer5 Current Value Register: 0x68 */
+} *timer = (volatile void*) TIMERS_PPTR;
 
 void
 resetTimer(void)
 {
-//    glob_timer->ints = TMR_INTS_EVENT;
-    priv_timer->ints = TMR_INTS_EVENT;
+    /*priv_timer->ints = TMR_INTS_EVENT;*/
+    timer->tier = BIT(5);
 }
 
 #define GLOB_TIMER_PRESCALE     3
@@ -410,94 +342,31 @@ BOOT_CODE void
 initTimer(void)
 {
     /**
-       Initialize Global Timer
+       Initialize Timer5 as Global Timer
      */
     /* reset */
+    timer->tcvr5 = BIT(0);
+    while (! (timer->tisr & BIT(5)) );
 
-    //register should be accessed uint32_t aligned
-    //memset((void *)glob_timer, 0, sizeof(volatile struct glob_timer));
-    glob_timer->lcnt = 0;
-    glob_timer->ucnt = 0;
-    glob_timer->ctrl = 0;
-    glob_timer->ints = 0;
-    glob_timer->lcmp = 0;
-    glob_timer->ucmp = 0;
-    glob_timer->ainc = 0;
+    maskInterrupt(true, TIMER_1);
 
-    /* setup */
-    glob_timer->ctrl |= ((GLOB_TIMER_PRESCALE) << (TMR_CTRL_PRESCALE))
-                        | TMR_CTRL_AUTOINC
-                        | TMR_CTRL_IRQEN
-                        | TMR_CTRL_COMPENABLE;
-
-    /* Enable */
-    //glob_timer->ctrl |= TMR_CTRL_ENABLE;
-
-    /**
-       Initialize Private Timer
-     */
-    /* reset */
-    priv_timer->ctrl = 0;
-    priv_timer->ints = 0;
-
-    /* setup */
-    priv_timer->load = TMR_LOAD;
-    priv_timer->ctrl |= ((PRESCALE) << (TMR_CTRL_PRESCALE))
-                        | TMR_CTRL_AUTORELOAD | TMR_CTRL_IRQEN;
-
-    /* Enable */
-    priv_timer->ctrl |= TMR_CTRL_ENABLE;
+    /* Set the reload value */
+    timer->tcr5 = (PRESCALE << 4);
+    timer->tier = BIT(5);
+    timer->tivr5 = TMR_LOAD;
+    /* Clear timer5 pending */
+    timer->tisr = BIT(5);
+    /* Set autoreload and start the timer */
+    timer->tcr5 = BIT(1) | BIT(0);
 }
 
 inline uint64_t get_jiffies(void)
 {
-    uint32_t u, u2, l;
-    uint64_t u64;
-
-    do {
-        u = glob_timer->ucnt;
-        l = glob_timer->lcnt;
-        u2 = glob_timer->ucnt;
-    } while (u != u2);
-
-    u64 = l;
-    u64 = (u64 << 32) | u;
-
-    return u64;
-
+    /* No implement */
 }
 
 inline void set_jiffies(uint64_t u64)
 {
-    union {
-        uint64_t u64;
-        uint32_t u32[2];
-    } union64;
-
-    union64.u64 = u64;
-    glob_timer->ctrl |= 0;
-    glob_timer->ucnt = union64.u32[0];
-    glob_timer->lcnt = union64.u32[1];
-    glob_timer->ctrl |= TMR_CTRL_ENABLE;
+    /* No implement */
 }
 
-/**
-   DONT_TRANSLATE
- */
-// BOOT_CODE void
-// initIRQController(void)
-// {
-//     intc->intcps_sysconfig = INTCPS_SYSCONFIG_SOFTRESET;
-//     while (!(intc->intcps_sysstatus & INTCPS_SYSSTATUS_RESETDONE)) ;
-// }
-
-/**
-   DONT_TRANSLATE
- */
-// void
-// handleSpuriousIRQ(void)
-// {
-//     /* Reset and re-enable IRQs. */
-//     intc->intcps_control = 1;
-//     dsb();
-// }
