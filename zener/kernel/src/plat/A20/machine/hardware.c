@@ -331,8 +331,8 @@ void
 resetTimer(void)
 {
     /*priv_timer->ints = TMR_INTS_EVENT;*/
-    timer->tier = BIT(5);
-    timer->tisr = BIT(5);
+    timer->tier |= BIT(5);
+    timer->tisr |= BIT(5);
     timer->tcr5 = BIT(1) | BIT(0);
 }
 
@@ -354,10 +354,10 @@ initTimer(void)
 
     /* Set the reload value */
     timer->tcr5 = (PRESCALE << 4);
-    timer->tier = BIT(5);
+    timer->tier |= BIT(5);
     timer->tivr5 = TIMER_INTERVAL_TICKS;
     /* Clear timer5 pending */
-    timer->tisr = BIT(5);
+    timer->tisr |= BIT(5);
     /* Set autoreload and start the timer */
     timer->tcr5 = BIT(1) | BIT(0);
 }
