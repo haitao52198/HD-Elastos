@@ -332,6 +332,8 @@ resetTimer(void)
 {
     /*priv_timer->ints = TMR_INTS_EVENT;*/
     timer->tier = BIT(5);
+    timer->tisr = BIT(5);
+    timer->tcr5 = BIT(1) | BIT(0);
 }
 
 #define GLOB_TIMER_PRESCALE     3
@@ -348,12 +350,12 @@ initTimer(void)
     timer->tcvr5 = BIT(0);
     while (! (timer->tisr & BIT(5)) );
 
-    maskInterrupt(true, TIMER_1);
+    maskInterrupt(true, TIMER_5);
 
     /* Set the reload value */
     timer->tcr5 = (PRESCALE << 4);
     timer->tier = BIT(5);
-    timer->tivr5 = TMR_LOAD;
+    timer->tivr5 = TIMER_INTERVAL_TICKS;
     /* Clear timer5 pending */
     timer->tisr = BIT(5);
     /* Set autoreload and start the timer */
