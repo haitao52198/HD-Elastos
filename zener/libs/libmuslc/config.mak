@@ -19,7 +19,7 @@ CFLAGS += ${NK_CFLAGS} -Os -pipe -fomit-frame-pointer -fno-unwind-tables -fno-as
 CFLAGS_C99FSE = -std=c99 -nostdinc -ffreestanding -fexcess-precision=standard -frounding-math
 CFLAGS_MEMOPS = -fno-tree-loop-distribute-patterns
 CPPFLAGS +=
-LDFLAGS += ${NK_LDFLAGS} -Wl,--hash-style=both 
+LDFLAGS += ${NK_LDFLAGS} -Wl,--hash-style=both
 CROSS_COMPILE = ${TOOLPREFIX}
 LIBCC = -lgcc -lgcc_eh
 OPTIMIZE_GLOBS = internal/*.c malloc/*.c string/*.c
@@ -33,8 +33,13 @@ ifeq (${CONFIG_ARCH_IA32},y)
 	ASMSUBARCH =
 endif
 
+#ifeq (${CONFIG_ARCH_ARM},y)
+#	ARCH = arm_sel4
+#	SUBARCH =
+#	ASMSUBARCH =
+#endif
 ifeq (${CONFIG_ARCH_ARM},y)
-	ARCH = arm_sel4
+	ARCH = arm_Elastos
 	SUBARCH =
 	ASMSUBARCH =
 endif
