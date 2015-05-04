@@ -892,7 +892,8 @@ allocman_t *bootstrap_use_current_1level(seL4_CPtr root_cnode, int cnode_size, s
 static allocman_t *_post_new_cspace_common(bootstrap_info_t *info, cspacepath_t *oldroot)
 {
     allocman_t *alloc;
-    int error;
+    int         error;
+
     /* update any resources */
     bootstrap_update_untypeds(info);
     /* move untypeds into new cspace */
@@ -925,6 +926,7 @@ static allocman_t *_post_new_cspace_common(bootstrap_info_t *info, cspacepath_t 
 static allocman_t *_bootstrap_new_level1(bootstrap_info_t *info, int cnode_size, cspacepath_t tcb, cspacepath_t pd, cspacepath_t *oldroot)
 {
     int error;
+
     /* set the pd and tcb */
     bootstrap_set_pd_tcb(info, pd, tcb);
     /* create a new one level cspace and switch to it */
@@ -940,16 +942,20 @@ static allocman_t *_bootstrap_new_level1(bootstrap_info_t *info, int cnode_size,
 /* this does not free the underlying 'info' */
 static allocman_t *_bootstrap_new_level2(bootstrap_info_t *info, int l1size, int l2size, cspacepath_t tcb, cspacepath_t pd, cspacepath_t *oldroot)
 {
-    int error;
+    int         error;
     allocman_t *alloc;
+
     /* set the pd and tcb */
     bootstrap_set_pd_tcb(info, pd, tcb);
     /* create a new one level cspace and switch to it
      * place the cap to the root cnode at slot 2 and the cap to the old cnode at slot 1
      */
     int total_caps = info->num_uts;
-    if(info->have_boot_cspace) {
+
+    if (info->have_boot_cspace) {
+
         cspacepath_t to_slot;
+
         info->boot_cspace.alloc(info->alloc, info->boot_cspace.cspace, &to_slot);
         total_caps += MAX(2, to_slot.capPtr);
         error = bootstrap_new_2level_cspace(info, l1size, l2size, 2, to_slot.capPtr, total_caps);
@@ -1099,22 +1105,27 @@ int allocman_add_simple_untypeds(allocman_t *alloc, simple_t *simple)
     int i;
     int total_untyped = simple_get_untyped_count(simple);
 
-    for(i = 0; i < total_untyped; i++) {
+    for (i = 0; i < total_untyped; i++) {
+
         uint32_t size_bits;
         uint32_t paddr;
+
         cspacepath_t path = allocman_cspace_make_path(alloc, simple_get_nth_untyped(simple, i, &size_bits, &paddr));
         error = allocman_utspace_add_uts(alloc, 1, &path, &size_bits, &paddr);
-        if(error) {
+        if (error) {
+            LOG_ERROR("Failed in call to allocman_utspace_add_uts, allocman_add_simple_untypeds()");
             return error;
         }
     }
     return 0;
 }
 
+
 allocman_t *bootstrap_use_current_simple(simple_t *simple, uint32_t pool_size, char *pool)
 {
     allocman_t *allocman;
-    int error;
+    int         error;
+
     /* Initialize inside the current 1 level cspace as defined by simple */
     allocman = bootstrap_use_current_1level(simple_get_cnode(simple), simple_get_cnode_size_bits(simple), simple_last_valid_cap(simple) + 1, BIT(simple_get_cnode_size_bits(simple)), pool_size, pool);
     if (!allocman) {
@@ -1134,7 +1145,7 @@ allocman_t *bootstrap_use_current_simple(simple_t *simple, uint32_t pool_size, c
 allocman_t *bootstrap_new_2level_simple(simple_t *simple, int l1size, int l2size, uint32_t pool_size, char *pool)
 {
     allocman_t *alloc;
-    int error;
+    int         error;
 
     bootstrap_info_t *bootstrap = bootstrap_create_info(pool_size, pool);
     if (bootstrap == NULL) {
@@ -1166,7 +1177,7 @@ allocman_t *bootstrap_new_2level_simple(simple_t *simple, int l1size, int l2size
 
     /* Take all the caps in the boot cnode and put in them in the same location in the new cspace */
     error = bootstrap_transfer_caps_simple(bootstrap, simple);
-    if(error) {
+    if (error) {
         return NULL;
     }
 
@@ -1185,14 +1196,15 @@ static int allocman_add_bootinfo_untypeds(allocman_t *alloc, seL4_BootInfo *bi)
     for (i = bi->untyped.start; i < bi->untyped.end; i++) {
 
         cspacepath_t slot;
-        uint32_t size_bits;
-        uint32_t paddr;
+        uint32_t     size_bits;
+        uint32_t     paddr;
 
         slot = allocman_cspace_make_path(alloc, i);
         size_bits = bi->untypedSizeBitsList[i - bi->untyped.start];
         paddr = bi->untypedPaddrList[i - bi->untyped.start];
         error = allocman_utspace_add_uts(alloc, 1, &slot, &size_bits, &paddr);
         if (error) {
+            LOG_ERROR("Failed in call to allocman_utspace_add_uts, allocman_add_bootinfo_untypeds()");
             return error;
         }
     }
@@ -1202,7 +1214,8 @@ static int allocman_add_bootinfo_untypeds(allocman_t *alloc, seL4_BootInfo *bi)
 allocman_t *bootstrap_use_bootinfo(seL4_BootInfo *bi, uint32_t pool_size, char *pool)
 {
     allocman_t *alloc;
-    int error;
+    int         error;
+
     /* use the current single level cspace as described by boot info */
     alloc = bootstrap_use_current_1level(seL4_CapInitThreadCNode,
                                          bi->initThreadCNodeSizeBits,
