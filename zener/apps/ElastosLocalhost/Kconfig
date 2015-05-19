@@ -7,7 +7,7 @@
 #
 
 menuconfig APP_ELASTOS_LOCALHOST
-    bool "elast localhost"
+    bool "Elastos Localhost"
     default n
     depends on LIB_SEL4 && (LIB_MUSL_C || LIB_SEL4_C) && LIB_SEL4_PLAT_SUPPORT && LIB_SEL4_VKA && LIB_SEL4_TEST && LIB_SEL4_UTILS && LIB_UTILS
     help
