@@ -20,6 +20,7 @@
 #include <machine/io.h>
 #include <object/interrupt.h>
 #include <model/statedata.h>
+#include <string.h>
 
 #ifdef DEBUG
 #include <arch/machine/capdl.h>
