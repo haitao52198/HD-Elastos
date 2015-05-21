@@ -182,6 +182,9 @@ struct tcb {
     /* Priority, 1 byte (packed to 4) */
     uint32_t tcbPriority;
 
+    /* policy */
+    policy_t tcbPolicy;
+
     /* Timeslice remaining, 4 bytes */
     word_t tcbTimeSlice;
 
@@ -196,6 +199,11 @@ struct tcb {
     struct tcb* tcbSchedPrev;
     struct tcb* tcbEPNext;
     struct tcb* tcbEPPrev;
+
+#ifdef DEBUG
+    /* Use any remaining space for a thread name */
+    char tcbName[];
+#endif
 };
 typedef struct tcb tcb_t;
 
