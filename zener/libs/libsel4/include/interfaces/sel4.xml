@@ -51,7 +51,7 @@
 			<param dir="in" name="buffer" type="seL4_Word"/>
 			<param dir="in" name="bufferFrame" type="seL4_CPtr"/>
 		</method>
- 		<method id="TCBSetPriority" name="SetPriority">
+		<method id="TCBSetPriority" name="SetPriority">
 			<param dir="in" name="priority" type="uint8_t"/>
 		</method>
 		<method id="TCBSetPolicy" name="SetPolicy">
