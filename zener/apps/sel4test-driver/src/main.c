@@ -304,7 +304,9 @@ run_test(struct testcase *test)
     assert(env.init->free_slots.start < env.init->free_slots.end);
     /* copy test name */
     strncpy(env.init->name, test->name + strlen("TEST_"), TEST_NAME_MAX);
-
+#ifdef SEL4_DEBUG_KERNEL
+    seL4_DebugNameThread(test_process.thread.tcb.cptr, env.init->name);
+#endif
     /* set up args for the test process */
     char endpoint_string[10];
     char sel4test_name[] = { TESTS_APP };
@@ -434,7 +436,9 @@ void *main_continued(void *arg UNUSED)
 int main(void)
 {
     seL4_BootInfo *info = seL4_GetBootInfo();
-
+#ifdef SEL4_DEBUG_KERNEL
+    seL4_DebugNameThread(seL4_CapInitThreadTCB, "sel4test-driver");
+#endif
     compile_time_assert(init_data_fits_in_ipc_buffer, sizeof(compute_env_data_t) < PAGE_SIZE_4K);
     /* initialise libsel4simple, which abstracts away which kernel version
      * we are running on */
