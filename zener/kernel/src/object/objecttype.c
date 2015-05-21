@@ -29,6 +29,7 @@
 #include <kernel/vspace.h>
 #include <machine.h>
 #include <util.h>
+#include <string.h>
 
 word_t getObjectSize(word_t t, word_t userObjSize)
 {
@@ -241,6 +242,12 @@ recycleCap(bool_t is_final, cap_t cap)
             Arch_initContext(&tcb->tcbContext);
             tcb->tcbTimeSlice = CONFIG_TIME_SLICE;
             tcb->tcbDomain = ksCurDomain;
+
+#ifdef DEBUG
+        strlcpy(tcb->tcbName, "child of: '", TCB_NAME_LENGTH);
+        strlcat(tcb->tcbName, ksCurThread->tcbName, TCB_NAME_LENGTH);
+        strlcat(tcb->tcbName, "'", TCB_NAME_LENGTH);
+#endif
 
             return cap_thread_cap_new(TCB_REF(tcb));
         } else {
