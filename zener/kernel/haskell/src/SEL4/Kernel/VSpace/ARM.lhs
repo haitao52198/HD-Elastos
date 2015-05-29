@@ -75,8 +75,10 @@ Function mapKernelWindow will create a virtialll address space for the initial t
 
 An abstract version looks like:
 
+\begin{verbatim}
   allMemory <- doMachineOp getMemoryRegions
   mapM_ mapKernelRegion allMemory
+\end{verbatim}
 
 However we assume that the result of getMemoryRegions is actually [0,1<<24] and do the following
 
@@ -111,9 +113,8 @@ However we assume that the result of getMemoryRegions is actually [0,1<<24] and 
 >     placeNewObject (PPtr $ fromPPtr $ head globalPTs) (makeObject :: PTE) ptSize
 >     storePDE slot pde
 
-In c-code we need to Detype the armGlobalPagetTable which is c-equvilance to memzero(armKSGlobalPT,1 << PT_SIZE_BITS)
-
-FIXME: We might still need to map vector table
+In C code we need to detype the armGlobalPagetTable which is C equivalent to
+\verb+memzero(armKSGlobalPT,1 << PT_SIZE_BITS)+
 
 >     mapGlobalsFrame
 >     kernelDevices <- doMachineOp getKernelDevices
@@ -780,10 +781,15 @@ This helper function checks that the mapping installed at a given PT or PD slot 
 >         _ -> throw InvalidRoot
 
 
+> armv_contextSwitch_HWASID :: PPtr PDE -> HardwareASID -> MachineMonad ()
+> armv_contextSwitch_HWASID pd hwasid = do
+>    setCurrentPD $ addrFromPPtr pd
+>    setHardwareASID hwasid
+
 > armv_contextSwitch :: PPtr PDE -> ASID -> Kernel ()
 > armv_contextSwitch pd asid = do
->    doMachineOp $ setCurrentPD $ addrFromPPtr pd
->    setCurrentASID asid
+>    hwasid <- getHWASID asid
+>    doMachineOp $ armv_contextSwitch_HWASID pd hwasid
 
 
 \subsection{Address Space Switching}
@@ -827,8 +833,7 @@ When cleaning the cache by user virtual address on ARM11, the active address spa
 >                 capPDMappedASID = Just _,
 >                 capPDBasePtr = cur_pd }) | cur_pd == pd -> return False
 >         _ -> do
->             doMachineOp $ setCurrentPD $ addrFromPPtr pd
->             setCurrentASID asid
+>             armv_contextSwitch pd asid
 >             return True
 
 \subsection{Helper Functions}
@@ -959,11 +964,6 @@ round-robin.
 >             new_hw_asid <- findFreeHWASID
 >             storeHWASID asid new_hw_asid
 >             return new_hw_asid
-
-> setCurrentASID :: ASID -> Kernel ()
-> setCurrentASID asid = do
->     hw_asid <- getHWASID asid
->     doMachineOp $ setHardwareASID hw_asid
 
 \subsection {ARM Cache and TLB consistency}
 
