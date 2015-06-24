@@ -325,7 +325,7 @@ int run_hi(void)
     /* copy test name */
     strncpy(env.init->name, "process_hi", 11);
 #ifdef SEL4_DEBUG_KERNEL
-    seL4_DebugNameThread(test_process.thread.tcb.cptr, env.init->name);
+    seL4_DebugNameThread(hi_process.thread.tcb.cptr, env.init->name);
 #endif
 
     /* set up args for the test process */

@@ -13,7 +13,7 @@ apps-$(CONFIG_APP_ELASTOS_LOCALHOST) += ElastosLocalhost
 ElastosLocalhost-y = common libsel4 libmuslc libsel4vka libcpio libelf \
                      libsel4allocman \
                      libsel4platsupport libsel4platsupport libsel4muslcsys \
-                     libsel4simple libsel4vspace libsel4utils libutils
+                     libsel4simple libsel4vspace libsel4utils libutils liblwip libethdrivers
 
 # add the tests app  as a component so that we can elf load it
 ElastosLocalhost-components-y += sel4test-hi
