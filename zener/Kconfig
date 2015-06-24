@@ -45,6 +45,8 @@ menu "seL4 Libraries"
     source "libs/libsel4simple/Kconfig"
     source "libs/libutils/Kconfig"
     source "libs/libplatsupport/Kconfig"
+    source "libs/liblwip/Kconfig"
+    source "libs/libethdrivers/Kconfig"
 endmenu
 
 menu "Tools"
