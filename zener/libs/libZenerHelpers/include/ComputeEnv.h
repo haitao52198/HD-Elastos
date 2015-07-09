@@ -28,7 +28,7 @@
 
 /* data shared between sel4test-driver and the sel4test-tests app.
  * all caps are in the sel4test-tests process' cspace */
-typedef struct {
+typedef struct tagCOMPUTE_ENV_DATA {
     int ComputeEnvType;
     /* page directory of the test process */
     seL4_CPtr page_directory;
@@ -81,6 +81,6 @@ typedef struct {
 
     /* the number of elf regions */
     int num_elf_regions;
-} compute_env_data_t;
+} COMPUTE_ENV_DATA;
 
 #endif /* __ComputeEnv_H */
