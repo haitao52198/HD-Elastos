@@ -36,19 +36,20 @@ typedef int (*test_fn)(env_t, void *);
 
 /* Represents a single testcase. */
 typedef struct testcase {
-    char *name;
-    char *description;
+    const char *name;
+    const char *description;
     test_fn function;
     void *args;
 } testcase_t;  
 
 /* Declare a testcase. */
 #define DEFINE_TEST(_name, _description, _function) \
-    static __attribute__((used)) __attribute__((section("_test_case"))) struct testcase TEST_ ## _name = { \
+    __attribute__((used)) __attribute__((section("_test_case"))) struct testcase TEST_ ## _name = { \
     .name = #_name, \
     .description = _description, \
     .function = _function, \
 }; \
+/**/
 
 static inline int
 test_comparator(const void *a, const void *b)
