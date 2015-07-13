@@ -44,7 +44,7 @@ typedef struct testcase {
 
 /* Declare a testcase. */
 #define DEFINE_TEST(_name, _description, _function) \
-    __attribute__((used)) __attribute__((section("_test_case"))) struct testcase TEST_ ## _name = { \
+    static __attribute__((used)) __attribute__((section("_test_case"))) struct testcase TEST_ ## _name = { \
     .name = #_name, \
     .description = _description, \
     .function = _function, \
