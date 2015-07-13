@@ -40,11 +40,11 @@ typedef struct testcase {
     const char *description;
     test_fn function;
     void *args;
-} testcase_t;  
+} testcase_t;
 
 /* Declare a testcase. */
 #define DEFINE_TEST(_name, _description, _function) \
-    static __attribute__((used)) __attribute__((section("_test_case"))) struct testcase TEST_ ## _name = { \
+    __attribute__((used)) __attribute__((section("_test_case"))) struct testcase TEST_ ## _name = { \
     .name = #_name, \
     .description = _description, \
     .function = _function, \
@@ -67,7 +67,7 @@ static inline int _test_fail(char *condition, char *file, int line)
     printf("Halting on first test failure...\n");
     sel4test_end_test();
     sel4test_end_suite();
-#ifdef CONFIG_DEBUG_BUILD    
+#ifdef CONFIG_DEBUG_BUILD
     seL4_DebugHalt();
 #endif /* CONFIG_DEBUG_BUILD */
     while(1);
@@ -84,12 +84,12 @@ static inline void _test_error(char *condition, char *file, int line)
     printf("Halting on first test failure...\n");
     sel4test_end_test();
     sel4test_end_suite();
-#ifdef CONFIG_DEBUG_BUILD    
+#ifdef CONFIG_DEBUG_BUILD
     seL4_DebugHalt();
 #endif /* CONFIG_DEBUG_BUILD */
     while(1);
 #endif /* CONFIG_TESTPRINTER_HALT_ON_TEST_FAILURE */
- 
+
 }
 
 /* Fails a test case, stop everything. */
@@ -115,23 +115,23 @@ env_t sel4test_get_env(void);
  * Example basic run test
  */
 static inline int
-sel4test_basic_run_test(struct testcase *t) 
+sel4test_basic_run_test(struct testcase *t)
 {
     return t->function(sel4test_get_env(), t->args);
 }
 
-/* 
+/*
  * Run every test defined with the DEFINE_TEST macro.
  *
  * Use CONFIG_TESTPRINTER_REGEX to filter tests.
  *
  * @param name the name of the test suite
- * @param run_test function that runs the tests. 
+ * @param run_test function that runs the tests.
  *
  */
 void sel4test_run_tests(char *name, int (*run_test)(struct testcase *t));
 
-/* 
+/*
  * Get a testcase.
  *
  * @param name the name of the test to retrieve.
