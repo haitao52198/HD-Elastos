@@ -19,7 +19,6 @@ KERNEL_ROOT_PATH := ${PWD}/kernel
 COMMON_PATH := ${PWD}/tools/common
 SEL4_LIBS_PATH = ${PWD}/libs
 SEL4_APPS_PATH = ${PWD}/apps
-SEL4_MODULES_PATH = ${PWD}/modules
 DATA_PATH = ${PWD}/data
 KMAKE_FLAGS = $(COMMON_PATH)/Makefile.flags
 AUTOCONF_H_FILE := include/generated/autoconf.h
@@ -29,7 +28,7 @@ ifeq ($(lib-dirs),)
     old-kbuild-hack:=1
 endif
 
-export KERNEL_ROOT_PATH COMMON_PATH SEL4_LIBS_PATH SEL4_APPS_PATH SEL4_MODULES_PATH DATA_PATH
+export KERNEL_ROOT_PATH COMMON_PATH SEL4_LIBS_PATH SEL4_APPS_PATH DATA_PATH
 
 export BUILD_ROOT=${PWD}/build
 
@@ -114,10 +113,8 @@ KERNEL_ROOT_PATH = $(srctree)/kernel
 COMMON_PATH = $(srctree)/tools/common
 TOOLS_ROOT = $(srctree)/tools
 APPS_ROOT = $(srctree)/apps
-MODULES_ROOT = $(srctree)/modules
 SEL4_LIBS_PATH = $(srctree)/libs
 SEL4_APPS_PATH = $(srctree)/apps
-SEL4_MODULES_PATH = $(srctree)/modules
 KMAKE_FLAGS = $(COMMON_PATH)/Makefile.flags
 
 export COMMON_PATH
@@ -130,12 +127,22 @@ IMAGE_ROOT = $(objtree)/images
 STAGE_BASE = $(STAGE_ROOT)/$(ARCH)/$(PLAT)
 BUILD_BASE = $(BUILD_ROOT)/$(ARCH)/$(PLAT)
 
+-include .config
+
+### CCACHE
+########################################
+# if ccache is in our path, use it!
+ifeq ($(CONFIG_BUILDSYS_USE_CCACHE),y)
+CCACHE=$(shell which ccache)
+else
+CCACHE=
+endif
+export CCACHE
 
 # Linux expects CROSS_COMPILE to contain the cross compiler prefix
 CROSS_COMPILE ?=
 ifeq ($(CROSS_COMPILE),)
-CROSS_COMPILE := $(shell grep ^CONFIG_CROSS_COMPILER_PREFIX .config 2>/dev/null)
-CROSS_COMPILE := $(subst CONFIG_CROSS_COMPILER_PREFIX=,,$(CROSS_COMPILE))
+CROSS_COMPILE := $(CONFIG_CROSS_COMPILER_PREFIX)
 CROSS_COMPILE := $(subst ",,$(CROSS_COMPILE))
 #")
 export CROSS_COMPILE
@@ -153,7 +160,7 @@ KBUILD_CHECKSRC = 0
 
 MAKEFLAGS += --include-dir=$(srctree)
 
-HOSTCC			= gcc
+HOSTCC			= ${CCACHE} gcc
 HOSTCFLAGS		:=
 HOSTCFLAGS      += -Wall
 MAKEFLAGS	+= -rR
@@ -161,12 +168,12 @@ MAKEFLAGS	+= -rR
 export HOSTCC HOSTCFLAGS MAKEFLAGS
 
 AS	= $(CROSS_COMPILE)as
-CC	= $(CROSS_COMPILE)gcc
+CC	= ${CCACHE} $(CROSS_COMPILE)gcc
 LD	= $(CROSS_COMPILE)ld -nostdlib
 CPP	= $(CROSS_COMPILE)cpp
 AR	= $(CROSS_COMPILE)ar
 NM	= $(CROSS_COMPILE)nm
-CXX = $(CROSS_COMPILE)g++
+CXX = ${CCACHE} $(CROSS_COMPILE)g++
 
 CFLAGS		:= -std=gnu99
 CPPFLAGS	:=
@@ -202,8 +209,6 @@ config: gen_makefile scripts_basic
 	$(Q)mkdir -p include/config
 	$(Q)$(MAKE) $(MAKE_SILENT) $(build)=$(KBUILD_SCRIPTS)/kconfig $@
 
--include .config
-
 .config: ;
 
 include $(KMAKE_FLAGS)
@@ -211,18 +216,6 @@ ifeq ($(old-kbuild-hack), 1)
     include $(SEL4_LIBS_PATH)/Kbuild
 else
     include Kbuild
-endif
-#
-# If 'capDL loader boot' is selected then we are
-# building a system using the driver framework.
-#
-ifdef CONFIG_CAPDL_LOADER_BOOT
-include $(SEL4_MODULES_PATH)/Kbuild
-modules = $(modules-y)
-include $(COMMON_PATH)/capdl.mk
-endif
-ifeq ($(old-kbuild-hack), 1)
-    include $(SEL4_APPS_PATH)/Kbuild
 endif
 
 libs = $(libs-y)
@@ -239,7 +232,7 @@ all: .config kernel_elf
 
 cp_if_changed = \
 	@set -e; $(echo-cmd)  \
-	cmp -s $(1) $(2) || (cp $(1) $(2) && echo -n ' '; echo -n '[STAGE] '; basename $(2);)
+	cmp -s $(1) $(2) || (cp $(1) $(2) && printf ' '; printf '[STAGE] '; basename $(2);)
 
 $(KBUILD_ROOT)/.config: .config
 	$(Q)mkdir -p $(KBUILD_ROOT)
@@ -266,7 +259,10 @@ setup: $(AUTOCONF_H_FILE)
 
 PHONY += common
 common: setup
-	$(Q)cp -ur $(TOOLS_ROOT)/$@ $(STAGE_BASE)
+# Copy only the non-hidden contents of tools/common, since some cp
+# invocations can't overwrite the symlinks in .git.
+	$(Q)mkdir -p $(STAGE_BASE)/$@
+	$(Q)cp -R $(TOOLS_ROOT)/$@/* $(STAGE_BASE)/$@
 
 export SEL4_COMMON=$(STAGE_BASE)/common
 
@@ -274,7 +270,7 @@ ifeq ($(ARCH),arm)
 include $(COMMON_PATH)/project-arm.mk
 endif
 
-ifeq ($(ARCH),ia32)
+ifeq ($(ARCH),x86)
 include $(COMMON_PATH)/project-ia32.mk
 endif
 
@@ -324,7 +320,7 @@ clean:
 # if the only files in include are the Kconfig ones, then this should work silently
 # otherwise it should fail
 	@if [ -d include ]; then echo " [INCLUDE] $(PWD)/include"; \
-		rmdir --ignore-fail-on-non-empty include > /dev/null 2>&1; fi
+		rmdir include > /dev/null 2>&1 || true; fi
 
 PHONY += clobber
 clobber: clean

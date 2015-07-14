@@ -35,16 +35,13 @@ NK_CCFLAGS =
 
 ldflags-y += $(call cc-ldoption, -Wl$(comma)--build-id=none)
 
-ifeq ($(CONFIG_ARCH_I386),y)
-	ccflags-y += $(call cc-option,-m32)
+ifeq ($(CONFIG_ARCH_X86),y)
 	ccflags-y += $(call cc-option,-fno-stack-protector)
 	ccflags-y += $(call cc-option,-mno-sse)
 	ccflags-y += $(call cc-option,-mno-sse2)
 	ccflags-y += $(call cc-option,-mno-mmx)
 	ccflags-y += $(call cc-option,-mno-3dnow)
-	DEFINES += IA32
-	DEFINES += ARCH_IA32
-	export ARCH = ia32
+	export ARCH = x86
 endif
 
 ifeq ($(CONFIG_ARCH_ARM),y)
@@ -59,8 +56,9 @@ ifeq ($(CONFIG_ARCH_IA32),y)
 	ldflags-y += -Wl,-m,elf_i386
 	asflags-y += -Wa,--32
 
-	DEFINES += X86_32
-	DEFINES += CONFIG_X86_32
+	DEFINES += IA32
+	DEFINES += ARCH_IA32
+	export __X86_32__ = y
 endif
 
 ifeq ($(CONFIG_X86_64),y)
@@ -79,16 +77,16 @@ ifeq ($(CONFIG_X86_64),y)
 	cflags-y += $(call cc-option,-nostdinc,)
 	cflags-y += $(call cc-option, -std=gnu99,)
 	LDFLAGS += -m elf_x86_64 -nodefaultlibs
-	ASFLAGS  += --64
+	ASFLAGS  += --64 
 	NK_LDFLAGS += -Wl,-m -Wl,elf_x86_64
 	NK_CFLAGS  += -m64
-	NK_ASFLAGS += --64
+	NK_ASFLAGS += --64 
 	DEFINES += ARCH_IA32
 	DEFINES += X86_64
 	DEFINES += CONFIG_X86_64
 	DEFINES += __KERNEL_64__
 	export __X86_64__ = y
-	export CONFIG_X86_64 = y
+	export CONFIG_X86_64 = y 
 	export KERNEL_64 = y
 endif
 
@@ -132,8 +130,8 @@ ifeq ($(CONFIG_ARM_CORTEX_A15),y)
 	ccflags-y += $(call cc-option, -mtune=cortex-a15,)
 	asflags-y += $(call as-option, -Wa$(comma)-mtune=cortex-a15,)
 	asflags-y += $(call as-option, -Wa$(comma)-mcpu=cortex-a15,)
-	ccflags-y += $(call cc-option,-march=armv7e,-march=armv7-a)
-	asflags-y += $(call as-option,-Wa$(comma)-march=armv7e,-Wa$(comma)-march=armv7-a)
+	ccflags-y += $(call cc-option,-march=armv7ve,-march=armv7-a)
+	asflags-y += $(call as-option,-Wa$(comma)-march=armv7ve,-Wa$(comma)-march=armv7-a)
 	DEFINES += ARMV7_A
 	DEFINES += ARM_CORTEX_A15
 	export ARMV=armv7-a
@@ -309,6 +307,8 @@ else
 		CONFIG_KERNEL_COMPILER \
 		CONFIG_KERNEL_CFLAGS \
 		CONFIG_KERNEL_EXTRA_CPPFLAGS
+	export \
+	    CONFIG_WHOLE_PROGRAM_OPTIMISATIONS_KERNEL
 ifeq (${CONFIG_FASTPATH},y)
 export FASTPATH=1
 endif
