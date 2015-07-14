@@ -26,11 +26,10 @@ if [ $# -lt 2 ]; then
     exit 1
 fi
 
-# Get the absolute path of $1. Unfortunately realpath, which seems the most
-# portable option here, only works on existing files.
-touch "$1"
-OUTPUT_FILE=$(realpath "$1")
-rm "$1"
+# Get the absolute path of $1. Unfortunately realpath, which seems the
+# cleanest, most portable option here, doesn't yet ship with all
+# systems.
+OUTPUT_FILE="$(cd "$(dirname "$1")"; pwd -P)/$(basename "$1")"
 
 SYMBOL=$2
 shift 2
@@ -81,7 +80,7 @@ popd > /dev/null
 
 # Generate a linker script.
 LINK_SCRIPT="${TEMP_DIR}/linkscript.ld"
-echo "SECTIONS { ._archive_cpio : { ${SYMBOL} = . ; *(.*) ; ${SYMBOL}_end = . ; } }" \
+echo "SECTIONS { ._archive_cpio : ALIGN(4) { ${SYMBOL} = . ; *(.*) ; ${SYMBOL}_end = . ; } }" \
         > ${LINK_SCRIPT}
 
 # Generate an output object file. We switch to the same directory as ${ARCHIVE}

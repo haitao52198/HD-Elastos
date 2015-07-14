@@ -8,15 +8,6 @@
 # @TAG(NICTA_BSD)
 #
 
-### CCACHE
-########################################
-# if ccache is in our path, use it!
-ifeq ($(CONFIG_BUILDSYS_USE_CCACHE),y)
-CCACHE=$(shell which ccache)
-else
-CCACHE=
-endif
-
 ### Verbose building
 ########################################
 
@@ -39,11 +30,11 @@ endif
 
 CC  := $(CCACHE) $(TOOLPREFIX)gcc
 CXX := $(CCACHE) $(TOOLPREFIX)g++
-ASM := $(CCACHE) $(TOOLPREFIX)as
-LD  := $(CCACHE) $(TOOLPREFIX)ld
-AR  := $(CCACHE) $(TOOLPREFIX)ar
-CPP := $(CCACHE) $(TOOLPREFIX)cpp
-OBJCOPY := $(CCACHE) $(TOOLPREFIX)objcopy
+ASM := $(TOOLPREFIX)as
+LD  := $(TOOLPREFIX)ld
+AR  := $(TOOLPREFIX)ar
+CPP := $(TOOLPREFIX)cpp
+OBJCOPY := $(TOOLPREFIX)objcopy
 FMT := $(shell which clang-format)
 ifneq (${FMT},)
   FMT += --style=LLVM
@@ -143,6 +134,8 @@ LDFLAGS += $(NK_LDFLAGS) \
 		   $(CFLAGS) \
 		   -static -nostdlib
 
+ARCHIVES += $(LIBS:%=lib%.a)
+
 ENTRY_POINT ?= _start
 
 # Force start symbol to be linked in if need be - the user may already have it in a
@@ -209,7 +202,7 @@ install-headers:
 		mkdir -p $(SEL4_INCLUDEDIR) ; \
 		echo " [HEADERS]"; \
 		for file in $(HDRFILES); do \
-			echo -n " [STAGE] "; echo -n `basename $$file`; \
+			printf " [STAGE] "; printf `basename $$file`; \
 			if [ -d $$file ]; then echo "/*"; else echo; fi; \
 			cp -aL $$file $(SEL4_INCLUDEDIR) ; \
 		done; \
@@ -222,7 +215,7 @@ install-headers:
 			dest=$(SEL4_INCLUDEDIR)/`echo "$$hdrfile" | sed 's/^.*[ \t]\([^ \t]*\)$$/\1/'` ; \
 			mkdir -p $$dest; \
 			cp -a $$source $$dest ; \
-			echo -n " [STAGE]"; basename $$dest; \
+			printf " [STAGE]"; basename $$dest; \
 		done ; \
 	fi
 
@@ -268,11 +261,12 @@ endif
 %.bin: %.elf
 	$(call cp_file,$<,$@)
 
-%.elf: $(CRTOBJFILES) $(FINOBJFILES)
-%.elf: $(OBJFILES)
+# Note: below the CC line does not have ARCHIVES because
+# LDFLAGS already includes the "-l" version of ARCHIVES
+%.elf: $(CRTOBJFILES) $(FINOBJFILES) $(OBJFILES) $(ARCHIVES)
 	@echo " [LINK] $@"
 	$(Q)mkdir -p $(dir $@)
-	$(Q)$(CC) $(CRTOBJFILES) $^ $(FINOBJFILES) $(LDFLAGS) -o $@
+	$(Q)$(CC) $(CRTOBJFILES) $(OBJFILES) $(FINOBJFILES) $(LDFLAGS) -o $@
 
 %.img: %.bin $(COBBLER) $(SEL4_KERNEL)
 	@echo " [IMG] $@"
