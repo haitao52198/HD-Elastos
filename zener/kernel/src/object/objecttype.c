@@ -243,12 +243,6 @@ recycleCap(bool_t is_final, cap_t cap)
             tcb->tcbTimeSlice = CONFIG_TIME_SLICE;
             tcb->tcbDomain = ksCurDomain;
 
-#ifdef DEBUG
-        strlcpy(tcb->tcbName, "child of: '", TCB_NAME_LENGTH);
-        strlcat(tcb->tcbName, ksCurThread->tcbName, TCB_NAME_LENGTH);
-        strlcat(tcb->tcbName, "'", TCB_NAME_LENGTH);
-#endif
-
             return cap_thread_cap_new(TCB_REF(tcb));
         } else {
             return cap_cnode_cap_new(type, 0, 0,
@@ -520,6 +514,12 @@ createObject(object_t t, void *regionBase, word_t userSize)
         tcb->tcbTimeSlice = CONFIG_TIME_SLICE;
         tcb->tcbDomain = ksCurDomain;
 
+#ifdef DEBUG
+        strlcpy(tcb->tcbName, "child of: '", TCB_NAME_LENGTH);
+        strlcat(tcb->tcbName, ksCurThread->tcbName, TCB_NAME_LENGTH);
+        strlcat(tcb->tcbName, "'", TCB_NAME_LENGTH);
+#endif
+
         return cap_thread_cap_new(TCB_REF(tcb));
     }
 
@@ -565,10 +565,16 @@ createNewObjects(object_t t, cte_t *parent, slot_range_t slots,
     word_t objectSize;
     void *nextFreeArea;
     unsigned int i;
+    word_t totalObjectSize UNUSED;
+
+    /* ghost check that we're visiting less bytes than the max object size */
+    objectSize = getObjectSize(t, userSize);
+    totalObjectSize = slots.length << objectSize;
+    /** GHOSTUPD: "(gs_get_assn cap_get_capSizeBits_'proc \<acute>ghost'state = 0
+        \<or> \<acute>totalObjectSize <= gs_get_assn cap_get_capSizeBits_'proc \<acute>ghost'state, id)" */
 
     /* Create the objects. */
     nextFreeArea = regionBase;
-    objectSize = getObjectSize(t, userSize);
     for (i = 0; i < slots.length; i++) {
         /* Create the object. */
         /** AUXUPD: "(True, typ_region_bytes (ptr_val \<acute> nextFreeArea + ((\<acute> i) << unat (\<acute> objectSize))) (unat (\<acute> objectSize)))" */
