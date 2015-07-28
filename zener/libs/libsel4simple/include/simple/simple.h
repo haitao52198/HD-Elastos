@@ -14,6 +14,8 @@
 
 #include <assert.h>
 #include <sel4/sel4.h>
+#include <stdlib.h>
+
 #include <vka/cspacepath_t.h>
 
 //value of uint32_t ComputeEnvType
