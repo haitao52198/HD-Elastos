@@ -8,16 +8,11 @@
  * @TAG(NICTA_BSD)
  */
 
-#ifndef _PLATSUPPORT_PLAT_CLOCK_H_
-#define _PLATSUPPORT_PLAT_CLOCK_H_
+#ifndef __PLATSUPPORT_PLAT_MUX_H__
+#define __PLATSUPPORT_PLAT_MUX_H__
 
-enum clk_id {
-    CLK_MASTER,
-    NCLOCKS,
+enum mux_feature {
+    NMUX_FEATURES
 };
 
-enum clock_gate {
-    NCLKGATES
-};
-
-#endif /* _PLATSUPPORT_PLAT_CLOCK_H_ */
+#endif /* __PLATSUPPORT_PLAT_MUX_H__ */

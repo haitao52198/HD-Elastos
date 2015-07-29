@@ -71,78 +71,40 @@
  ****       PLL      ****
  ************************/
 
-/**** suggested PMS values ****/
-/* fout = fin * (m/p/(1<<s)) */
-#define AMPLL_200      PLL_PMS(3, 100, 2)
-#define AMPLL_300      PLL_PMS(4, 200, 2)
-#define AMPLL_400      PLL_PMS(3, 100, 1)
-#define AMPLL_500      PLL_PMS(3, 125, 1)
-#define AMPLL_600      PLL_PMS(4, 200, 1)
-#define AMPLL_700      PLL_PMS(3, 175, 1)
-#define AMPLL_800      PLL_PMS(3, 100, 0)
-#define AMPLL_900      PLL_PMS(4, 150, 0)
-#define AMPLL_1000     PLL_PMS(3, 125, 0)
-#define AMPLL_1100     PLL_PMS(6, 275, 0)
-#define AMPLL_1200     PLL_PMS(4, 200, 0)
-#define AMPLL_1300     PLL_PMS(6, 325, 0)
-#define AMPLL_1400     PLL_PMS(3, 175, 0)
-
-#define EPLL_90        PLL_PMS(2,  60, 3)
-#define EPLL_180       PLL_PMS(2,  60, 2)
-/* 180.6 and 180.6336 can be achieved by varying K */
-#define EPLL_192       PLL_PMS(2,  64, 2)
-#define EPLL_200       PLL_PMS(3, 100, 2)
-#define EPLL_400       PLL_PMS(3, 100, 1)
-#define EPLL_408       PLL_PMS(2,  68, 1)
-#define EPLL_416       PLL_PMS(3, 104, 1)
-
-#define VPLL_100       PLL_PMS(3, 100, 3)
-#define VPLL_160       PLL_PMS(3, 160, 3)
-#define VPLL_266       PLL_PMS(3, 133, 2)
-#define VPLL_350       PLL_PMS(3, 175, 2)
-#define VPLL_440       PLL_PMS(3, 110, 1)
-
-static struct pms_tbl _ampll_tbl[] = {
-    { 200, AMPLL_200 },
-    { 300, AMPLL_300 },
-    { 400, AMPLL_400 },
-    { 500, AMPLL_500 },
-    { 600, AMPLL_600 },
-    { 700, AMPLL_700 },
-    { 800, AMPLL_800 },
-    { 900, AMPLL_900 },
-    {1000, AMPLL_1000},
-    {1100, AMPLL_1100},
-    {1200, AMPLL_1200},
-    {1300, AMPLL_1300},
-    {1400, AMPLL_1400}
+static struct mpsk_tbl _ampll_tbl[] = {
+    { 200, PLL_MPS(100, 3, 2), 0},
+    { 300, PLL_MPS(200, 4, 2), 0},
+    { 400, PLL_MPS(100, 3, 1), 0},
+    { 500, PLL_MPS(125, 3, 1), 0},
+    { 600, PLL_MPS(200, 4, 1), 0},
+    { 700, PLL_MPS(175, 3, 1), 0},
+    { 800, PLL_MPS(100, 3, 0), 0},
+    { 900, PLL_MPS(150, 4, 0), 0},
+    {1000, PLL_MPS(125, 3, 0), 0},
+    {1100, PLL_MPS(275, 6, 0), 0},
+    {1200, PLL_MPS(200, 4, 0), 0},
+    {1300, PLL_MPS(325, 6, 0), 0},
+    {1400, PLL_MPS(175, 3, 0), 0}
 };
 
-static struct pms_tbl _epll_tbl[] = {
-    {  90, EPLL_90   },
-    { 180, EPLL_180  },
-    { 192, EPLL_192  },
-    { 200, EPLL_200  },
-    { 400, EPLL_400  },
-    { 408, EPLL_408  },
-    { 416, EPLL_416  }
+/* some of the 180MHz derivations are note available here */
+static struct mpsk_tbl _epll_tbl[] = {
+    {  90, PLL_MPS( 60, 2, 3), 0},
+    { 180, PLL_MPS( 60, 2, 2), 0},
+    { 192, PLL_MPS( 64, 2, 2), 0},
+    { 200, PLL_MPS(100, 3, 2), 0},
+    { 400, PLL_MPS(100, 3, 1), 0},
+    { 408, PLL_MPS( 68, 2, 1), 0},
+    { 416, PLL_MPS(104, 3, 1), 0}
 };
 
-static struct pms_tbl _vpll_tbl[] = {
-    { 100, VPLL_100 },
-    { 160, VPLL_160 },
-    { 266, VPLL_266 },
-    { 350, VPLL_350 },
-    { 440, VPLL_440 }
+static struct mpsk_tbl _vpll_tbl[] = {
+    { 100, PLL_MPS(100, 3, 3), 0},
+    { 160, PLL_MPS(160, 3, 3), 0},
+    { 266, PLL_MPS(133, 3, 2), 0},
+    { 350, PLL_MPS(175, 3, 2), 0},
+    { 440, PLL_MPS(110, 3, 1), 0}
 };
-
-/* Default values */
-/*****************************/
-#define VPLL_PMS_VAL   VPLL_100
-#define EPLL_PMS_VAL   EPLL_200
-#define APLL_PMS_VAL   AMPLL_1400
-#define MPLL_PMS_VAL   AMPLL_1400
-/*****************************/
 
 /************************
  **** source options ****
@@ -175,13 +137,17 @@ enum clkregs {
 volatile struct clk_regs* _clk_regs[NCLKREGS];
 
 static struct clock finpll_clk = { CLK_OPS_DEFAULT(MASTER) };
+/* --- Implement Me --- */
+static struct clock uart0_clk = { CLK_OPS_DEFAULT(UART0) };
+static struct clock uart1_clk = { CLK_OPS_DEFAULT(UART1) };
+static struct clock uart2_clk = { CLK_OPS_DEFAULT(UART2) };
+static struct clock uart3_clk = { CLK_OPS_DEFAULT(UART3) };
+/* -------------------- */
 
-
-
-static struct pll_priv moutapll_priv = PLL_PRIV(MOUTAPLL, PMS, _ampll_tbl);
-static struct pll_priv sclkmpll_priv = PLL_PRIV(SCLKMPLL, PMS, _ampll_tbl);
-static struct pll_priv sclkepll_priv = PLL_PRIV(SCLKEPLL, PMS, _epll_tbl);
-static struct pll_priv sclkvpll_priv = PLL_PRIV(SCLKVPLL, PMS, _vpll_tbl);
+static struct pll_priv moutapll_priv = PLL_PRIV(MOUTAPLL, MPS, _ampll_tbl);
+static struct pll_priv sclkmpll_priv = PLL_PRIV(SCLKMPLL, MPS, _ampll_tbl);
+static struct pll_priv sclkepll_priv = PLL_PRIV(SCLKEPLL, MPSK, _epll_tbl);
+static struct pll_priv sclkvpll_priv = PLL_PRIV(SCLKVPLL, MPSK, _vpll_tbl);
 
 static struct clock aoutpll_clk  = { CLK_OPS(MOUTAPLL, pll, &moutapll_priv) };
 static struct clock sclkmpll_clk = { CLK_OPS(SCLKMPLL, pll, &sclkmpll_priv) };
@@ -371,7 +337,11 @@ clk_t* ps_clocks[] = {
     [CLK_SCLKMPLL_USERC] = &sclk_mpll_userc_clk,
     [CLK_SCLKHPM]        = &sclkhpm_clk,
     [CLK_DIVCOPY]        = &divcopy_clk,
-    [CLK_MUXHPM]         = &muxhpm_clk
+    [CLK_MUXHPM]         = &muxhpm_clk,
+    [CLK_UART0]          = &uart0_clk,
+    [CLK_UART1]          = &uart1_clk,
+    [CLK_UART2]          = &uart2_clk,
+    [CLK_UART3]          = &uart3_clk
 };
 
 
@@ -394,7 +364,10 @@ freq_t ps_freq_default[] = {
     [CLK_ACLK_COREM1]    =  167 * MHZ,
     [CLK_ACLK_CORES]     =  250 * MHZ,
     [CLK_ACLK_COREM0]    =  333 * MHZ,
-
+    [CLK_UART0]          =    0 * MHZ,
+    [CLK_UART1]          =    0 * MHZ,
+    [CLK_UART2]          =    0 * MHZ,
+    [CLK_UART3]          =    0 * MHZ,
     [CLK_SCLKAPLL]       =  500 * MHZ,
     [CLK_SCLKVPLL]       =  108 * MHZ,
     [CLK_SCLKEPLL]       =   96 * MHZ,

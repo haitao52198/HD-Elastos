@@ -129,6 +129,14 @@ static const uint32_t uart_paddr[] = {
     [PS_SERIAL3] = EXYNOS_UART3_PADDR
 };
 
+static const enum clk_id uart_clk[] = {
+                                          [PS_SERIAL0] = CLK_UART0,
+                                          [PS_SERIAL1] = CLK_UART1,
+                                          [PS_SERIAL2] = CLK_UART2,
+                                          [PS_SERIAL3] = CLK_UART3
+                                      };
+
+
 
 
 #define UART_DEFN(devid) {                     \
@@ -158,12 +166,12 @@ uart_putchar(ps_chardevice_t *d, int c)
     } else {
         /* Write out the next character. */
         *REG_PTR(d->vaddr, UTXH) = c;
-        if (c == '\n') {
+        if (c == '\n' && (d->flags & SERIAL_AUTO_CR)) {
             /* In this case, We should have checked that we had two free bytes in
              * the FIFO before we submitted the first char, however, the fifo size
              * would need to be considered and this differs between UARTs.
              * To keep things simple, we recognise that it is rare for a '\n' to
-             * be sent when there is insufficent FIFO space and accept the
+             * be sent when there is insufficient FIFO space and accept the
              * inefficiencies of spinning, waiting for space.
              */
             while (uart_putchar(d, '\r') < 0);
@@ -326,6 +334,31 @@ static void uart_flush(ps_chardevice_t *d)
     while ( !(*REG_PTR(d->vaddr, UTRSTAT) & TRSTAT_TX_EMPTY) );
 }
 
+int exynos_check_irq(ps_chardevice_t *d)
+{
+    return *REG_PTR(d->vaddr, UINTP);
+}
+
+void exynos_handle_rx_irq(ps_chardevice_t *d)
+{
+    uint32_t sts;
+    sts = *REG_PTR(d->vaddr, UINTP);
+    if (sts & INT_RX) {
+        sts &= ~INT_RX;
+        uart_handle_rx_irq(d);
+    }
+}
+
+void exynos_handle_tx_irq(ps_chardevice_t *d)
+{
+    uint32_t sts;
+    sts = *REG_PTR(d->vaddr, UINTP);
+    if (sts & INT_TX) {
+        sts &= ~INT_TX;
+        uart_handle_tx_irq(d);
+    }
+}
+
 static void
 uart_handle_irq(ps_chardevice_t *d)
 {
@@ -350,7 +383,7 @@ static int uart_set_baud(const ps_chardevice_t *d, long bps)
     long div_val, sclk_uart;
     uint32_t brdiv, brfrac;
 
-    sclk_uart = UART_DEFAULT_FIN;/*clk_get_freq(clk)*/;
+    sclk_uart = (clk == NULL) ? UART_DEFAULT_FIN : clk_get_freq(clk);
     div_val  = sclk_uart / bps - 16;
     /* Check if we need to scale down the clock */
     if (div_val / 16 >> BRDIV_BITS > 0) {
@@ -451,7 +484,7 @@ serial_configure(ps_chardevice_t *d, long bps, int char_size,
 
 int
 exynos_serial_init(enum chardev_id id, void* vaddr, mux_sys_t* mux_sys,
-                   clock_sys_t* clock_sys, ps_chardevice_t* dev)
+                   clk_t* clk_src, ps_chardevice_t* dev)
 {
     int v;
     memset(dev, 0, sizeof(*dev));
@@ -461,6 +494,7 @@ exynos_serial_init(enum chardev_id id, void* vaddr, mux_sys_t* mux_sys,
     dev->write      = &uart_write;
     dev->handle_irq = &uart_handle_irq;
     dev->irqs       = &uart_irqs[id][0];
+    dev->flags      = SERIAL_AUTO_CR;
 
     /* TODO */
     dev->clk        = NULL;
@@ -477,15 +511,12 @@ exynos_serial_init(enum chardev_id id, void* vaddr, mux_sys_t* mux_sys,
         //    printf("INFO: Skipping MUX initialisation for UART %d\n", dev->id);
     }
 
-    /* TODO: Use correct clock source */
-    if (clock_sys_valid(clock_sys)) {
-        clk = clk_get_clock(clock_sys, CLK_MASTER);
-    } else {
-        clk = NULL;
+    if (clk_src != NULL) {
+        clk = clk_src;
     }
 
     /* Set character encoding */
-    assert(!serial_configure(dev, 115200UL, 8, PARITY_NONE, 1));
+    serial_configure(dev, 115200UL, 8, PARITY_NONE, 1);
     /* Set FIFO trigger levels */
     v = FIFO_EN;
     v |= FIFO_RXLVL(FIFO_RXLVL_VAL);
@@ -508,11 +539,17 @@ serial_init(enum chardev_id id, ps_io_ops_t* ops,
             ps_chardevice_t* dev)
 {
     void* vaddr;
+    clk_t* clk;
     vaddr = ps_io_map(&ops->io_mapper, uart_paddr[id], BIT(12), 0, PS_MEM_NORMAL);
     if (vaddr == NULL) {
         return -1;
     }
-    return exynos_serial_init(id, vaddr, &ops->mux_sys, &ops->clock_sys, dev);
+    if (clock_sys_valid(&ops->clock_sys)) {
+        clk = clk_get_clock(&ops->clock_sys, uart_clk[id]);
+    } else {
+        clk = NULL;
+    }
+    return exynos_serial_init(id, vaddr, &ops->mux_sys, clk, dev);
 }
 
 

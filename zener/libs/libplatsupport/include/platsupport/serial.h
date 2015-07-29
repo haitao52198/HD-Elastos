@@ -15,6 +15,16 @@
 #include <platsupport/chardev.h>
 #include <platsupport/plat/serial.h>
 
+/*****************************
+ **** Serial device flags ****
+ *****************************/
+
+/* Auto-send CR(Carriage Return) after each "\n".
+ * NOTE: This flag should be set by default. */
+#define SERIAL_AUTO_CR BIT(0)
+
+/*****************************/
+
 enum serial_parity {
     PARITY_NONE,
     PARITY_EVEN,
@@ -45,4 +55,4 @@ int serial_configure(ps_chardevice_t* dev,
                      enum serial_parity parity,
                      int  stop_bits);
 
-#endif /* __PLATSUPPORT_UART_H__ */
+#endif /* __PLATSUPPORT_SERIAL_H__ */

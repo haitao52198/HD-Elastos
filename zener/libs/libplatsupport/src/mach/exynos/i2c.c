@@ -479,20 +479,16 @@ exynos_i2c_handle_irq(i2c_bus_t* i2c_bus)
         /* Read in the data */
         *dev->rx_buf++ = dev->regs->data;
         dev->rx_count++;
-        /* Last chance for user to supply another buffer before NACK */
-        if (i2c_bus->cb && (dev->rx_count + 1 == dev->rx_len)) {
+        /* Last chance for user to supply another buffer */
+        if (i2c_bus->cb && (dev->rx_count == dev->rx_len)) {
             i2c_bus->cb(i2c_bus, I2CSTAT_LASTBYTE, dev->rx_count, i2c_bus->token);
         }
-        /* If this is STILL the last byte, NACK it */
-        if (dev->rx_count + 1 == dev->rx_len) {
-            dev->regs->control &= ~I2CCON_ACK_EN;
-        } else if (dev->rx_count == dev->rx_len) {
+        /* If this is STILL the last byte, finish up */
+        if (dev->rx_count == dev->rx_len) {
             dev->rx_len = 0;
             if (i2c_bus->cb) {
                 i2c_bus->cb(i2c_bus, I2CSTAT_COMPLETE, dev->rx_count, i2c_bus->token);
             }
-            /* Start ACKing again, ready to be addressed as slave */
-            dev->regs->control |= I2CCON_ACK_EN;
         }
 
         break;
@@ -561,15 +557,11 @@ i2c_init_common(mux_sys_t* mux, i2c_bus_t* i2c, struct i2c_bus_priv* dev)
         return -2;
     }
     dprintf("Memory for regs mapped\n");
+
     /* Configure MUX */
-    if (mux_feature_enable(mux, dev->mux)) {
+    if (mux_sys_valid(mux) && mux_feature_enable(mux, dev->mux)) {
         dprintf("Warning: failed to configure MUX\n");
     }
-
-    /* TODO setup clocks */
-    //gate = ps_io_map(&io_ops->io_mapper, 0x1003C000, 0x1000, 0, PS_MEM_NORMAL);
-    //printf("gates: 0x%08x\n", gate[0x950/4]);
-
 
     /* I2C setup */
     dev->regs->control = I2CCON_ACK_EN | 0 * I2CCON_CLK_SRC

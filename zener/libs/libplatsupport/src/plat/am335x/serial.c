@@ -1,5 +1,3 @@
-
-#if 0
 /*
  * Copyright 2014, NICTA
  *
@@ -9,49 +7,105 @@
  *
  * @TAG(NICTA_BSD)
  */
-/*
- * Provide serial UART glue to hardware. This file is not used on debug
- * kernels, as we use a seL4 debug syscall to print to the serial console.
- */
 
-#include "../../plat_internal.h"
-#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <platsupport/serial.h>
+#include "serial.h"
 
-#define UART_PADDR     0x44E09000
-#define UART_REG(x)    ((volatile seL4_Word *)(uart_page + (x)))
-#define UART_SR1_TRDY  5
-#define UTXD           0x00
-#define USR1           0x14
+#define RHR         0x00
+#define THR         0x00
+#define IER         0x04
+#define LSR         0x14
+#define RHR_MASK    MASK(8)
+#define IER_RHRIT   BIT(0)
+#define LSR_TXFIFOE BIT(5)
+#define LSR_RXFIFOE BIT(0)
 
-static void* uart_page;
+#define REG_PTR(base, off)     ((volatile uint32_t *)((base) + (off)))
 
-void
-__plat_serial_input_init_IRQ(void)
+static int uart_getchar(ps_chardevice_t *d)
 {
-}
+    int ch = EOF;
 
-void
-__plat_serial_init(void)
-{
-    uart_page = __map_device_page(UART_PADDR, 12);
-}
-
-void
-__plat_putchar(int c)
-{
-    /* Wait for serial to become ready. */
-    while (!(*UART_REG(USR1) & BIT(UART_SR1_TRDY)));
-
-    /* Write out the next character. */
-    *UART_REG(UTXD) = c;
-    if (c == '\n') {
-        __plat_putchar('\r');
+    if (*REG_PTR(d->vaddr, LSR) & LSR_RXFIFOE) {
+        ch = *REG_PTR(d->vaddr, RHR) & RHR_MASK;
     }
+    return ch;
 }
 
-int
-__plat_getchar(void)
+static int uart_putchar(ps_chardevice_t* d, int c)
 {
-    return EOF;
+    while (!(*REG_PTR(d->vaddr, LSR) & LSR_TXFIFOE)) {
+        continue;
+    }
+    *REG_PTR(d->vaddr, THR) = c;
+    if (c == '\n' && (d->flags & SERIAL_AUTO_CR)) {
+        uart_putchar(d, '\r');
+    }
+
+    return c;
 }
-#endif
+
+static void
+uart_handle_irq(ps_chardevice_t* d UNUSED)
+{
+    /* nothing to do */
+}
+
+
+static ssize_t
+uart_write(ps_chardevice_t* d, const void* vdata, size_t count, chardev_callback_t rcb UNUSED, void* token UNUSED)
+{
+    const char* data = (const char*)vdata;
+    int i;
+    for (i = 0; i < count; i++) {
+        if (uart_putchar(d, *data++) < 0) {
+            return i;
+        }
+    }
+    return count;
+}
+
+static ssize_t
+uart_read(ps_chardevice_t* d, void* vdata, size_t count, chardev_callback_t rcb UNUSED, void* token UNUSED)
+{
+    char* data;
+    int ret;
+    int i;
+    data = (char*)vdata;
+    for (i = 0; i < count; i++) {
+        ret = uart_getchar(d);
+        if (ret != EOF) {
+            *data++ = ret;
+        } else {
+            return i;
+        }
+    }
+    return count;
+}
+
+int uart_init(const struct dev_defn* defn,
+              const ps_io_ops_t* ops,
+              ps_chardevice_t* dev)
+{
+    memset(dev, 0, sizeof(*dev));
+    void* vaddr = chardev_map(defn, ops);
+    if (vaddr == NULL) {
+        return -1;
+    }
+
+    /* Set up all the  device properties. */
+    dev->id         = defn->id;
+    dev->vaddr      = (void*)vaddr;
+    dev->read       = &uart_read;
+    dev->write      = &uart_write;
+    dev->handle_irq = &uart_handle_irq;
+    dev->irqs       = defn->irqs;
+    dev->ioops      = *ops;
+    dev->flags      = SERIAL_AUTO_CR;
+
+    *REG_PTR(dev->vaddr, IER) = IER_RHRIT;
+    return 0;
+}
+
