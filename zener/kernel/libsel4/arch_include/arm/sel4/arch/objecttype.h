@@ -21,7 +21,7 @@ typedef enum _object {
     seL4_ObjectTypeCount
 } seL4_ArchObjectType;
 
-typedef seL4_Uint32 object_t;
+typedef uint32_t object_t;
 
 #endif /* __ARCH_OBJECTTYPE_H */
 

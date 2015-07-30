@@ -23,6 +23,7 @@
 #include <object/interrupt.h>
 #include <object/tcb.h>
 #include <object/untyped.h>
+#include <model/preemption.h>
 #include <model/statedata.h>
 #include <kernel/thread.h>
 #include <kernel/vspace.h>

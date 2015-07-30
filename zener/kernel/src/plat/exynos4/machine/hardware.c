@@ -40,7 +40,7 @@ get_avail_p_reg(unsigned int i)
 const p_region_t BOOT_RODATA dev_p_regs[] = {
     { /* .start */ CHIPID_PADDR           , /* .end */ CHIPID_PADDR            + (1 << PAGE_BITS) },
     { /* .start */ SYSREG_PADDR           , /* .end */ SYSREG_PADDR            + (1 << PAGE_BITS) },
-    { /* .start */ PMU_PADDR              , /* .end */ PMU_PADDR               + (5 << PAGE_BITS) },
+    { /* .start */ PMU_PADDR              , /* .end */ PMU_PADDR               + (1 << PAGE_BITS) },
     { /* .start */ CMU_TOP_PART_PADDR     , /* .end */ CMU_TOP_PART_PADDR      + (13 << PAGE_BITS) },
     { /* .start */ SMDMA0_PADDR           , /* .end */ SMDMA0_PADDR            + (1 << PAGE_BITS) },
     { /* .start */ CMU_DMC_PART_PADDR     , /* .end */ CMU_DMC_PART_PADDR      + (9 << PAGE_BITS) },
@@ -235,7 +235,7 @@ map_kernel_devices(void)
         MCT_PPTR,
         VMKernelOnly,
         vm_attributes_new(
-            true,  /* armExecuteNever */
+            false, /* armExecuteNever */
             false, /* armParityEnabled */
             false  /* armPageCacheable */
         )
@@ -247,7 +247,7 @@ map_kernel_devices(void)
         GIC_CONTROLLER_PPTR,
         VMKernelOnly,
         vm_attributes_new(
-            true,  /* armExecuteNever */
+            false, /* armExecuteNever */
             false, /* armParityEnabled */
             false  /* armPageCacheable */
         )
@@ -257,7 +257,7 @@ map_kernel_devices(void)
         GIC_DISTRIBUTOR_PPTR,
         VMKernelOnly,
         vm_attributes_new(
-            true,  /* armExecuteNever */
+            false, /* armExecuteNever */
             false, /* armParityEnabled */
             false  /* armPageCacheable */
         )
@@ -269,7 +269,7 @@ map_kernel_devices(void)
         L2CC_PPTR,
         VMKernelOnly,
         vm_attributes_new(
-            true,  /* armExecuteNever */
+            false, /* armExecuteNever */
             false, /* armParityEnabled */
             false  /* armPageCacheable */
         )
@@ -282,7 +282,7 @@ map_kernel_devices(void)
         UART_PPTR,
         VMKernelOnly,
         vm_attributes_new(
-            true,  /* armExecuteNever */
+            false, /* armExecuteNever */
             false, /* armParityEnabled */
             false  /* armPageCacheable */
         )

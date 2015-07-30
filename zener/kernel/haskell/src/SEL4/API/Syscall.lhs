@@ -178,14 +178,13 @@ The "Wait" system call blocks waiting to receive a message through a specified e
 > handleWait :: Kernel ()
 > handleWait = do
 >     thread <- getCurThread
+>     deleteCallerCap thread
 >     epCPtr <- asUser thread $ liftM CPtr $ getRegister capRegister
 >     (capFaultOnFailure epCPtr True $ do
 >         epCap <- lookupCap thread epCPtr
 >         case epCap of
 >             EndpointCap { capEPCanReceive = True } ->
->                 withoutFailure $ do 
->                     deleteCallerCap thread
->                     receiveIPC thread epCap
+>                 withoutFailure $ receiveIPC thread epCap
 >             AsyncEndpointCap { capAEPCanReceive = True } ->
 >                 withoutFailure $ receiveAsyncIPC thread epCap
 >             _ -> throw $ MissingCapability { missingCapBitsLeft = 0 })

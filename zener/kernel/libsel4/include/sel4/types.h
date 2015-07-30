@@ -11,7 +11,6 @@
 #ifndef __LIBSEL4_TYPES_H
 #define __LIBSEL4_TYPES_H
 
-#include <sel4/simple_types.h>
 #include <sel4/macros.h>
 #include <sel4/arch/types.h>
 #include <sel4/types_gen.h>

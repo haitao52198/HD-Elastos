@@ -21,19 +21,8 @@ uint16_t in16(uint16_t port);
 uint32_t in32(uint16_t port);
 
 /* these versions are linked to physical addresses */
-static inline void SECTION(".phys.text")
-out8_phys(uint16_t port, uint8_t value)
-{
-    asm volatile("outb %[value], %[port]" :: [port] "d"(port), [value] "a"(value));
-}
-
-static inline uint8_t SECTION(".phys.text")
-in8_phys(uint16_t port)
-{
-    uint8_t value;
-    asm volatile("inb %[port], %[value]" : [value] "=a"(value) : [port] "d" (port));
-    return value;
-}
+void out8_phys(uint16_t port, uint8_t value);
+uint8_t in8_phys(uint16_t port);
 
 #ifdef DEBUG
 
