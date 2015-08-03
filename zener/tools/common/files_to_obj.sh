@@ -37,7 +37,7 @@ shift 2
 # Determine ".o" file to generate.
 case "$PLAT" in
     "imx31"|"imx6"|"omap3"|"am335x"|"omap4"|\
-    "exynos4"|"exynos5"| "realview"|"apq8064"|"A20"|\
+    "exynos4"|"exynos5"|"realview"|"apq8064"|"A20"|\
     "zynq7000")
         FORMAT=elf32-littlearm
         ;;
@@ -69,7 +69,7 @@ ls | cpio -o -H newc > ${ARCHIVE} 2>/dev/null
 
 # Strip CPIO metadata if possible.
 set +e
-which cpio-strip > /dev/null
+which cpio-strip >/dev/null 2>/dev/null
 result=$?
 set -e
 if [ $result -eq 0 ]; then
