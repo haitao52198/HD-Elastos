@@ -14,7 +14,7 @@ bindir = $(exec_prefix)/bin
 libdir = $(prefix)/lib
 includedir = $(prefix)/include
 syslibdir = /lib
-CC = ${TOOLPREFIX}gcc
+CC = ${TOOLPREFIX}gcc${TOOLSUFFIX}
 CFLAGS += ${NK_CFLAGS} -Os -pipe -fomit-frame-pointer -fno-unwind-tables -fno-asynchronous-unwind-tables -Wa,--noexecstack -Werror=implicit-function-declaration -Werror=implicit-int -Werror=pointer-sign -Werror=pointer-arith -fno-stack-protector
 CFLAGS_C99FSE = -std=c99 -nostdinc -ffreestanding -fexcess-precision=standard -frounding-math
 CFLAGS_MEMOPS = -fno-tree-loop-distribute-patterns
