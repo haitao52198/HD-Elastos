@@ -12,6 +12,11 @@
 #define _UTILS_ATTRIBUTE_H
 /* macros for compile time attributes */
 
+#ifndef __has_attribute
+  #define __has_attribute(attrib) 0
+#endif
+
+#define ALIAS(sym)   __attribute__((alias(#sym)))
 #define ALIGN(n)     __attribute__((__aligned__(n)))
 #define ALLOC_SIZE(args...) __attribute__((alloc_size(args)))
 #define ASSUME_ALIGNED(args...) __attribute__((assume_aligned(args)))
@@ -29,9 +34,14 @@
 #define SENTINEL_LAST __attribute__((sentinel))
 #define UNUSED       __attribute__((__unused__))
 #define USED         __attribute__((__used__))
-#define VISIBLE      __attribute__((__externally_visible__))
+#if __clang__ && !__has_attribute(externally_visible)
+  #define VISIBLE /* ignored */
+#else
+  #define VISIBLE __attribute__((__externally_visible__))
+#endif
 #define WARNING(msg) __attribute__((warning(msg)))
 #define WARN_UNUSED_RESULT __attribute__((warn_unused_result))
+#define WEAK         __attribute__((weak))
 
 /* Stub out __has_attribute on GCC and friends where this feature macro is
  * unavailable.
